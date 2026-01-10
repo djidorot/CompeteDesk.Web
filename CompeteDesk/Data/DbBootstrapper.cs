@@ -313,6 +313,29 @@ ON Actions (WorkspaceId, OwnerId);");
             await db.Database.ExecuteSqlRawAsync($"ALTER TABLE \"{tableName}\" ADD COLUMN \"{columnName}\" {sqliteType} {nullSql};");
         }
 
+        private static async Task EnsureIndexAsync(
+            ApplicationDbContext db,
+            string indexName,
+            string tableName,
+            string columnsSql)
+        {
+            if (string.IsNullOrWhiteSpace(indexName))
+                throw new ArgumentException("Index name is required.", nameof(indexName));
+            if (string.IsNullOrWhiteSpace(tableName))
+                throw new ArgumentException("Table name is required.", nameof(tableName));
+            if (string.IsNullOrWhiteSpace(columnsSql))
+                throw new ArgumentException("Index columns are required.", nameof(columnsSql));
+
+            var cols = columnsSql.Trim();
+            if (!cols.StartsWith("(", StringComparison.Ordinal))
+                cols = "(" + cols + ")";
+
+            // SQLite supports IF NOT EXISTS for CREATE INDEX.
+            // We quote identifiers to avoid reserved-word issues.
+            var sql = $@"CREATE INDEX IF NOT EXISTS ""{indexName}"" ON ""{tableName}"" {cols};";
+            await db.Database.ExecuteSqlRawAsync(sql);
+        }
+
 		private static async Task EnsureWebsiteAnalysisReportsTableAsync(ApplicationDbContext db)
 		{
 			if (!await TableExistsAsync(db, "WebsiteAnalysisReports"))
