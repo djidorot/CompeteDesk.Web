@@ -1,0 +1,46 @@
+@model CompeteDesk.ViewModels.Workspaces.CreateWorkspaceViewModel
+@{
+    ViewData["Title"] = "New Workspace";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+}
+
+<link rel="stylesheet" href="~/css/workspaces.css" asp-append-version="true" />
+
+<div class="cd-page">
+    <div class="cd-page__head">
+        <div>
+            <h1 class="cd-page__title">New Workspace</h1>
+            <p class="cd-page__sub">Create a workspace to organize your strategies, actions, metrics, and war room plans.</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create" method="post" novalidate>
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g., Code Creators Hub" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Optional: goal, scope, or focus for this workspace"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Create Workspace</button>
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,27 @@
+.cd-page{
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.cd-page__head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin: 12px 0 16px;
+}
+
+.cd-page__title{
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.cd-page__sub{
+  margin: 6px 0 0;
+  color: rgba(0,0,0,.65);
+}
+
+@media (max-width: 768px){
+  .cd-page{ max-width: 100%; }
+}
