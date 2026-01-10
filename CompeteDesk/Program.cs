@@ -25,15 +25,36 @@ builder.Services
 
 builder.Services
     .AddAuthentication()
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
-    });
+    ;
+
+// External Login (Google) - only enable if credentials exist.
+// Prevents runtime crash: ArgumentException "ClientId cannot be empty".
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    builder.Services
+        .AddAuthentication()
+        .AddGoogle(options =>
+        {
+            options.ClientId = googleClientId;
+            options.ClientSecret = googleClientSecret;
+        });
+}
 
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+// Ensure Workspace CRUD works even if you already have an existing app.db.
+// (Creates the Workspaces table if missing.)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await DbBootstrapper.EnsureWorkspacesTableAsync(app.Services);
+
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
