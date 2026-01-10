@@ -31,6 +31,7 @@ namespace CompeteDesk.Data
 
             await EnsureWorkspacesTableAsync(db);
             await EnsureStrategiesTableAsync(db);
+			await EnsureActionsTableAsync(db);
         }
 
         private static async Task EnsureWorkspacesTableAsync(ApplicationDbContext db)
@@ -107,6 +108,58 @@ ON Strategies (OwnerId, Status);");
 CREATE INDEX IF NOT EXISTS IX_Strategies_WorkspaceId_OwnerId
 ON Strategies (WorkspaceId, OwnerId);");
         }
+
+		private static async Task EnsureActionsTableAsync(ApplicationDbContext db)
+		{
+			if (!await TableExistsAsync(db, "Actions"))
+			{
+				await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE Actions (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    WorkspaceId INTEGER NULL,
+    StrategyId INTEGER NULL,
+    OwnerId TEXT NOT NULL,
+    Title TEXT NOT NULL,
+    Description TEXT NULL,
+    Category TEXT NULL,
+    Status TEXT NOT NULL,
+    Priority INTEGER NOT NULL DEFAULT 0,
+    DueAtUtc TEXT NULL,
+    SourceBook TEXT NULL,
+    CreatedAtUtc TEXT NOT NULL,
+    UpdatedAtUtc TEXT NULL,
+    FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE SET NULL,
+    FOREIGN KEY (StrategyId) REFERENCES Strategies (Id) ON DELETE SET NULL
+);");
+			}
+			else
+			{
+				await EnsureColumnAsync(db, "Actions", "WorkspaceId", "INTEGER", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "StrategyId", "INTEGER", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "OwnerId", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "Title", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "Description", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "Category", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "Status", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "Priority", "INTEGER", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "DueAtUtc", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "SourceBook", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "CreatedAtUtc", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "Actions", "UpdatedAtUtc", "TEXT", nullable: true);
+			}
+
+			await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_Actions_OwnerId_Status
+ON Actions (OwnerId, Status);");
+
+			await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_Actions_StrategyId_OwnerId
+ON Actions (StrategyId, OwnerId);");
+
+			await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_Actions_WorkspaceId_OwnerId
+ON Actions (WorkspaceId, OwnerId);");
+		}
 
         private static async Task<bool> TableExistsAsync(ApplicationDbContext db, string tableName)
         {

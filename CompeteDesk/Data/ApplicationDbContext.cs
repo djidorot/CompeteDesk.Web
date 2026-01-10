@@ -13,6 +13,7 @@ public class ApplicationDbContext : IdentityDbContext
 
     public DbSet<Workspace> Workspaces => Set<Workspace>();
     public DbSet<Strategy> Strategies => Set<Strategy>();
+	public DbSet<ActionItem> Actions => Set<ActionItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -37,5 +38,18 @@ public class ApplicationDbContext : IdentityDbContext
             b.HasIndex(x => new { x.OwnerId, x.Status });
             b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
         });
+
+		builder.Entity<ActionItem>(b =>
+		{
+			b.Property(x => x.Title).IsRequired().HasMaxLength(200);
+			b.Property(x => x.Description).HasMaxLength(2000);
+			b.Property(x => x.Status).IsRequired().HasMaxLength(24);
+			b.Property(x => x.Category).HasMaxLength(80);
+			b.Property(x => x.SourceBook).HasMaxLength(120);
+
+			b.HasIndex(x => new { x.OwnerId, x.Status });
+			b.HasIndex(x => new { x.StrategyId, x.OwnerId });
+			b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
+		});
     }
 }

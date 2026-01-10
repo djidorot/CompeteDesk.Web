@@ -1,0 +1,62 @@
+:root{
+  --cd-accent: #6D5EFC;
+  --cd-accent-soft: rgba(109, 94, 252, .12);
+  --cd-text: #0F172A;
+  --cd-muted: rgba(15, 23, 42, .65);
+}
+
+.cd-h1{font-weight: 800; letter-spacing: -.02em;}
+.cd-sub{color: var(--cd-muted);}
+.cd-muted{color: var(--cd-muted);}
+.cd-link{color: var(--cd-accent); text-decoration: none; font-weight: 700;}
+.cd-link:hover{text-decoration: underline;}
+
+.cd-btn{font-weight: 700;}
+
+.cd-actions{display: grid; gap: 16px;}
+
+.cd-actions__headBody{display: flex; align-items: center; justify-content: space-between; gap: 16px;}
+.cd-actions__headLeft{min-width: 240px;}
+
+.cd-actions__filters{display: grid; gap: 14px;}
+.cd-actions__filterRow{
+  display: grid;
+  grid-template-columns: 1fr 220px auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.cd-field{display: grid; gap: 6px;}
+.cd-label{font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--cd-muted);}
+.cd-input{border-radius: 12px;}
+.cd-field--actions{min-width: 180px;}
+
+.cd-actions__grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.cd-action{border-radius: 16px;}
+.cd-action__top{display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;}
+.cd-action__title{font-weight: 900; font-size: 16px; line-height: 1.2;}
+.cd-action__meta{display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap;}
+.cd-pill{display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; background: var(--cd-accent-soft); color: var(--cd-accent); font-weight: 800; font-size: 12px;}
+.cd-dot{color: rgba(15, 23, 42, .35);}
+
+.cd-action__desc{margin-top: 10px; color: var(--cd-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;}
+.cd-action__bottom{display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px;}
+
+.cd-kv{padding: 12px; border-radius: 14px; background: rgba(15, 23, 42, .03);} 
+.cd-kv__k{font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--cd-muted);} 
+.cd-kv__v{margin-top: 6px; white-space: pre-wrap;}
+
+@media (max-width: 992px){
+  .cd-actions__grid{grid-template-columns: repeat(2, minmax(0, 1fr));}
+}
+
+@media (max-width: 768px){
+  .cd-actions__filterRow{grid-template-columns: 1fr;}
+  .cd-field--actions{min-width: unset;}
+  .cd-actions__grid{grid-template-columns: 1fr;}
+}
