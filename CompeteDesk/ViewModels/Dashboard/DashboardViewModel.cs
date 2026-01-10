@@ -6,137 +6,137 @@ namespace CompeteDesk.ViewModels.Dashboard
 {
     public sealed class DashboardViewModel
     {
-        public int? WorkspaceId { get; set; }
+        // Workspace context
+        public int WorkspaceId { get; set; }
         public string WorkspaceName { get; set; } = "My Workspace";
+
+        // User context
         public string UserDisplayName { get; set; } = "User";
 
-        // Business profile (required for AI analysis)
+        // Business profile (used by Business Analysis onboarding)
         public string? BusinessType { get; set; }
         public string? Country { get; set; }
         public bool NeedsBusinessProfile { get; set; }
 
-        // Latest AI report (if available)
+        // Business Analysis (AI)
         public BusinessAnalysisViewModel? BusinessAnalysis { get; set; }
+
+        // Feature Overview tiles (for the "Overview" page section)
+        public List<FeatureTileItem> FeatureTiles { get; set; } = new();
 
         // Command header
         public string StrategyMode { get; set; } = "Growth"; // Offensive / Defensive / Growth / Stability
         public int ActiveStrategiesCount { get; set; }
         public int StrategyScore { get; set; } // 0-100
         public string HealthStatus { get; set; } = "On Track"; // On Track / At Risk / Off Track
-        public string WeeklyFocus { get; set; } = "Build systems, not goals.";
+        public string WeeklyFocus { get; set; } = "Make the right actions easy — and automatic.";
 
-        // Panels
+        // Today's critical actions
         public List<TodayActionItem> TodayActions { get; set; } = new();
-        public List<HabitItem> Habits { get; set; } = new();
-        public List<StrategyCardItem> ActiveStrategies { get; set; } = new();
-        public List<MetricKpiItem> KeyMetrics { get; set; } = new();
 
-        // Weekly review (simple)
-        public string? WeeklyReviewHighlight { get; set; }
-        public string? WeeklyReviewFailure { get; set; }
-        public string? WeeklyReviewAdjustment { get; set; }
+        // Habit systems
+        public List<HabitSystemItem> HabitSystems { get; set; } = new();
+
+        // Strategies summary cards
+        public List<StrategyCardItem> StrategyCards { get; set; } = new();
+
+        // Metrics/KPIs
+        public List<MetricKpiItem> Kpis { get; set; } = new();
 
         public static DashboardViewModel Sample(string userDisplayName)
         {
             var vm = new DashboardViewModel
             {
+                WorkspaceId = 1,
                 WorkspaceName = "CompeteDesk Demo Workspace",
                 UserDisplayName = string.IsNullOrWhiteSpace(userDisplayName) ? "Strategist" : userDisplayName,
                 StrategyMode = "Growth",
                 ActiveStrategiesCount = 4,
                 StrategyScore = 82,
                 HealthStatus = "On Track",
-                WeeklyFocus = "Make the right actions easy — and automatic."
+                WeeklyFocus = "Make the right actions easy — and automatic.",
+                BusinessType = null,
+                Country = null,
+                NeedsBusinessProfile = true
             };
+
+            vm.FeatureTiles.AddRange(new[]
+            {
+                new FeatureTileItem { Title = "Workspaces", Description = "Create and manage strategic workspaces.", Href = "/Workspaces" },
+                new FeatureTileItem { Title = "Strategies", Description = "Build playbooks and strategic moves.", Href = "/Strategies" },
+                new FeatureTileItem { Title = "Actions", Description = "Track critical actions and execution.", Href = "/Actions" },
+                new FeatureTileItem { Title = "Habits", Description = "Turn strategy into repeatable systems.", Href = "/Habits" },
+                new FeatureTileItem { Title = "Metrics", Description = "Measure what matters with KPIs.", Href = "/Metrics" },
+                new FeatureTileItem { Title = "Website Analysis", Description = "Analyze a website and generate insights.", Href = "/WebsiteAnalysis" },
+                new FeatureTileItem { Title = "War Room", Description = "Capture intel and plans for competition.", Href = "/WarRoom" },
+                new FeatureTileItem { Title = "Business Analysis (AI)", Description = "SWOT + Porter’s Five Forces + competitors.", Href = "/Dashboard" }
+            });
 
             vm.TodayActions.AddRange(new[]
             {
-                new TodayActionItem { Title = "Publish 1 high-leverage post", Principle = "Strategy Playbook • Make it obvious", Impact = "High", Minutes = 25 },
-                new TodayActionItem { Title = "Review competitor pricing page", Principle = "33 Strategies • Intelligence", Impact = "Medium", Minutes = 15 },
-                new TodayActionItem { Title = "Send 10 outreach messages", Principle = "Strategy Playbook • Reduce friction", Impact = "High", Minutes = 30 },
+                new TodayActionItem { Title = "Publish 1 high-leverage post", Subtitle = "Strategy Playbook • Make it obvious", Impact = "High", Minutes = 25 },
+                new TodayActionItem { Title = "Review competitor pricing page", Subtitle = "33 Strategies • Intelligence", Impact = "Medium", Minutes = 15 }
             });
 
-            vm.Habits.AddRange(new[]
+            vm.HabitSystems.AddRange(new[]
             {
-                new HabitItem { Name = "Daily KPI Review", StreakDays = 7, Status = "Stable", Cue = "Open dashboard", Environment = "Pinned tab + homepage", Notes = "Keep the KPI widget visible." },
-                new HabitItem { Name = "Content Publishing", StreakDays = 14, Status = "Improving", Cue = "After lunch", Environment = "Draft templates ready", Notes = "Batch ideas on Sunday." },
-                new HabitItem { Name = "Customer Feedback Loop", StreakDays = 2, Status = "Weak", Cue = "After support tickets", Environment = "Feedback form link", Notes = "Add frictionless 1-question survey." },
+                new HabitSystemItem
+                {
+                    Habit = "Daily KPI Review",
+                    Streak = 7,
+                    Status = "Stable",
+                    Cue = "Open dashboard",
+                    Environment = "Pinned tab + homepage",
+                    Notes = "Keep the KPI widget visible."
+                },
+                new HabitSystemItem
+                {
+                    Habit = "Content Draft",
+                    Streak = 3,
+                    Status = "Building",
+                    Cue = "End of workday",
+                    Environment = "Saved template + checklist",
+                    Notes = "Draft 1 idea before logging off."
+                }
             });
 
-            vm.ActiveStrategies.AddRange(new[]
+            vm.StrategyCards.AddRange(new[]
             {
-                new StrategyCardItem { Name = "Systems Over Goals", SourceBook = "Strategy Playbook", CorePrinciple = "Design the system", ExecutionRate = 83, Effectiveness = "High" },
-                new StrategyCardItem { Name = "Habit Stacking for Sales", SourceBook = "Strategy Playbook", CorePrinciple = "After X, I do Y", ExecutionRate = 76, Effectiveness = "Medium" },
-                new StrategyCardItem { Name = "War Room Intelligence", SourceBook = "33 Strategies of War", CorePrinciple = "Gather intel before acting", ExecutionRate = 65, Effectiveness = "Medium" },
-                new StrategyCardItem { Name = "Defensive Positioning", SourceBook = "33 Strategies of War", CorePrinciple = "Secure key territory", ExecutionRate = 92, Effectiveness = "High" },
+                new StrategyCardItem { Name = "Channel Domination", SourceBook = "33 Strategies", CorePrinciple = "Control the battlefield", ExecutionRate = 74, Effectiveness = "High" },
+                new StrategyCardItem { Name = "Habit Flywheel", SourceBook = "Atomic Habits", CorePrinciple = "Reduce friction", ExecutionRate = 61, Effectiveness = "Medium" }
             });
 
-            vm.KeyMetrics.AddRange(new[]
+            vm.Kpis.AddRange(new[]
             {
-                new MetricKpiItem { Name = "Leads", Value = "48", Trend = "+12%", TrendDirection = "up", Subtext = "Last 7 days" },
-                new MetricKpiItem { Name = "Conversion", Value = "6.2%", Trend = "+0.8%", TrendDirection = "up", Subtext = "Landing page" },
-                new MetricKpiItem { Name = "Revenue", Value = "₱12,400", Trend = "-3%", TrendDirection = "down", Subtext = "Week to date" },
-                new MetricKpiItem { Name = "Output", Value = "9", Trend = "+2", TrendDirection = "up", Subtext = "Assets shipped" },
+                new MetricKpiItem { Name = "Leads", Value = "42", Trend = "+12%", TrendDirection = "up", Subtext = "Last 7 days" },
+                new MetricKpiItem { Name = "Conversion", Value = "3.1%", Trend = "-0.2%", TrendDirection = "down", Subtext = "Week over week" },
+                new MetricKpiItem { Name = "CAC", Value = "$18", Trend = "Flat", TrendDirection = "flat", Subtext = "Rolling 30 days" }
             });
-
-            vm.WeeklyReviewHighlight = "Outreach system worked when it was scheduled immediately after KPI review.";
-            vm.WeeklyReviewFailure = "Feedback loop broke because it required too many steps for customers.";
-            vm.WeeklyReviewAdjustment = "Add a 1-click feedback link in every receipt email + track responses weekly.";
 
             return vm;
         }
     }
 
-    public sealed class BusinessAnalysisViewModel
+    public sealed class FeatureTileItem
     {
-        public DateTime CreatedAtUtc { get; set; }
-
-        public List<string> Strengths { get; set; } = new();
-        public List<string> Weaknesses { get; set; } = new();
-        public List<string> Opportunities { get; set; } = new();
-        public List<string> Threats { get; set; } = new();
-
-        public ForceVm Rivalry { get; set; } = new();
-        public ForceVm NewEntrants { get; set; } = new();
-        public ForceVm Substitutes { get; set; } = new();
-        public ForceVm SupplierPower { get; set; } = new();
-        public ForceVm BuyerPower { get; set; } = new();
-
-        public List<CompetitorVm> Competitors { get; set; } = new();
-    }
-
-    public sealed class ForceVm
-    {
-        public int Score { get; set; }
-        public string? Notes { get; set; }
-    }
-
-    public sealed class CompetitorVm
-    {
-        public string Name { get; set; } = string.Empty;
-        public string? WhyRelevant { get; set; }
-
-        public ForceVm Rivalry { get; set; } = new();
-        public ForceVm NewEntrants { get; set; } = new();
-        public ForceVm Substitutes { get; set; } = new();
-        public ForceVm SupplierPower { get; set; } = new();
-        public ForceVm BuyerPower { get; set; } = new();
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Href { get; set; } = "#";
     }
 
     public sealed class TodayActionItem
     {
         public string Title { get; set; } = "";
-        public string Principle { get; set; } = "";
+        public string Subtitle { get; set; } = "";
         public string Impact { get; set; } = "Medium"; // Low/Medium/High
         public int Minutes { get; set; }
-        public bool Done { get; set; }
     }
 
-    public sealed class HabitItem
+    public sealed class HabitSystemItem
     {
-        public string Name { get; set; } = "";
-        public int StreakDays { get; set; }
-        public string Status { get; set; } = "Stable"; // Stable/Improving/Weak
+        public string Habit { get; set; } = "";
+        public int Streak { get; set; }
+        public string Status { get; set; } = "";
         public string Cue { get; set; } = "";
         public string Environment { get; set; } = "";
         public string Notes { get; set; } = "";

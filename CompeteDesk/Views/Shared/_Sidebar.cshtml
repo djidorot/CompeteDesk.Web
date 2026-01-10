@@ -42,10 +42,7 @@
     </div>
 
     <div class="cd-sidebar__cta">
-        <a class="cd-btn cd-btn--primary cd-btn--block"
-           asp-controller="Workspaces"
-           asp-action="Create"
-           aria-label="Create a new workspace">
+        <button type="button" class="cd-btn cd-btn--primary cd-btn--block">
             <span class="cd-btn__ico" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-ico" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -54,15 +51,13 @@
                 </svg>
             </span>
             New Workspace
-        </a>
+        </button>
     </div>
 
     <nav class="cd-sidebar__nav" aria-label="Sidebar navigation">
 
-        <!-- Overview MUST go to Dashboard (not Workspaces/Create).
-             Use an explicit URL to avoid any tag-helper/routing mixups in different environments. -->
-        <a class="cd-sidebar__link @(currentController == "Dashboard" ? "is-active" : "")"
-           href="@Url.Action("Index", "Dashboard")">
+        <a class="cd-sidebar__link @(currentController == "Dashboard" ? "is-active" : "")" asp-controller="Dashboard"
+            asp-action="Index">
             <span class="cd-sidebar__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
