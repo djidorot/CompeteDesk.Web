@@ -1,0 +1,45 @@
+@model CompeteDesk.Models.Strategy
+@{
+    ViewData["Title"] = "Strategy Details";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+}
+
+<link rel="stylesheet" href="~/css/strategies.css" asp-append-version="true" />
+
+<div class="cd-page">
+    <div class="cd-page__head">
+        <a class="cd-link" asp-action="Index">← Back to Strategies</a>
+        <h1 class="cd-h1 mb-1">@Model.Name</h1>
+        <div class="cd-sub">@(!string.IsNullOrWhiteSpace(Model.Category) ? Model.Category : "Uncategorized") • @Model.Status • Priority @Model.Priority</div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="cd-details">
+                <div class="cd-details__row">
+                    <div class="cd-details__label">Core Principle</div>
+                    <div class="cd-details__value">@(!string.IsNullOrWhiteSpace(Model.CorePrinciple) ? Model.CorePrinciple : "—")</div>
+                </div>
+                <div class="cd-details__row">
+                    <div class="cd-details__label">Summary</div>
+                    <div class="cd-details__value">@(!string.IsNullOrWhiteSpace(Model.Summary) ? Model.Summary : "—")</div>
+                </div>
+                <div class="cd-details__row">
+                    <div class="cd-details__label">Source</div>
+                    <div class="cd-details__value">@(!string.IsNullOrWhiteSpace(Model.SourceBook) ? Model.SourceBook : "—")</div>
+                </div>
+                <div class="cd-details__row">
+                    <div class="cd-details__label">Updated</div>
+                    <div class="cd-details__value">@((Model.UpdatedAtUtc ?? Model.CreatedAtUtc).ToLocalTime().ToString("MMM d, yyyy • h:mm tt"))</div>
+                </div>
+            </div>
+
+            <div class="cd-formActions">
+                <a class="btn btn-primary cd-btn" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+                <a class="btn btn-outline-secondary cd-btn" asp-action="Index">Back</a>
+                <a class="btn btn-outline-danger cd-btn ms-auto" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>

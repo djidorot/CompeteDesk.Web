@@ -1,0 +1,31 @@
+@model CompeteDesk.Models.WarIntel
+@{
+    ViewData["Title"] = "Delete Intel";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+    ViewBag.Tab = "intel";
+}
+
+<link rel="stylesheet" href="~/css/warroom.css" asp-append-version="true" />
+
+<div class="card shadow-sm cd-warform">
+    <div class="card-body">
+        <h1 class="cd-h1 mb-1">Delete Intel</h1>
+        <div class="cd-sub mb-3">This will permanently remove the intel entry.</div>
+
+        <div class="alert alert-warning">
+            <strong>@Model.Title</strong>
+            <div class="cd-muted">Confidence: @Model.Confidence/5</div>
+        </div>
+
+        <form asp-action="IntelDelete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-danger cd-btn" type="submit">Delete</button>
+                <a class="btn btn-outline-secondary cd-btn" asp-action="Index" asp-route-tab="intel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

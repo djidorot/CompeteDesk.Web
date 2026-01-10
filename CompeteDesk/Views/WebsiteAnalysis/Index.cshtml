@@ -1,0 +1,116 @@
+@model CompeteDesk.ViewModels.WebsiteAnalysis.WebsiteAnalysisIndexViewModel
+@{
+    ViewData["Title"] = "Website Analysis";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+}
+
+<link rel="stylesheet" href="~/css/website-analysis.css" asp-append-version="true" />
+
+<div class="cd-wa">
+
+    <div class="cd-wa__header">
+        <div>
+            <h1 class="cd-wa__title">Website Analysis</h1>
+            <p class="cd-wa__sub">Submit a website URL. We’ll fetch basic metrics and (optionally) ask OpenAI for structured insights.</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger cd-wa__alert" role="alert">
+            <strong>Analysis failed:</strong> @Model.Error
+        </div>
+    }
+
+    <div class="card shadow-sm cd-wa__card">
+        <div class="card-body">
+            <form asp-action="Analyze" method="post" class="cd-wa__form" data-wa-form>
+                @Html.AntiForgeryToken()
+                <div class="cd-wa__row">
+                    <label class="cd-wa__label" for="Url">Website URL</label>
+                    <input class="form-control cd-wa__input" id="Url" name="Url" value="@Model.Url" placeholder="https://example.com" required />
+                </div>
+
+                <div class="cd-wa__actions">
+                    <button type="submit" class="btn btn-primary" data-wa-submit>Analyze</button>
+                </div>
+
+                @if (Model.WorkspaceId.HasValue)
+                {
+                    <input type="hidden" name="WorkspaceId" value="@Model.WorkspaceId.Value" />
+                }
+            </form>
+        </div>
+    </div>
+
+    <div class="cd-wa__grid">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="cd-wa__sectionTitle">Latest Report</div>
+
+                @if (Model.Latest == null)
+                {
+                    <div class="text-muted">No reports yet.</div>
+                }
+                else
+                {
+                    <div class="cd-wa__latest">
+                        <div class="cd-wa__latestUrl">
+                            <a asp-action="Details" asp-route-id="@Model.Latest.Id">@Model.Latest.Url</a>
+                        </div>
+                        <div class="cd-wa__latestMeta">
+                            <span class="badge bg-light text-dark">HTTP @Model.Latest.HttpStatusCode</span>
+                            <span class="badge bg-light text-dark">@Model.Latest.ResponseTimeMs ms</span>
+                            <span class="badge bg-light text-dark">@Model.Latest.WordCount words</span>
+                        </div>
+                        <div class="cd-wa__latestTitle">@Model.Latest.Title</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="cd-wa__sectionTitle">Recent Reports</div>
+
+                @if (Model.Recent == null || Model.Recent.Count == 0)
+                {
+                    <div class="text-muted">No reports yet.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle cd-wa__table">
+                            <thead>
+                                <tr>
+                                    <th>URL</th>
+                                    <th class="text-nowrap">Status</th>
+                                    <th class="text-nowrap">Time</th>
+                                    <th class="text-nowrap">When</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in Model.Recent)
+                                {
+                                    <tr>
+                                        <td class="cd-wa__tdUrl">
+                                            <a asp-action="Details" asp-route-id="@r.Id">@r.Url</a>
+                                            <div class="cd-wa__tdSub text-muted">@r.Title</div>
+                                        </td>
+                                        <td class="text-nowrap">HTTP @r.HttpStatusCode</td>
+                                        <td class="text-nowrap">@r.ResponseTimeMs ms</td>
+                                        <td class="text-nowrap">@r.CreatedAtUtc.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="~/js/website-analysis.js" asp-append-version="true"></script>

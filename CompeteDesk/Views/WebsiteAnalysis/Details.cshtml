@@ -1,0 +1,218 @@
+@model CompeteDesk.Models.WebsiteAnalysisReport
+@using System.Text.Json
+@using Microsoft.AspNetCore.Html
+@{
+    ViewData["Title"] = "Website Report";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+
+    JsonElement? ai = null;
+    if (ViewData["AiJson"] is JsonElement el) { ai = el; }
+
+    string GetString(JsonElement? root, string prop)
+    {
+        if (root == null) return "";
+        if (root.Value.TryGetProperty(prop, out var p) && p.ValueKind == JsonValueKind.String) return p.GetString() ?? "";
+        return "";
+    }
+
+    int? GetInt(JsonElement? root, string prop)
+    {
+        if (root == null) return null;
+        if (root.Value.TryGetProperty(prop, out var p) && p.ValueKind == JsonValueKind.Number && p.TryGetInt32(out var n)) return n;
+        return null;
+    }
+}
+
+<link rel="stylesheet" href="~/css/website-analysis.css" asp-append-version="true" />
+
+<div class="cd-wa">
+
+    <div class="cd-wa__header cd-wa__header--details">
+        <div>
+            <div class="cd-wa__crumbs">
+                <a asp-action="Index">Website Analysis</a>
+                <span>›</span>
+                <span>Report</span>
+            </div>
+            <h1 class="cd-wa__title cd-wa__title--small">Report</h1>
+            <div class="cd-wa__detailsUrl">
+                <a href="@Model.FinalUrl" target="_blank" rel="noopener">@Model.Url</a>
+            </div>
+            <div class="cd-wa__detailsMeta">
+                <span class="badge bg-light text-dark">HTTP @Model.HttpStatusCode</span>
+                <span class="badge bg-light text-dark">@Model.ResponseTimeMs ms</span>
+                <span class="badge bg-light text-dark">@Model.CreatedAtUtc.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</span>
+                @if (ai != null)
+                {
+                    var status = GetString(ai, "overallStatus");
+                    var score = GetInt(ai, "score");
+                    if (!string.IsNullOrWhiteSpace(status))
+                    {
+                        <span class="badge bg-success-subtle text-success-emphasis">@status</span>
+                    }
+                    if (score.HasValue)
+                    {
+                        <span class="badge bg-primary-subtle text-primary-emphasis">Score @score</span>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="cd-wa__headerActions">
+            <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+        </div>
+    </div>
+
+    <div class="cd-wa__grid cd-wa__grid--details">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="cd-wa__sectionTitle">Core Metrics</div>
+
+                <div class="cd-wa__kpis">
+                    <div class="cd-wa__kpi">
+                        <div class="cd-wa__k">Title</div>
+                        <div class="cd-wa__v">@(!string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : "—")</div>
+                    </div>
+                    <div class="cd-wa__kpi">
+                        <div class="cd-wa__k">Meta Description</div>
+                        <div class="cd-wa__v">@(!string.IsNullOrWhiteSpace(Model.MetaDescription) ? Model.MetaDescription : "—")</div>
+                    </div>
+                    <div class="cd-wa__kpi">
+                        <div class="cd-wa__k">Words</div>
+                        <div class="cd-wa__v">@Model.WordCount</div>
+                    </div>
+                    <div class="cd-wa__kpi">
+                        <div class="cd-wa__k">Headings</div>
+                        <div class="cd-wa__v">H1 @Model.H1Count · H2 @Model.H2Count</div>
+                    </div>
+                    <div class="cd-wa__kpi">
+                        <div class="cd-wa__k">Links</div>
+                        <div class="cd-wa__v">@Model.InternalLinkCount internal · @Model.ExternalLinkCount external</div>
+                    </div>
+                    <div class="cd-wa__kpi">
+                        <div class="cd-wa__k">Images</div>
+                        <div class="cd-wa__v">@Model.ImageCount total · @Model.ImagesMissingAltCount missing alt</div>
+                    </div>
+                    <div class="cd-wa__kpi">
+                        <div class="cd-wa__k">SEO Tags</div>
+                        <div class="cd-wa__v">
+                            @(Model.HasCanonicalLink ? "Canonical" : "No Canonical")
+                            · @(Model.HasOpenGraph ? "OpenGraph" : "No OpenGraph")
+                            · @(Model.HasViewportMeta ? "Viewport" : "No Viewport")
+                        </div>
+                    </div>
+                    <div class="cd-wa__kpi">
+                        <div class="cd-wa__k">Security</div>
+                        <div class="cd-wa__v">
+                            @(Model.IsHttps ? "HTTPS" : "No HTTPS")
+                            · @(Model.HasCspHeader ? "CSP" : "No CSP")
+                            · @(Model.HasHstsHeader ? "HSTS" : "No HSTS")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="cd-wa__sectionTitle">AI Insights</div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.AiSummary))
+                {
+                    <div class="alert alert-warning" role="alert">@Model.AiSummary</div>
+                }
+
+                @if (ai == null)
+                {
+                    <div class="text-muted">No AI insights available for this report.</div>
+                    @if (!string.IsNullOrWhiteSpace(Model.AiInsightsJson))
+                    {
+                        <pre class="cd-wa__pre">@Model.AiInsightsJson</pre>
+                    }
+                }
+                else
+                {
+                    <div class="cd-wa__aiCols">
+                        <div>
+                            <div class="cd-wa__aiTitle">Strengths</div>
+                            @RenderStringList(ai.Value, "strengths")
+                        </div>
+                        <div>
+                            <div class="cd-wa__aiTitle">Weaknesses</div>
+                            @RenderStringList(ai.Value, "weaknesses")
+                        </div>
+                        <div>
+                            <div class="cd-wa__aiTitle">Quick Wins</div>
+                            @RenderStringList(ai.Value, "quickWins")
+                        </div>
+                        <div>
+                            <div class="cd-wa__aiTitle">Risks</div>
+                            @RenderStringList(ai.Value, "risks")
+                        </div>
+                    </div>
+
+                    <div class="cd-wa__aiTitle mt-3">Recommended Next Actions</div>
+                    @RenderActions(ai.Value)
+
+                    <details class="mt-3">
+                        <summary class="cd-wa__rawToggle">Raw AI JSON</summary>
+                        <pre class="cd-wa__pre">@Model.AiInsightsJson</pre>
+                    </details>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private IHtmlContent RenderStringList(JsonElement root, string prop)
+    {
+        if (!root.TryGetProperty(prop, out var arr) || arr.ValueKind != JsonValueKind.Array)
+        {
+            return new HtmlString("<div class='text-muted'>—</div>");
+        }
+
+        var items = arr.EnumerateArray()
+            .Where(x => x.ValueKind == JsonValueKind.String)
+            .Select(x => x.GetString())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
+
+        if (items.Count == 0) return new HtmlString("<div class='text-muted'>—</div>");
+
+        var html = "<ul class='cd-wa__list'>" + string.Join("", items.Select(x => $"<li>{System.Net.WebUtility.HtmlEncode(x)}</li>")) + "</ul>";
+        return new HtmlString(html);
+    }
+
+    private IHtmlContent RenderActions(JsonElement root)
+    {
+        if (!root.TryGetProperty("recommendedNextActions", out var arr) || arr.ValueKind != JsonValueKind.Array)
+        {
+            return new HtmlString("<div class='text-muted'>—</div>");
+        }
+
+        var rows = new System.Text.StringBuilder();
+        foreach (var a in arr.EnumerateArray())
+        {
+            var title = a.TryGetProperty("title", out var t) ? t.GetString() : "";
+            var impact = a.TryGetProperty("impact", out var i) ? i.GetString() : "";
+            var effort = a.TryGetProperty("effort", out var e) ? e.GetString() : "";
+            var why = a.TryGetProperty("why", out var w) ? w.GetString() : "";
+
+            if (string.IsNullOrWhiteSpace(title)) continue;
+
+            rows.Append("<div class='cd-wa__action'>");
+            rows.Append($"<div class='cd-wa__actionTitle'>{System.Net.WebUtility.HtmlEncode(title)}</div>");
+            rows.Append("<div class='cd-wa__actionMeta'>");
+            if (!string.IsNullOrWhiteSpace(impact)) rows.Append($"<span class='badge bg-light text-dark'>Impact {System.Net.WebUtility.HtmlEncode(impact)}</span> ");
+            if (!string.IsNullOrWhiteSpace(effort)) rows.Append($"<span class='badge bg-light text-dark'>Effort {System.Net.WebUtility.HtmlEncode(effort)}</span>");
+            rows.Append("</div>");
+            if (!string.IsNullOrWhiteSpace(why)) rows.Append($"<div class='cd-wa__actionWhy'>{System.Net.WebUtility.HtmlEncode(why)}</div>");
+            rows.Append("</div>");
+        }
+
+        var outHtml = rows.Length == 0 ? "<div class='text-muted'>—</div>" : rows.ToString();
+        return new HtmlString(outHtml);
+    }
+}

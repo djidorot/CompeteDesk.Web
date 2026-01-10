@@ -31,17 +31,17 @@ namespace CompeteDesk.Data
 
             await EnsureWorkspacesTableAsync(db);
             await EnsureStrategiesTableAsync(db);
-			await EnsureActionsTableAsync(db);
-			await EnsureWarIntelTableAsync(db);
-			await EnsureWarPlansTableAsync(db);
-			await EnsureWebsiteAnalysisReportsTableAsync(db);
+            await EnsureActionsTableAsync(db);
+            await EnsureWarIntelTableAsync(db);
+            await EnsureWarPlansTableAsync(db);
+            await EnsureWebsiteAnalysisReportsTableAsync(db);
         }
 
-		private static async Task EnsureWarIntelTableAsync(ApplicationDbContext db)
-		{
-			if (!await TableExistsAsync(db, "WarIntel"))
-			{
-				await db.Database.ExecuteSqlRawAsync(@"
+        private static async Task EnsureWarIntelTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "WarIntel"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
 CREATE TABLE WarIntel (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     WorkspaceId INTEGER NULL,
@@ -58,37 +58,37 @@ CREATE TABLE WarIntel (
     UpdatedAtUtc TEXT NULL,
     FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE SET NULL
 );");
-			}
-			else
-			{
-				await EnsureColumnAsync(db, "WarIntel", "WorkspaceId", "INTEGER", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "OwnerId", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "Title", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "Subject", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "Signal", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "Source", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "Confidence", "INTEGER", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "Tags", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "Notes", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "ObservedAtUtc", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "CreatedAtUtc", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarIntel", "UpdatedAtUtc", "TEXT", nullable: true);
-			}
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "WarIntel", "WorkspaceId", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "OwnerId", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "Title", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "Subject", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "Signal", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "Source", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "Confidence", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "Tags", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "Notes", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "ObservedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "CreatedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarIntel", "UpdatedAtUtc", "TEXT", nullable: true);
+            }
 
-			await db.Database.ExecuteSqlRawAsync(@"
+            await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_WarIntel_OwnerId_Confidence
 ON WarIntel (OwnerId, Confidence);");
 
-			await db.Database.ExecuteSqlRawAsync(@"
+            await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_WarIntel_WorkspaceId_OwnerId
 ON WarIntel (WorkspaceId, OwnerId);");
-		}
+        }
 
-		private static async Task EnsureWarPlansTableAsync(ApplicationDbContext db)
-		{
-			if (!await TableExistsAsync(db, "WarPlans"))
-			{
-				await db.Database.ExecuteSqlRawAsync(@"
+        private static async Task EnsureWarPlansTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "WarPlans"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
 CREATE TABLE WarPlans (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     WorkspaceId INTEGER NULL,
@@ -107,33 +107,33 @@ CREATE TABLE WarPlans (
     UpdatedAtUtc TEXT NULL,
     FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE SET NULL
 );");
-			}
-			else
-			{
-				await EnsureColumnAsync(db, "WarPlans", "WorkspaceId", "INTEGER", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "OwnerId", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "Name", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "Objective", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "Approach", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "Assumptions", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "Risks", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "Contingencies", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "Status", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "StartAtUtc", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "EndAtUtc", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "SourceBook", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "CreatedAtUtc", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "WarPlans", "UpdatedAtUtc", "TEXT", nullable: true);
-			}
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "WarPlans", "WorkspaceId", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "OwnerId", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "Name", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "Objective", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "Approach", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "Assumptions", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "Risks", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "Contingencies", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "Status", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "StartAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "EndAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "SourceBook", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "CreatedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "WarPlans", "UpdatedAtUtc", "TEXT", nullable: true);
+            }
 
-			await db.Database.ExecuteSqlRawAsync(@"
+            await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_WarPlans_OwnerId_Status
 ON WarPlans (OwnerId, Status);");
 
-			await db.Database.ExecuteSqlRawAsync(@"
+            await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_WarPlans_WorkspaceId_OwnerId
 ON WarPlans (WorkspaceId, OwnerId);");
-		}
+        }
 
         private static async Task EnsureWorkspacesTableAsync(ApplicationDbContext db)
         {
@@ -210,11 +210,11 @@ CREATE INDEX IF NOT EXISTS IX_Strategies_WorkspaceId_OwnerId
 ON Strategies (WorkspaceId, OwnerId);");
         }
 
-		private static async Task EnsureActionsTableAsync(ApplicationDbContext db)
-		{
-			if (!await TableExistsAsync(db, "Actions"))
-			{
-				await db.Database.ExecuteSqlRawAsync(@"
+        private static async Task EnsureActionsTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "Actions"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
 CREATE TABLE Actions (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     WorkspaceId INTEGER NULL,
@@ -232,35 +232,35 @@ CREATE TABLE Actions (
     FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE SET NULL,
     FOREIGN KEY (StrategyId) REFERENCES Strategies (Id) ON DELETE SET NULL
 );");
-			}
-			else
-			{
-				await EnsureColumnAsync(db, "Actions", "WorkspaceId", "INTEGER", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "StrategyId", "INTEGER", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "OwnerId", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "Title", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "Description", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "Category", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "Status", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "Priority", "INTEGER", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "DueAtUtc", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "SourceBook", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "CreatedAtUtc", "TEXT", nullable: true);
-				await EnsureColumnAsync(db, "Actions", "UpdatedAtUtc", "TEXT", nullable: true);
-			}
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "Actions", "WorkspaceId", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "StrategyId", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "OwnerId", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "Title", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "Description", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "Category", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "Status", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "Priority", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "DueAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "SourceBook", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "CreatedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Actions", "UpdatedAtUtc", "TEXT", nullable: true);
+            }
 
-			await db.Database.ExecuteSqlRawAsync(@"
+            await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_Actions_OwnerId_Status
 ON Actions (OwnerId, Status);");
 
-			await db.Database.ExecuteSqlRawAsync(@"
+            await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_Actions_StrategyId_OwnerId
 ON Actions (StrategyId, OwnerId);");
 
-			await db.Database.ExecuteSqlRawAsync(@"
+            await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_Actions_WorkspaceId_OwnerId
 ON Actions (WorkspaceId, OwnerId);");
-		}
+        }
 
         private static async Task<bool> TableExistsAsync(ApplicationDbContext db, string tableName)
         {
@@ -310,37 +310,41 @@ ON Actions (WorkspaceId, OwnerId);");
             // If missing, add it.
             // NOTE: SQLite has limited ALTER TABLE support; ADD COLUMN is supported.
             var nullSql = nullable ? "NULL" : "NOT NULL";
-            await db.Database.ExecuteSqlRawAsync($"ALTER TABLE \"{tableName}\" ADD COLUMN \"{columnName}\" {sqliteType} {nullSql};");
+
+            // WARNING EF1002 (SQL injection): table/column names are controlled by code (not user input),
+            // so it's acceptable in this bootstrapper.
+            await db.Database.ExecuteSqlRawAsync(
+                $"ALTER TABLE \"{tableName}\" ADD COLUMN \"{columnName}\" {sqliteType} {nullSql};");
         }
+
+        // -----------------------------------------------------------------------------
+        // Missing helper(s): EnsureIndexAsync
+        // -----------------------------------------------------------------------------
+        private static Task EnsureIndexAsync(ApplicationDbContext db, string indexName, string tableName, string columnsSql)
+            => EnsureIndexAsync(db, indexName, tableName, columnsSql, CancellationToken.None);
 
         private static async Task EnsureIndexAsync(
             ApplicationDbContext db,
             string indexName,
             string tableName,
-            string columnsSql)
+            string columnsSql,
+            CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(indexName))
-                throw new ArgumentException("Index name is required.", nameof(indexName));
-            if (string.IsNullOrWhiteSpace(tableName))
-                throw new ArgumentException("Table name is required.", nameof(tableName));
-            if (string.IsNullOrWhiteSpace(columnsSql))
-                throw new ArgumentException("Index columns are required.", nameof(columnsSql));
+            if (db == null) throw new ArgumentNullException(nameof(db));
+            if (string.IsNullOrWhiteSpace(indexName)) throw new ArgumentException("Index name is required.", nameof(indexName));
+            if (string.IsNullOrWhiteSpace(tableName)) throw new ArgumentException("Table name is required.", nameof(tableName));
+            if (string.IsNullOrWhiteSpace(columnsSql)) throw new ArgumentException("Columns SQL is required.", nameof(columnsSql));
 
-            var cols = columnsSql.Trim();
-            if (!cols.StartsWith("(", StringComparison.Ordinal))
-                cols = "(" + cols + ")";
-
-            // SQLite supports IF NOT EXISTS for CREATE INDEX.
-            // We quote identifiers to avoid reserved-word issues.
-            var sql = $@"CREATE INDEX IF NOT EXISTS ""{indexName}"" ON ""{tableName}"" {cols};";
-            await db.Database.ExecuteSqlRawAsync(sql);
+            // indexName/tableName/columnsSql are constants from code, not user-input.
+            var sql = $"CREATE INDEX IF NOT EXISTS \"{indexName}\" ON \"{tableName}\" {columnsSql};";
+            await db.Database.ExecuteSqlRawAsync(sql, ct);
         }
 
-		private static async Task EnsureWebsiteAnalysisReportsTableAsync(ApplicationDbContext db)
-		{
-			if (!await TableExistsAsync(db, "WebsiteAnalysisReports"))
-			{
-				await db.Database.ExecuteSqlRawAsync(@"
+        private static async Task EnsureWebsiteAnalysisReportsTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "WebsiteAnalysisReports"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
 CREATE TABLE WebsiteAnalysisReports (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     WorkspaceId INTEGER NULL,
@@ -371,47 +375,48 @@ CREATE TABLE WebsiteAnalysisReports (
     FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE SET NULL
 );");
 
-				// Helpful indexes for listing per user.
-				await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_CreatedAtUtc",
-					"WebsiteAnalysisReports", "(OwnerId, CreatedAtUtc)");
-				await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_Url",
-					"WebsiteAnalysisReports", "(OwnerId, Url)");
-			}
-			else
-			{
-				// Patch older schemas (if the table exists but is missing columns).
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "WorkspaceId", "INTEGER", true);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "OwnerId", "TEXT", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "Url", "TEXT", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "FinalUrl", "TEXT", true);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HttpStatusCode", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ResponseTimeMs", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "Title", "TEXT", true);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "MetaDescription", "TEXT", true);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "WordCount", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "H1Count", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "H2Count", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "InternalLinkCount", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ExternalLinkCount", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ImageCount", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ImagesMissingAltCount", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "IsHttps", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasViewportMeta", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasRobotsNoindex", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasCanonicalLink", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasOpenGraph", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasCspHeader", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasHstsHeader", "INTEGER", false);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "AiInsightsJson", "TEXT", true);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "AiSummary", "TEXT", true);
-				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "CreatedAtUtc", "TEXT", false);
+                // Helpful indexes for listing per user.
+                await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_CreatedAtUtc",
+                    "WebsiteAnalysisReports", "(OwnerId, CreatedAtUtc)");
+                await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_Url",
+                    "WebsiteAnalysisReports", "(OwnerId, Url)");
+            }
+            else
+            {
+                // Patch older schemas (if the table exists but is missing columns).
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "WorkspaceId", "INTEGER", true);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "OwnerId", "TEXT", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "Url", "TEXT", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "FinalUrl", "TEXT", true);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HttpStatusCode", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ResponseTimeMs", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "Title", "TEXT", true);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "MetaDescription", "TEXT", true);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "WordCount", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "H1Count", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "H2Count", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "InternalLinkCount", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ExternalLinkCount", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ImageCount", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ImagesMissingAltCount", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "IsHttps", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasViewportMeta", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasRobotsNoindex", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasCanonicalLink", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasOpenGraph", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasCspHeader", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasHstsHeader", "INTEGER", false);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "AiInsightsJson", "TEXT", true);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "AiSummary", "TEXT", true);
+                await EnsureColumnAsync(db, "WebsiteAnalysisReports", "CreatedAtUtc", "TEXT", false);
 
-				await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_CreatedAtUtc",
-					"WebsiteAnalysisReports", "(OwnerId, CreatedAtUtc)");
-				await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_Url",
-					"WebsiteAnalysisReports", "(OwnerId, Url)");
-			}
-		}
+                await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_CreatedAtUtc",
+                    "WebsiteAnalysisReports", "(OwnerId, CreatedAtUtc)");
+                await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_Url",
+                    "WebsiteAnalysisReports", "(OwnerId, Url)");
+            }
+        }
+
         // Optional for later (migrations-based)
         public static void EnsureDatabaseUpToDate(WebApplication app)
         {

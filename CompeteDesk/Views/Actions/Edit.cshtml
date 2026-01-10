@@ -1,0 +1,38 @@
+@model CompeteDesk.Models.ActionItem
+@{
+    ViewData["Title"] = "Edit Action";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+}
+
+<link rel="stylesheet" href="~/css/actions.css" asp-append-version="true" />
+
+<div class="cd-actions">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                <div>
+                    <h1 class="cd-h1 mb-1">Edit Action</h1>
+                    <div class="cd-sub">Update details, status, or deadlines.</div>
+                </div>
+                <a class="btn btn-outline-secondary cd-btn" asp-action="Index">Back</a>
+            </div>
+
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <partial name="_ActionForm" model="Model" />
+
+                <div class="d-flex gap-2 mt-4">
+                    <button class="btn btn-primary cd-btn" type="submit">Save</button>
+                    <a class="btn btn-outline-secondary cd-btn" asp-action="Index">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/actions.js" asp-append-version="true"></script>
+}

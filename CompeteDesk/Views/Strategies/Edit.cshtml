@@ -1,0 +1,36 @@
+@model CompeteDesk.Models.Strategy
+@{
+    ViewData["Title"] = "Edit Strategy";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+}
+
+<link rel="stylesheet" href="~/css/strategies.css" asp-append-version="true" />
+
+<div class="cd-page">
+    <div class="cd-page__head">
+        <a class="cd-link" asp-action="Index">← Back to Strategies</a>
+        <h1 class="cd-h1 mb-1">Edit Strategy</h1>
+        <div class="cd-sub">Refine the plan, then execute.</div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <partial name="_StrategyForm" model="Model" />
+
+                <div class="cd-formActions">
+                    <button type="submit" class="btn btn-primary cd-btn">Save</button>
+                    <a class="btn btn-outline-secondary cd-btn" asp-action="Index">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

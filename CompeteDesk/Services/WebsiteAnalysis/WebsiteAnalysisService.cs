@@ -17,21 +17,47 @@ namespace CompeteDesk.Services.WebsiteAnalysis;
 
 public sealed class WebsiteAnalysisService
 {
-    private static readonly Regex TitleRx = new(@"<title\b[^>]*>(.*?)</title>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+    private static readonly Regex TitleRx =
+        new(@"<title\b[^>]*>(.*?)</title>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
 
-    // NOTE: Verbatim strings (@"...") cannot use \" to represent a quote.
-    // Use '""' to represent a literal double-quote inside the regex pattern.
-    private static readonly Regex MetaDescRx = new(@"<meta\s+[^>]*name\s*=\s*['""]description['""][^>]*content\s*=\s*['""](.*?)['""][^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
-    private static readonly Regex ViewportRx = new(@"<meta\s+[^>]*name\s*=\s*['""]viewport['""][^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
-    private static readonly Regex RobotsRx = new(@"<meta\s+[^>]*name\s*=\s*['""]robots['""][^>]*content\s*=\s*['""](.*?)['""][^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
-    private static readonly Regex CanonicalRx = new(@"<link\s+[^>]*rel\s*=\s*['""]canonical['""][^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
-    private static readonly Regex OgRx = new(@"<meta\s+[^>]*property\s*=\s*['""]og:", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+    // FIX: In verbatim strings (@""), do NOT use \".
+    // Use "" to represent a double-quote.
+    private static readonly Regex MetaDescRx =
+        new(@"<meta\s+[^>]*name\s*=\s*['""]description['""][^>]*content\s*=\s*['""](.*?)['""][^>]*>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static readonly Regex ViewportRx =
+        new(@"<meta\s+[^>]*name\s*=\s*['""]viewport['""][^>]*>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static readonly Regex RobotsRx =
+        new(@"<meta\s+[^>]*name\s*=\s*['""]robots['""][^>]*content\s*=\s*['""](.*?)['""][^>]*>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static readonly Regex CanonicalRx =
+        new(@"<link\s+[^>]*rel\s*=\s*['""]canonical['""][^>]*>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static readonly Regex OgRx =
+        new(@"<meta\s+[^>]*property\s*=\s*['""]og:",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
     private static readonly Regex H1Rx = new(@"<h1\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex H2Rx = new(@"<h2\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    private static readonly Regex LinkRx = new(@"<a\s+[^>]*href\s*=\s*['""](.*?)['""][^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
-    private static readonly Regex ImgRx = new(@"<img\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
-    private static readonly Regex ImgAltRx = new(@"<img\b[^>]*\balt\s*=\s*['""]([^'""]*)['""][^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
-    private static readonly Regex TagStripRx = new(@"<[^>]+>", RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static readonly Regex LinkRx =
+        new(@"<a\s+[^>]*href\s*=\s*['""](.*?)['""][^>]*>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static readonly Regex ImgRx =
+        new(@"<img\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static readonly Regex ImgAltRx =
+        new(@"<img\b[^>]*\balt\s*=\s*['""]([^'""]*)['""][^>]*>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static readonly Regex TagStripRx =
+        new(@"<[^>]+>", RegexOptions.Singleline | RegexOptions.Compiled);
 
     private readonly IHttpClientFactory _httpFactory;
     private readonly OpenAiChatClient _openAi;
@@ -85,7 +111,8 @@ public sealed class WebsiteAnalysisService
             FinalUrl = finalUri?.ToString(),
             ResponseTimeMs = sw.ElapsedMilliseconds,
             HttpStatusCode = (int?)res?.StatusCode ?? 0,
-            IsHttps = finalUri?.Scheme?.Equals("https", StringComparison.OrdinalIgnoreCase) ?? normalized.StartsWith("https://", StringComparison.OrdinalIgnoreCase),
+            IsHttps = finalUri?.Scheme?.Equals("https", StringComparison.OrdinalIgnoreCase)
+                      ?? normalized.StartsWith("https://", StringComparison.OrdinalIgnoreCase),
             CreatedAtUtc = DateTime.UtcNow
         };
 
@@ -96,7 +123,8 @@ public sealed class WebsiteAnalysisService
             report.HasViewportMeta = ViewportRx.IsMatch(html);
 
             var robots = ExtractFirst(RobotsRx, html);
-            report.HasRobotsNoindex = !string.IsNullOrWhiteSpace(robots) && robots.Contains("noindex", StringComparison.OrdinalIgnoreCase);
+            report.HasRobotsNoindex = !string.IsNullOrWhiteSpace(robots)
+                                     && robots.Contains("noindex", StringComparison.OrdinalIgnoreCase);
 
             report.HasCanonicalLink = CanonicalRx.IsMatch(html);
             report.HasOpenGraph = OgRx.IsMatch(html);
@@ -157,29 +185,26 @@ public sealed class WebsiteAnalysisService
             hasHstsHeader = report.HasHstsHeader
         };
 
-        // FIX: Raw string literals must start with a newline after the opening """.
-        // Your previous version had: var systemPrompt = """You are ..."""; which can trigger CS8997.
-        var systemPrompt = """
-You are an expert product strategist + SEO/UX auditor.
+        // FIX: Use a verbatim string to avoid raw-string delimiter issues.
+        var systemPrompt = @"You are an expert product strategist + SEO/UX auditor.
 Given website crawl metrics (JSON), produce a concise, actionable assessment.
 
 Return STRICT JSON with this schema:
 {
-  "overallStatus": "On Track" | "At Risk" | "Off Track",
-  "score": 0-100,
-  "strengths": ["..."],
-  "weaknesses": ["..."],
-  "quickWins": ["..."],
-  "risks": ["..."],
-  "recommendedNextActions": [{"title":"...","impact":"High|Medium|Low","effort":"High|Medium|Low","why":"..."}],
-  "keyMetrics": { "responseTimeMs": number, "wordCount": number, "internalLinks": number, "externalLinks": number, "imageCount": number, "imagesMissingAlt": number }
+  ""overallStatus"": ""On Track"" | ""At Risk"" | ""Off Track"",
+  ""score"": 0-100,
+  ""strengths"": [""...""],
+  ""weaknesses"": [""...""],
+  ""quickWins"": [""...""],
+  ""risks"": [""...""],
+  ""recommendedNextActions"": [{""title"":""..."",""impact"":""High|Medium|Low"",""effort"":""High|Medium|Low"",""why"":""...""}],
+  ""keyMetrics"": { ""responseTimeMs"": number, ""wordCount"": number, ""internalLinks"": number, ""externalLinks"": number, ""imageCount"": number, ""imagesMissingAlt"": number }
 }
 
 Rules:
 - Base conclusions only on provided metrics (do not invent facts).
 - If the HTML could not be fetched, explain that in weaknesses and set status Off Track.
-- Keep each bullet short (max ~14 words).
-""";
+- Keep each bullet short (max ~14 words).";
 
         var userJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
 
@@ -249,6 +274,7 @@ Rules:
 
     private static async Task<string?> ReadAtMostAsync(HttpResponseMessage res, int maxBytes, CancellationToken ct)
     {
+        // Prefer content-length if present, but still cap reading.
         using var stream = await res.Content.ReadAsStreamAsync(ct);
         var buffer = new byte[16 * 1024];
         int read;
@@ -264,6 +290,7 @@ Rules:
             ms.Write(buffer, 0, read);
         }
 
+        // Try to decode as UTF-8, fallback to ISO-8859-1.
         var bytes = ms.ToArray();
         try
         {
@@ -318,6 +345,7 @@ Rules:
 
     private static int CountImagesMissingAlt(string html)
     {
+        // Count all <img>, then count those with alt attribute and non-empty value.
         var total = ImgRx.Matches(html).Count;
         if (total == 0) return 0;
 
