@@ -1,0 +1,96 @@
+@using System.Security.Claims
+
+@{
+    var email = User?.FindFirstValue(ClaimTypes.Email)
+    ?? User?.FindFirstValue("email")
+    ?? User?.Identity?.Name
+    ?? "Account";
+
+    var displayName = User?.FindFirstValue(ClaimTypes.Name)
+    ?? User?.FindFirstValue("name")
+    ?? email;
+}
+
+<aside class="cd-sidebar" data-cd-sidebar>
+    <div class="cd-sidebar__top">
+        <a class="cd-sidebar__brand" asp-controller="Home" asp-action="Index">
+            <span class="cd-sidebar__logo">C</span>
+            <span class="cd-sidebar__brandText">CompeteDesk</span>
+        </a>
+
+        <button class="cd-sidebar__collapseBtn" type="button" data-cd-sidebar-collapse aria-label="Collapse sidebar">
+            ⟨⟩
+        </button>
+    </div>
+
+    <div class="cd-sidebar__search">
+        <input class="cd-sidebar__searchInput" type="search" placeholder="Search…" aria-label="Search" />
+    </div>
+
+    <div class="cd-sidebar__cta">
+        <button type="button" class="cd-btn cd-btn--primary cd-btn--block">
+            + New Workspace
+        </button>
+    </div>
+
+    <nav class="cd-sidebar__nav" aria-label="Sidebar navigation">
+        <a class="cd-sidebar__link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "is-active" : "")"
+            asp-controller="Dashboard" asp-action="Index">
+            <span class="cd-sidebar__icon">📊</span>
+            <span class="cd-sidebar__text">Overview</span>
+        </a>
+
+        <a class="cd-sidebar__link" href="#">
+            <span class="cd-sidebar__icon">🧠</span>
+            <span class="cd-sidebar__text">Strategies</span>
+        </a>
+
+        <a class="cd-sidebar__link" href="#">
+            <span class="cd-sidebar__icon">✅</span>
+            <span class="cd-sidebar__text">Actions</span>
+        </a>
+
+        <a class="cd-sidebar__link" href="#">
+            <span class="cd-sidebar__icon">🔥</span>
+            <span class="cd-sidebar__text">Habits</span>
+        </a>
+
+        <a class="cd-sidebar__link" href="#">
+            <span class="cd-sidebar__icon">📈</span>
+            <span class="cd-sidebar__text">Metrics</span>
+        </a>
+
+        <a class="cd-sidebar__link" href="#">
+            <span class="cd-sidebar__icon">🛡️</span>
+            <span class="cd-sidebar__text">War Room</span>
+        </a>
+
+        <a class="cd-sidebar__link" asp-controller="Home" asp-action="Privacy">
+            <span class="cd-sidebar__icon">⚙️</span>
+            <span class="cd-sidebar__text">Settings</span>
+        </a>
+    </nav>
+
+    <div class="cd-sidebar__bottom">
+        <div class="cd-sidebar__user">
+            <div class="cd-sidebar__avatar" aria-hidden="true">👤</div>
+            <div class="cd-sidebar__userMeta">
+                <div class="cd-sidebar__userName">@displayName</div>
+                <div class="cd-sidebar__userEmail">@email</div>
+            </div>
+        </div>
+
+        <div class="cd-sidebar__auth">
+            @if (User?.Identity?.IsAuthenticated ?? false)
+            {
+                <form asp-area="Identity" asp-page="/Account/Logout" method="post">
+                    <button type="submit" class="cd-btn cd-btn--ghost cd-btn--block">Logout</button>
+                </form>
+            }
+            else
+            {
+                <a class="cd-btn cd-btn--ghost cd-btn--block" asp-area="Identity" asp-page="/Account/Login">Login</a>
+            }
+        </div>
+    </div>
+</aside>

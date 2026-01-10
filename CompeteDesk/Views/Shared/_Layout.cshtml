@@ -7,6 +7,7 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CompeteDesk.styles.css" asp-append-version="true" />
 </head>
 <body>
@@ -14,6 +15,14 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CompeteDesk</a>
+                @if (ViewData["UseSidebar"] as bool? == true)
+                {
+                    <button class="btn btn-sm btn-outline-secondary ms-2 d-inline-flex d-md-none align-items-center"
+                            type="button" data-cd-sidebar-open aria-label="Open sidebar">
+                        ☰
+                    </button>
+                }
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -35,10 +44,24 @@
             </div>
         </nav>
     </header>
-    <div class="@(ViewData["LayoutFluid"] as bool? == true ? "container-fluid" : "container")">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    @{
+        var useSidebar = ViewData["UseSidebar"] as bool? == true;
+        var containerClass = (ViewData["LayoutFluid"] as bool? == true ? "container-fluid" : "container");
+    }
+
+    <div class="cd-shell @(useSidebar ? "with-sidebar" : "")">
+        @if (useSidebar)
+        {
+            <partial name="_Sidebar" />
+        }
+
+        <div class="cd-shell__content">
+            <div class="@containerClass">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
     </div>
 
     <footer class="border-top footer text-muted">
@@ -49,6 +72,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/sidebar.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

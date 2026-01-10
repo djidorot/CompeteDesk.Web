@@ -1,0 +1,235 @@
+
+/* CompeteDesk Sidebar Layout (Dashboard left panel) */
+:root{
+  --cd-sidebar-w: 260px;
+  --cd-sidebar-w-collapsed: 80px;
+  --cd-sidebar-bg: #f6f7fb;
+  --cd-sidebar-border: rgba(0,0,0,.08);
+  --cd-sidebar-text: #1f2937;
+  --cd-sidebar-muted: #6b7280;
+  --cd-sidebar-active: #0d6efd;
+}
+
+.cd-shell{
+  display: block;
+}
+
+.cd-shell.with-sidebar{
+  display:flex;
+  min-height: calc(100vh - 72px); /* approx navbar height */
+}
+
+.cd-shell__content{
+  flex:1;
+  min-width: 0;
+  padding: 18px 18px 0 18px;
+}
+
+/* Sidebar */
+.cd-sidebar{
+  width: var(--cd-sidebar-w);
+  background: var(--cd-sidebar-bg);
+  border-right: 1px solid var(--cd-sidebar-border);
+  padding: 14px 12px;
+  position: sticky;
+  top: 0;
+  height: calc(100vh - 72px);
+  overflow: auto;
+}
+
+.cd-sidebar__top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom: 12px;
+}
+
+.cd-sidebar__brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight: 700;
+  color: var(--cd-sidebar-text);
+}
+
+.cd-dot{
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--cd-sidebar-active);
+  box-shadow: 0 0 0 4px rgba(13,110,253,.12);
+}
+
+.cd-sidebar__brand-text{
+  white-space: nowrap;
+}
+
+.cd-sidebar__collapse{
+  border: 1px solid var(--cd-sidebar-border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 6px 10px;
+  line-height: 1;
+  color: var(--cd-sidebar-muted);
+}
+
+.cd-sidebar__search{
+  margin: 10px 0 12px;
+}
+
+.cd-sidebar__cta{
+  margin-bottom: 14px;
+}
+
+.cd-sidebar__nav{
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cd-nav-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+  padding: 10px 10px;
+  border-radius: 12px;
+  color: var(--cd-sidebar-text);
+  border: 1px solid transparent;
+}
+
+.cd-nav-item:hover{
+  background:#fff;
+  border-color: var(--cd-sidebar-border);
+}
+
+.cd-nav-item.active{
+  background: rgba(13,110,253,.10);
+  border-color: rgba(13,110,253,.20);
+  color: var(--cd-sidebar-active);
+}
+
+.cd-nav-ico{
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.05);
+  color: inherit;
+  flex: 0 0 auto;
+}
+
+.cd-nav-item.active .cd-nav-ico{
+  background: rgba(13,110,253,.14);
+}
+
+.cd-nav-text{
+  white-space: nowrap;
+}
+
+/* Bottom user */
+.cd-sidebar__bottom{
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--cd-sidebar-border);
+}
+
+.cd-user{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+
+.cd-user__avatar{
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+  background:#fff;
+  border: 1px solid var(--cd-sidebar-border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.cd-user__meta{
+  min-width: 0;
+}
+
+.cd-user__name{
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--cd-sidebar-text);
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 170px;
+}
+
+.cd-user__settings{
+  display:inline-block;
+  font-size: .85rem;
+  color: var(--cd-sidebar-muted);
+  text-decoration:none;
+}
+
+.cd-user__settings:hover{
+  text-decoration: underline;
+}
+
+/* Collapsed */
+body.cd-sidebar-collapsed .cd-sidebar{
+  width: var(--cd-sidebar-w-collapsed);
+}
+
+body.cd-sidebar-collapsed .cd-sidebar__brand-text,
+body.cd-sidebar-collapsed .cd-nav-text,
+body.cd-sidebar-collapsed .cd-sidebar__search,
+body.cd-sidebar-collapsed .cd-sidebar__cta,
+body.cd-sidebar-collapsed .cd-user__meta{
+  display:none;
+}
+
+/* Mobile overlay behavior */
+.cd-sidebar-backdrop{
+  display:none;
+}
+
+@media (max-width: 767.98px){
+  .cd-shell.with-sidebar{
+    display:block;
+  }
+
+  .cd-sidebar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-110%);
+    transition: transform .18s ease;
+    z-index: 1040;
+    box-shadow: 0 12px 30px rgba(0,0,0,.12);
+  }
+
+  body.cd-sidebar-open .cd-sidebar{
+    transform: translateX(0);
+  }
+
+  .cd-shell__content{
+    padding: 12px;
+  }
+
+  .cd-sidebar-backdrop{
+    display:none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.25);
+    z-index: 1039;
+  }
+
+  body.cd-sidebar-open .cd-sidebar-backdrop{
+    display:block;
+  }
+}
