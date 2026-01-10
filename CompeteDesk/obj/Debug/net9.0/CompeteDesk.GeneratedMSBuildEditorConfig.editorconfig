@@ -108,6 +108,58 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3RyYXRlZ2llcy9fU3RyYXRlZ3lGb3JtLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/IndexIntel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9JbmRleEludGVsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/IndexPlans.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9JbmRleFBsYW5zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/IntelCreate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9JbnRlbENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/IntelDelete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9JbnRlbERlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/IntelDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9JbnRlbERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/IntelEdit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9JbnRlbEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/PlanCreate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9QbGFuQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/PlanDelete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9QbGFuRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/PlanDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9QbGFuRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/PlanEdit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9QbGFuRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/_IntelForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9fSW50ZWxGb3JtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/_PlanForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9fUGxhbkZvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/WarRoom/_WarRoomTabs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV2FyUm9vbS9fV2FyUm9vbVRhYnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

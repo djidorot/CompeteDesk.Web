@@ -32,7 +32,107 @@ namespace CompeteDesk.Data
             await EnsureWorkspacesTableAsync(db);
             await EnsureStrategiesTableAsync(db);
 			await EnsureActionsTableAsync(db);
+			await EnsureWarIntelTableAsync(db);
+			await EnsureWarPlansTableAsync(db);
         }
+
+		private static async Task EnsureWarIntelTableAsync(ApplicationDbContext db)
+		{
+			if (!await TableExistsAsync(db, "WarIntel"))
+			{
+				await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE WarIntel (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    WorkspaceId INTEGER NULL,
+    OwnerId TEXT NOT NULL,
+    Title TEXT NOT NULL,
+    Subject TEXT NULL,
+    Signal TEXT NULL,
+    Source TEXT NULL,
+    Confidence INTEGER NOT NULL DEFAULT 3,
+    Tags TEXT NULL,
+    Notes TEXT NULL,
+    ObservedAtUtc TEXT NULL,
+    CreatedAtUtc TEXT NOT NULL,
+    UpdatedAtUtc TEXT NULL,
+    FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE SET NULL
+);");
+			}
+			else
+			{
+				await EnsureColumnAsync(db, "WarIntel", "WorkspaceId", "INTEGER", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "OwnerId", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "Title", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "Subject", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "Signal", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "Source", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "Confidence", "INTEGER", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "Tags", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "Notes", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "ObservedAtUtc", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "CreatedAtUtc", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarIntel", "UpdatedAtUtc", "TEXT", nullable: true);
+			}
+
+			await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_WarIntel_OwnerId_Confidence
+ON WarIntel (OwnerId, Confidence);");
+
+			await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_WarIntel_WorkspaceId_OwnerId
+ON WarIntel (WorkspaceId, OwnerId);");
+		}
+
+		private static async Task EnsureWarPlansTableAsync(ApplicationDbContext db)
+		{
+			if (!await TableExistsAsync(db, "WarPlans"))
+			{
+				await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE WarPlans (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    WorkspaceId INTEGER NULL,
+    OwnerId TEXT NOT NULL,
+    Name TEXT NOT NULL,
+    Objective TEXT NULL,
+    Approach TEXT NULL,
+    Assumptions TEXT NULL,
+    Risks TEXT NULL,
+    Contingencies TEXT NULL,
+    Status TEXT NOT NULL,
+    StartAtUtc TEXT NULL,
+    EndAtUtc TEXT NULL,
+    SourceBook TEXT NULL,
+    CreatedAtUtc TEXT NOT NULL,
+    UpdatedAtUtc TEXT NULL,
+    FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE SET NULL
+);");
+			}
+			else
+			{
+				await EnsureColumnAsync(db, "WarPlans", "WorkspaceId", "INTEGER", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "OwnerId", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "Name", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "Objective", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "Approach", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "Assumptions", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "Risks", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "Contingencies", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "Status", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "StartAtUtc", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "EndAtUtc", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "SourceBook", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "CreatedAtUtc", "TEXT", nullable: true);
+				await EnsureColumnAsync(db, "WarPlans", "UpdatedAtUtc", "TEXT", nullable: true);
+			}
+
+			await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_WarPlans_OwnerId_Status
+ON WarPlans (OwnerId, Status);");
+
+			await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_WarPlans_WorkspaceId_OwnerId
+ON WarPlans (WorkspaceId, OwnerId);");
+		}
 
         private static async Task EnsureWorkspacesTableAsync(ApplicationDbContext db)
         {

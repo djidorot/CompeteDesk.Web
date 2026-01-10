@@ -14,6 +14,8 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Workspace> Workspaces => Set<Workspace>();
     public DbSet<Strategy> Strategies => Set<Strategy>();
 	public DbSet<ActionItem> Actions => Set<ActionItem>();
+	public DbSet<WarIntel> WarIntel => Set<WarIntel>();
+	public DbSet<WarPlan> WarPlans => Set<WarPlan>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -49,6 +51,34 @@ public class ApplicationDbContext : IdentityDbContext
 
 			b.HasIndex(x => new { x.OwnerId, x.Status });
 			b.HasIndex(x => new { x.StrategyId, x.OwnerId });
+			b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
+		});
+
+		builder.Entity<WarIntel>(b =>
+		{
+			b.Property(x => x.Title).IsRequired().HasMaxLength(200);
+			b.Property(x => x.Subject).HasMaxLength(120);
+			b.Property(x => x.Signal).HasMaxLength(2000);
+			b.Property(x => x.Source).HasMaxLength(300);
+			b.Property(x => x.Tags).HasMaxLength(200);
+			b.Property(x => x.Notes).HasMaxLength(4000);
+
+			b.HasIndex(x => new { x.OwnerId, x.Confidence });
+			b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
+		});
+
+		builder.Entity<WarPlan>(b =>
+		{
+			b.Property(x => x.Name).IsRequired().HasMaxLength(200);
+			b.Property(x => x.Objective).HasMaxLength(2000);
+			b.Property(x => x.Approach).HasMaxLength(2000);
+			b.Property(x => x.Assumptions).HasMaxLength(4000);
+			b.Property(x => x.Risks).HasMaxLength(4000);
+			b.Property(x => x.Contingencies).HasMaxLength(4000);
+			b.Property(x => x.Status).IsRequired().HasMaxLength(24);
+			b.Property(x => x.SourceBook).HasMaxLength(120);
+
+			b.HasIndex(x => new { x.OwnerId, x.Status });
 			b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
 		});
     }

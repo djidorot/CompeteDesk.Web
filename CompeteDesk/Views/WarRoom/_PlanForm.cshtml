@@ -1,0 +1,74 @@
+@model CompeteDesk.Models.WarPlan
+
+<div class="row g-3">
+    <div class="col-12 col-lg-8">
+        <div class="cd-field">
+            <label class="cd-label" asp-for="Name">Plan Name</label>
+            <input class="form-control cd-input" asp-for="Name" />
+            <span class="text-danger" asp-validation-for="Name"></span>
+        </div>
+
+        <div class="cd-field">
+            <label class="cd-label" asp-for="Objective">Objective</label>
+            <textarea class="form-control cd-input" asp-for="Objective" rows="3" placeholder="What are we trying to achieve?"></textarea>
+            <span class="text-danger" asp-validation-for="Objective"></span>
+        </div>
+
+        <div class="cd-field">
+            <label class="cd-label" asp-for="Approach">Approach</label>
+            <textarea class="form-control cd-input" asp-for="Approach" rows="4" placeholder="How will we do it? Key moves, sequencing, and focus."></textarea>
+            <span class="text-danger" asp-validation-for="Approach"></span>
+        </div>
+
+        <div class="cd-field">
+            <label class="cd-label" asp-for="Assumptions">Assumptions</label>
+            <textarea class="form-control cd-input" asp-for="Assumptions" rows="4" placeholder="What must be true for this plan to work?"></textarea>
+            <span class="text-danger" asp-validation-for="Assumptions"></span>
+        </div>
+
+        <div class="cd-field">
+            <label class="cd-label" asp-for="Risks">Risks</label>
+            <textarea class="form-control cd-input" asp-for="Risks" rows="4" placeholder="What could go wrong?"></textarea>
+            <span class="text-danger" asp-validation-for="Risks"></span>
+        </div>
+
+        <div class="cd-field">
+            <label class="cd-label" asp-for="Contingencies">Contingencies</label>
+            <textarea class="form-control cd-input" asp-for="Contingencies" rows="4" placeholder="If X happens, we will do Y."></textarea>
+            <span class="text-danger" asp-validation-for="Contingencies"></span>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="cd-field">
+            <label class="cd-label" asp-for="Status">Status</label>
+            <select class="form-select cd-input" asp-for="Status">
+                <option value="Draft">Draft</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+                <option value="Archived">Archived</option>
+            </select>
+            <span class="text-danger" asp-validation-for="Status"></span>
+        </div>
+
+        <div class="cd-field">
+            <label class="cd-label" asp-for="StartAtUtc">Start (UTC)</label>
+            <input type="date" class="form-control cd-input" asp-for="StartAtUtc" />
+            <span class="text-danger" asp-validation-for="StartAtUtc"></span>
+        </div>
+
+        <div class="cd-field">
+            <label class="cd-label" asp-for="EndAtUtc">End (UTC)</label>
+            <input type="date" class="form-control cd-input" asp-for="EndAtUtc" />
+            <span class="text-danger" asp-validation-for="EndAtUtc"></span>
+        </div>
+
+        <div class="cd-field">
+            <label class="cd-label" asp-for="SourceBook">Source Book</label>
+            <input class="form-control cd-input" asp-for="SourceBook" />
+            <span class="text-danger" asp-validation-for="SourceBook"></span>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" asp-for="WorkspaceId" />
