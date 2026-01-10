@@ -1,9 +1,0 @@
-@{
-    var tab = (string)(ViewBag.Tab ?? "intel");
-    var q = (string)(ViewBag.Query ?? "");
-}
-
-<div class="cd-war__tabs">
-    <a class="cd-war__tab @(tab == "intel" ? "is-active" : "")" asp-controller="WarRoom" asp-action="Index" asp-route-tab="intel" asp-route-q="@q">Intel</a>
-    <a class="cd-war__tab @(tab == "plans" ? "is-active" : "")" asp-controller="WarRoom" asp-action="Index" asp-route-tab="plans" asp-route-q="@q">Plans</a>
-</div>

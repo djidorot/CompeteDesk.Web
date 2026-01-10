@@ -89,7 +89,12 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Avoid dev-time warning: "Failed to determine the https port for redirect."
+// You can enable HTTPS locally via Properties/launchSettings.json.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseRouting();
 
