@@ -9,71 +9,148 @@
     var displayName = User?.FindFirstValue(ClaimTypes.Name)
     ?? User?.FindFirstValue("name")
     ?? email;
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
 }
 
 <aside class="cd-sidebar" data-cd-sidebar>
     <div class="cd-sidebar__top">
-        <a class="cd-sidebar__brand" asp-controller="Home" asp-action="Index">
-            <span class="cd-sidebar__logo">C</span>
+        <a class="cd-sidebar__brand" asp-controller="Home" asp-action="Index" aria-label="CompeteDesk home">
+            <span class="cd-sidebar__logo" aria-hidden="true">C</span>
             <span class="cd-sidebar__brandText">CompeteDesk</span>
         </a>
 
         <button class="cd-sidebar__collapseBtn" type="button" data-cd-sidebar-collapse aria-label="Collapse sidebar">
-            ⟨⟩
+            <span class="cd-sidebar__collapseIco" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-ico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+            </span>
         </button>
     </div>
 
     <div class="cd-sidebar__search">
+        <span class="cd-sidebar__searchIco" aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="cd-ico" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="M21 21l-4.3-4.3"></path>
+            </svg>
+        </span>
         <input class="cd-sidebar__searchInput" type="search" placeholder="Search…" aria-label="Search" />
     </div>
 
     <div class="cd-sidebar__cta">
         <button type="button" class="cd-btn cd-btn--primary cd-btn--block">
-            + New Workspace
+            <span class="cd-btn__ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-ico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14"></path>
+                    <path d="M5 12h14"></path>
+                </svg>
+            </span>
+            New Workspace
         </button>
     </div>
 
     <nav class="cd-sidebar__nav" aria-label="Sidebar navigation">
-        <a class="cd-sidebar__link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "is-active" : "")"
-            asp-controller="Dashboard" asp-action="Index">
-            <span class="cd-sidebar__icon">📊</span>
+
+        <a class="cd-sidebar__link @(currentController == "Dashboard" ? "is-active" : "")" asp-controller="Dashboard"
+            asp-action="Index">
+            <span class="cd-sidebar__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 13h8V3H3v10z"></path>
+                    <path d="M13 21h8V11h-8v10z"></path>
+                    <path d="M13 3h8v6h-8V3z"></path>
+                    <path d="M3 21h8v-6H3v6z"></path>
+                </svg>
+            </span>
             <span class="cd-sidebar__text">Overview</span>
         </a>
 
         <a class="cd-sidebar__link" href="#">
-            <span class="cd-sidebar__icon">🧠</span>
+            <span class="cd-sidebar__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18h6"></path>
+                    <path d="M10 22h4"></path>
+                    <path d="M12 2a7 7 0 0 0-4 12c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2a7 7 0 0 0-4-12z"></path>
+                </svg>
+            </span>
             <span class="cd-sidebar__text">Strategies</span>
         </a>
 
         <a class="cd-sidebar__link" href="#">
-            <span class="cd-sidebar__icon">✅</span>
+            <span class="cd-sidebar__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+            </span>
             <span class="cd-sidebar__text">Actions</span>
         </a>
 
         <a class="cd-sidebar__link" href="#">
-            <span class="cd-sidebar__icon">🔥</span>
+            <span class="cd-sidebar__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2s4 4 4 9a4 4 0 0 1-8 0c0-5 4-9 4-9z"></path>
+                    <path d="M8.5 14.5s-1.5 1.5-1.5 3.5a5 5 0 0 0 10 0c0-2-1.5-3.5-1.5-3.5"></path>
+                </svg>
+            </span>
             <span class="cd-sidebar__text">Habits</span>
         </a>
 
         <a class="cd-sidebar__link" href="#">
-            <span class="cd-sidebar__icon">📈</span>
+            <span class="cd-sidebar__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18"></path>
+                    <path d="M7 14l3-3 4 4 6-7"></path>
+                </svg>
+            </span>
             <span class="cd-sidebar__text">Metrics</span>
         </a>
 
         <a class="cd-sidebar__link" href="#">
-            <span class="cd-sidebar__icon">🛡️</span>
+            <span class="cd-sidebar__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2l8 4v6c0 5-3.5 9.5-8 10-4.5-.5-8-5-8-10V6l8-4z"></path>
+                    <path d="M12 8v6"></path>
+                    <path d="M12 18h.01"></path>
+                </svg>
+            </span>
             <span class="cd-sidebar__text">War Room</span>
         </a>
 
         <a class="cd-sidebar__link" asp-controller="Home" asp-action="Privacy">
-            <span class="cd-sidebar__icon">⚙️</span>
+            <span class="cd-sidebar__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
+                    <path
+                        d="M19.4 15a7.9 7.9 0 0 0 .1-1 7.9 7.9 0 0 0-.1-1l2-1.5-2-3.5-2.3.7a8 8 0 0 0-1.7-1L15 3h-6l-.4 2.7a8 8 0 0 0-1.7 1L4.6 6l-2 3.5 2 1.5a8.7 8.7 0 0 0 0 2l-2 1.5 2 3.5 2.3-.7a8 8 0 0 0 1.7 1L9 21h6l.4-2.7a8 8 0 0 0 1.7-1l2.3.7 2-3.5-2-1.5z">
+                    </path>
+                </svg>
+            </span>
             <span class="cd-sidebar__text">Settings</span>
         </a>
     </nav>
 
     <div class="cd-sidebar__bottom">
         <div class="cd-sidebar__user">
-            <div class="cd-sidebar__avatar" aria-hidden="true">👤</div>
+            <div class="cd-sidebar__avatar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-avat" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                    <circle cx="12" cy="8" r="4"></circle>
+                </svg>
+            </div>
+
             <div class="cd-sidebar__userMeta">
                 <div class="cd-sidebar__userName">@displayName</div>
                 <div class="cd-sidebar__userEmail">@email</div>
