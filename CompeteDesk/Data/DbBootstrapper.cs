@@ -34,6 +34,7 @@ namespace CompeteDesk.Data
 			await EnsureActionsTableAsync(db);
 			await EnsureWarIntelTableAsync(db);
 			await EnsureWarPlansTableAsync(db);
+			await EnsureWebsiteAnalysisReportsTableAsync(db);
         }
 
 		private static async Task EnsureWarIntelTableAsync(ApplicationDbContext db)
@@ -312,6 +313,82 @@ ON Actions (WorkspaceId, OwnerId);");
             await db.Database.ExecuteSqlRawAsync($"ALTER TABLE \"{tableName}\" ADD COLUMN \"{columnName}\" {sqliteType} {nullSql};");
         }
 
+		private static async Task EnsureWebsiteAnalysisReportsTableAsync(ApplicationDbContext db)
+		{
+			if (!await TableExistsAsync(db, "WebsiteAnalysisReports"))
+			{
+				await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE WebsiteAnalysisReports (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    WorkspaceId INTEGER NULL,
+    OwnerId TEXT NOT NULL,
+    Url TEXT NOT NULL,
+    FinalUrl TEXT NULL,
+    HttpStatusCode INTEGER NOT NULL DEFAULT 0,
+    ResponseTimeMs INTEGER NOT NULL DEFAULT 0,
+    Title TEXT NULL,
+    MetaDescription TEXT NULL,
+    WordCount INTEGER NOT NULL DEFAULT 0,
+    H1Count INTEGER NOT NULL DEFAULT 0,
+    H2Count INTEGER NOT NULL DEFAULT 0,
+    InternalLinkCount INTEGER NOT NULL DEFAULT 0,
+    ExternalLinkCount INTEGER NOT NULL DEFAULT 0,
+    ImageCount INTEGER NOT NULL DEFAULT 0,
+    ImagesMissingAltCount INTEGER NOT NULL DEFAULT 0,
+    IsHttps INTEGER NOT NULL DEFAULT 0,
+    HasViewportMeta INTEGER NOT NULL DEFAULT 0,
+    HasRobotsNoindex INTEGER NOT NULL DEFAULT 0,
+    HasCanonicalLink INTEGER NOT NULL DEFAULT 0,
+    HasOpenGraph INTEGER NOT NULL DEFAULT 0,
+    HasCspHeader INTEGER NOT NULL DEFAULT 0,
+    HasHstsHeader INTEGER NOT NULL DEFAULT 0,
+    AiInsightsJson TEXT NULL,
+    AiSummary TEXT NULL,
+    CreatedAtUtc TEXT NOT NULL,
+    FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE SET NULL
+);");
+
+				// Helpful indexes for listing per user.
+				await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_CreatedAtUtc",
+					"WebsiteAnalysisReports", "(OwnerId, CreatedAtUtc)");
+				await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_Url",
+					"WebsiteAnalysisReports", "(OwnerId, Url)");
+			}
+			else
+			{
+				// Patch older schemas (if the table exists but is missing columns).
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "WorkspaceId", "INTEGER", true);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "OwnerId", "TEXT", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "Url", "TEXT", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "FinalUrl", "TEXT", true);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HttpStatusCode", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ResponseTimeMs", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "Title", "TEXT", true);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "MetaDescription", "TEXT", true);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "WordCount", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "H1Count", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "H2Count", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "InternalLinkCount", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ExternalLinkCount", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ImageCount", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "ImagesMissingAltCount", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "IsHttps", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasViewportMeta", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasRobotsNoindex", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasCanonicalLink", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasOpenGraph", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasCspHeader", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "HasHstsHeader", "INTEGER", false);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "AiInsightsJson", "TEXT", true);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "AiSummary", "TEXT", true);
+				await EnsureColumnAsync(db, "WebsiteAnalysisReports", "CreatedAtUtc", "TEXT", false);
+
+				await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_CreatedAtUtc",
+					"WebsiteAnalysisReports", "(OwnerId, CreatedAtUtc)");
+				await EnsureIndexAsync(db, "IX_WebsiteAnalysisReports_Owner_Url",
+					"WebsiteAnalysisReports", "(OwnerId, Url)");
+			}
+		}
         // Optional for later (migrations-based)
         public static void EnsureDatabaseUpToDate(WebApplication app)
         {

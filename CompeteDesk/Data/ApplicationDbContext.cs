@@ -16,6 +16,7 @@ public class ApplicationDbContext : IdentityDbContext
 	public DbSet<ActionItem> Actions => Set<ActionItem>();
 	public DbSet<WarIntel> WarIntel => Set<WarIntel>();
 	public DbSet<WarPlan> WarPlans => Set<WarPlan>();
+    public DbSet<WebsiteAnalysisReport> WebsiteAnalysisReports => Set<WebsiteAnalysisReport>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -81,5 +82,19 @@ public class ApplicationDbContext : IdentityDbContext
 			b.HasIndex(x => new { x.OwnerId, x.Status });
 			b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
 		});
+        builder.Entity<WebsiteAnalysisReport>(b =>
+        {
+            b.Property(x => x.Url).IsRequired().HasMaxLength(2048);
+            b.Property(x => x.FinalUrl).HasMaxLength(512);
+            b.Property(x => x.Title).HasMaxLength(512);
+            b.Property(x => x.MetaDescription).HasMaxLength(1024);
+            b.Property(x => x.AiInsightsJson);
+            b.Property(x => x.AiSummary);
+            b.Property(x => x.OwnerId).IsRequired();
+            b.HasIndex(x => new { x.OwnerId, x.CreatedAtUtc });
+            b.HasIndex(x => new { x.OwnerId, x.Url });
+            b.HasIndex(x => x.WorkspaceId);
+        });
+
     }
 }

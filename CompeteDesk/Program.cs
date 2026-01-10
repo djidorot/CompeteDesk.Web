@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using CompeteDesk.Data;
+using CompeteDesk.Services.OpenAI;
+using CompeteDesk.Services.WebsiteAnalysis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+// ------------------------------------------------------------
+// Website Analysis + OpenAI
+// ------------------------------------------------------------
+builder.Services.Configure<OpenAiOptions>(builder.Configuration.GetSection("OpenAI"));
+
+// HttpClient for site fetches (analysis).
+builder.Services.AddHttpClient("site-analyzer", c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(20);
+    c.DefaultRequestHeaders.UserAgent.ParseAdd("CompeteDeskSiteAnalyzer/1.0");
+});
+
+// HttpClient for OpenAI.
+builder.Services.AddHttpClient<OpenAiChatClient>(c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(40);
+});
+
+builder.Services.AddScoped<WebsiteAnalysisService>();
 
 // Identity + External Login (Google)
 builder.Services
