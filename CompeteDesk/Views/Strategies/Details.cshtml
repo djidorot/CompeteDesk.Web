@@ -6,6 +6,7 @@
 }
 
 <link rel="stylesheet" href="~/css/strategies.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/strategies-ai.css" asp-append-version="true" />
 
 <div class="cd-page">
     <div class="cd-page__head">
@@ -42,4 +43,84 @@
             </div>
         </div>
     </div>
+
+    <div class="card shadow-sm" id="ai">
+        <div class="card-body">
+            <div class="cd-ai__head">
+                <div>
+                    <h2 class="cd-ai__title">AI Competitive Playbook</h2>
+                    <div class="cd-sub">Generate a practical execution plan + counters based on your War Room intel.</div>
+                </div>
+                <div class="cd-ai__meta">
+                    @if (!string.IsNullOrWhiteSpace(Model.AiSummary))
+                    {
+                        <div class="cd-ai__last">
+                            <div class="cd-ai__lastTitle">Last run</div>
+                            <div class="cd-ai__lastBody">@Model.AiSummary</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <form class="cd-ai__form" data-strategy-ai-form data-strategy-id="@Model.Id">
+                @Html.AntiForgeryToken()
+                <div class="cd-ai__grid">
+                    <div class="cd-field">
+                        <label class="cd-label" for="market">Market / arena</label>
+                        <input id="market" class="form-control cd-input" placeholder="e.g., Online coding school in PH" data-ai-market />
+                        <div class="cd-help">Optional but helps the AI be specific.</div>
+                    </div>
+                    <div class="cd-field">
+                        <label class="cd-label" for="objective">Objective</label>
+                        <input id="objective" class="form-control cd-input" placeholder="e.g., Beat competitor on search + conversion" data-ai-objective />
+                    </div>
+                    <div class="cd-field">
+                        <label class="cd-label" for="competitor">Competitor</label>
+                        <input id="competitor" class="form-control cd-input" placeholder="e.g., Company/brand name(s)" data-ai-competitor />
+                    </div>
+                    <div class="cd-field">
+                        <label class="cd-label" for="position">Our position</label>
+                        <input id="position" class="form-control cd-input" placeholder="e.g., strong community + better curriculum" data-ai-position />
+                    </div>
+                    <div class="cd-field cd-field--full">
+                        <label class="cd-label" for="constraints">Constraints / rules</label>
+                        <textarea id="constraints" class="form-control cd-input" rows="2" placeholder="Budget, team size, deadlines, non-negotiables…" data-ai-constraints></textarea>
+                    </div>
+                    <div class="cd-field">
+                        <label class="cd-label" for="time">Time horizon</label>
+                        <input id="time" class="form-control cd-input" placeholder="e.g., 30 days / 90 days" data-ai-time />
+                    </div>
+                    <div class="cd-field">
+                        <label class="cd-label" for="success">Success definition</label>
+                        <input id="success" class="form-control cd-input" placeholder="e.g., +20% leads, +10% conversion" data-ai-success />
+                    </div>
+                    <div class="cd-field cd-field--full">
+                        <label class="cd-label" for="ethics">Ethical line</label>
+                        <input id="ethics" class="form-control cd-input" placeholder="e.g., no deception, no scraping personal data" data-ai-ethics />
+                        <div class="cd-help">Keeps outputs business-safe and compliant.</div>
+                    </div>
+                </div>
+
+                <div class="cd-ai__actions">
+                    <button class="btn btn-primary cd-btn" type="submit" data-ai-generate>
+                        Generate playbook
+                    </button>
+                    <button class="btn btn-outline-secondary cd-btn" type="button" data-ai-create-actions disabled>
+                        Create Action Items
+                    </button>
+                    <div class="cd-ai__status cd-muted" data-ai-status></div>
+                </div>
+            </form>
+
+            <div class="cd-ai__result" data-ai-result hidden>
+                <div class="cd-ai__sections" data-ai-sections></div>
+            </div>
+
+            <script type="application/json" data-ai-initial>@(Model.AiInsightsJson ?? "")</script>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/strategies-ai.js" asp-append-version="true"></script>
+}

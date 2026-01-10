@@ -181,6 +181,9 @@ CREATE TABLE Strategies (
     Category TEXT NULL,
     Status TEXT NOT NULL,
     Priority INTEGER NOT NULL DEFAULT 0,
+    AiInsightsJson TEXT NULL,
+    AiSummary TEXT NULL,
+    AiUpdatedAtUtc TEXT NULL,
     CreatedAtUtc TEXT NOT NULL,
     UpdatedAtUtc TEXT NULL,
     FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE SET NULL
@@ -197,6 +200,9 @@ CREATE TABLE Strategies (
                 await EnsureColumnAsync(db, "Strategies", "Category", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Strategies", "Status", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Strategies", "Priority", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "Strategies", "AiInsightsJson", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Strategies", "AiSummary", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Strategies", "AiUpdatedAtUtc", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Strategies", "CreatedAtUtc", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Strategies", "UpdatedAtUtc", "TEXT", nullable: true);
             }

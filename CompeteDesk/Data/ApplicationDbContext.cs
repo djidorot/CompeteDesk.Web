@@ -37,6 +37,8 @@ public class ApplicationDbContext : IdentityDbContext
             b.Property(x => x.Summary).HasMaxLength(2000);
             b.Property(x => x.Category).HasMaxLength(80);
             b.Property(x => x.Status).IsRequired().HasMaxLength(24);
+            b.Property(x => x.AiInsightsJson);
+            b.Property(x => x.AiSummary);
 
             b.HasIndex(x => new { x.OwnerId, x.Status });
             b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });

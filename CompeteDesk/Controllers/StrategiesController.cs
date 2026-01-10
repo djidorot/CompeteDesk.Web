@@ -1,12 +1,18 @@
+// UPDATED FILE: CompeteDesk/Controllers/StrategiesController.cs
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CompeteDesk.Data;
 using CompeteDesk.Models;
+using CompeteDesk.Services.OpenAI;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CompeteDesk.Controllers;
 
@@ -15,11 +21,13 @@ public class StrategiesController : Controller
 {
     private readonly ApplicationDbContext _db;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly OpenAiChatClient _openAi;
 
-    public StrategiesController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
+    public StrategiesController(ApplicationDbContext db, UserManager<IdentityUser> userManager, OpenAiChatClient openAi)
     {
         _db = db;
         _userManager = userManager;
+        _openAi = openAi;
     }
 
     private async Task<string> GetUserIdAsync()
@@ -157,6 +165,8 @@ public class StrategiesController : Controller
         ViewData["UseSidebar"] = true;
 
         var userId = await GetUserIdAsync();
+        if (string.IsNullOrWhiteSpace(userId)) return Challenge();
+
         var item = await _db.Strategies.FirstOrDefaultAsync(x => x.Id == id && x.OwnerId == userId);
         if (item == null) return NotFound();
 
@@ -199,6 +209,8 @@ public class StrategiesController : Controller
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var userId = await GetUserIdAsync();
+        if (string.IsNullOrWhiteSpace(userId)) return Challenge();
+
         var item = await _db.Strategies.FirstOrDefaultAsync(x => x.Id == id && x.OwnerId == userId);
         if (item == null) return NotFound();
 
@@ -208,7 +220,7 @@ public class StrategiesController : Controller
     }
 
     // POST: /Strategies/SeedFromBook
-    // Inserts the 33 strategy titles (as "Active") if the user has none yet.
+    // Inserts the strategy titles (as "Active") if the user has none yet.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SeedFromBook()
@@ -221,8 +233,8 @@ public class StrategiesController : Controller
 
         var now = DateTime.UtcNow;
 
-        // Titles based on the book’s opening table-of-contents section.
-        // Keep CorePrinciple short; users can expand each strategy with their own business context.
+        // NOTE:
+        // These are short paraphrased titles/labels for seeding (not book passages).
         var seeds = new[]
         {
             // Part I — Self-Directed Warfare
@@ -255,7 +267,7 @@ public class StrategiesController : Controller
             new Strategy { Name = "Negotiate While Advancing", Category = "Offensive", CorePrinciple = "Talk while creating relentless leverage.", Priority = 25 },
             new Strategy { Name = "Know How to End Things", Category = "Offensive", CorePrinciple = "Choose exits; end cleanly.", Priority = 25 },
 
-            // Part V — Unconventional (Dirty) Warfare
+            // Part V — Unconventional Warfare
             new Strategy { Name = "Weave a Seamless Blend of Fact and Fiction", Category = "Unconventional", CorePrinciple = "Control perceptions; manufacture reality.", Priority = 20 },
             new Strategy { Name = "Take the Line of Least Expectation", Category = "Unconventional", CorePrinciple = "Upset patterns; strike where unexpected.", Priority = 20 },
             new Strategy { Name = "Occupy the Moral High Ground", Category = "Unconventional", CorePrinciple = "Frame your cause as more just.", Priority = 20 },
@@ -282,5 +294,282 @@ public class StrategiesController : Controller
         await _db.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
+    }
+
+    // ------------------------------------------------------------
+    // AI: Generate a competitive playbook for a strategy
+    // ------------------------------------------------------------
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateAiPlaybook(int id, [FromBody] StrategyAiRequest req, CancellationToken ct)
+    {
+        var userId = await GetUserIdAsync();
+        if (string.IsNullOrWhiteSpace(userId)) return Challenge();
+
+        var strategy = await _db.Strategies.FirstOrDefaultAsync(x => x.Id == id && x.OwnerId == userId, ct);
+        if (strategy == null) return NotFound();
+
+        // Minimal baseline if OpenAI isn't configured.
+        if (!_openAi.IsConfigured)
+        {
+            var fallback = new
+            {
+                oneLineSummary = "OpenAI not configured. Set OpenAI:ApiKey to enable AI playbooks.",
+                strategicAim = req.Objective ?? "",
+                battlefield = new { market = req.MarketOrArena ?? "", enemy = req.Competitor ?? "", theirLikelyMove = "", ourEdge = "" },
+                principleFit = new { whyThisStrategy = "", whenNotToUse = "" },
+                executionPlan = Array.Empty<object>(),
+                counterMoves = Array.Empty<object>(),
+                quickWins = new[] { "Add OpenAI API key (OpenAI:ApiKey)." },
+                risks = Array.Empty<object>(),
+                kpis = Array.Empty<object>(),
+                recommendedActions = new[]
+                {
+                    new { title = "Configure OpenAI", description = "Set OpenAI:ApiKey in appsettings or user-secrets.", priority = 5, dueDays = 1, category = "Setup" }
+                }
+            };
+
+            var json = JsonSerializer.Serialize(fallback);
+            strategy.AiInsightsJson = json;
+            strategy.AiSummary = fallback.oneLineSummary;
+            strategy.AiUpdatedAtUtc = DateTime.UtcNow;
+            strategy.UpdatedAtUtc = DateTime.UtcNow;
+            await _db.SaveChangesAsync(ct);
+
+            return Json(new { ok = true, aiJson = json, summary = strategy.AiSummary, updatedAtUtc = strategy.AiUpdatedAtUtc });
+        }
+
+        var workspace = strategy.WorkspaceId != null
+            ? await _db.Workspaces.AsNoTracking().FirstOrDefaultAsync(w => w.Id == strategy.WorkspaceId && w.OwnerId == userId, ct)
+            : null;
+
+        // Pull a small amount of context to keep the prompt grounded and cheap.
+        var recentIntel = await _db.WarIntel.AsNoTracking()
+            .Where(x => x.OwnerId == userId && x.WorkspaceId == strategy.WorkspaceId)
+            .OrderByDescending(x => x.ObservedAtUtc ?? x.CreatedAtUtc)
+            .Select(x => new { x.Title, x.Subject, x.Signal, x.Confidence, x.Tags })
+            .Take(6)
+            .ToListAsync(ct);
+
+        var activePlans = await _db.WarPlans.AsNoTracking()
+            .Where(x => x.OwnerId == userId && x.WorkspaceId == strategy.WorkspaceId && x.Status != "Archived")
+            .OrderByDescending(x => x.UpdatedAtUtc ?? x.CreatedAtUtc)
+            .Select(x => new { x.Name, x.Objective, x.Approach, x.Status })
+            .Take(3)
+            .ToListAsync(ct);
+
+        var existingActions = await _db.Actions.AsNoTracking()
+            .Where(x => x.OwnerId == userId && x.StrategyId == strategy.Id && x.Status != "Archived")
+            .OrderByDescending(x => x.UpdatedAtUtc ?? x.CreatedAtUtc)
+            .Select(x => new { x.Title, x.Status, x.Priority, x.DueAtUtc })
+            .Take(8)
+            .ToListAsync(ct);
+
+        var payload = new
+        {
+            strategy = new
+            {
+                strategy.Id,
+                strategy.Name,
+                strategy.Category,
+                strategy.CorePrinciple,
+                strategy.Summary,
+                strategy.Priority,
+                strategy.SourceBook
+            },
+            workspace = workspace == null ? null : new { workspace.Id, workspace.Name, workspace.Description },
+            userInput = new
+            {
+                req.MarketOrArena,
+                req.Objective,
+                req.Competitor,
+                req.OurPosition,
+                req.Constraints,
+                req.TimeHorizon,
+                req.EthicalLine,
+                req.SuccessDefinition
+            },
+            signals = new { recentIntel, activePlans, existingActions }
+        };
+
+        // IMPORTANT FIX:
+        // Use a C# raw string literal so we don't break compilation with backslashes/quotes/newlines.
+        var systemPrompt = """
+You are a product strategist and competitive analyst.
+Your job: convert a named strategy into a practical competitive playbook.
+
+Important constraints:
+- Base conclusions only on the provided JSON context. If something is missing, ask for it inside the output.
+- Do NOT quote copyrighted text or reproduce book passages.
+- Keep language professional and business-safe (no illegal or deceptive instructions).
+
+Return STRICT JSON with this schema:
+{
+  "oneLineSummary": "...",
+  "strategicAim": "...",
+  "battlefield": { "market": "...", "enemy": "...", "theirLikelyMove": "...", "ourEdge": "..." },
+  "principleFit": { "whyThisStrategy": "...", "whenNotToUse": "...", "assumptionsToValidate": ["..."] },
+  "executionPlan": [
+    { "step": 1, "title": "...", "detail": "...", "ownerRole": "...", "timeframe": "...", "successMetric": "..." }
+  ],
+  "counterMoves": [
+    { "enemyMove": "...", "ourResponse": "...", "signalToWatch": "..." }
+  ],
+  "quickWins": ["..."],
+  "risks": [ { "risk": "...", "mitigation": "...", "severity": "High|Medium|Low" } ],
+  "kpis": [ { "name": "...", "target": "...", "why": "..." } ],
+  "recommendedActions": [
+    { "title": "...", "description": "...", "priority": 1, "dueDays": 7, "category": "..." }
+  ],
+  "questions": ["..."]
+}
+
+Rules:
+- Keep each string concise (generally < 140 characters), except "detail" which can be ~300.
+- recommendedActions should be actionable tasks that can be created as Action Items.
+- If the strategy is not attached to a workspace, suggest which workspace context would help.
+""";
+
+        var userJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        });
+
+        string aiJson;
+        try
+        {
+            aiJson = await _openAi.CreateJsonInsightsAsync(systemPrompt, userJson, ct);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { ok = false, error = $"AI call failed: {ex.Message}" });
+        }
+
+        // Store the raw JSON + a short summary.
+        strategy.AiInsightsJson = aiJson;
+        strategy.AiSummary = TryExtractOneLineSummary(aiJson) ?? "AI playbook generated.";
+        strategy.AiUpdatedAtUtc = DateTime.UtcNow;
+        strategy.UpdatedAtUtc = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync(ct);
+
+        return Json(new { ok = true, aiJson, summary = strategy.AiSummary, updatedAtUtc = strategy.AiUpdatedAtUtc });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateActionsFromAi(int id, CancellationToken ct)
+    {
+        var userId = await GetUserIdAsync();
+        if (string.IsNullOrWhiteSpace(userId)) return Challenge();
+
+        var strategy = await _db.Strategies.FirstOrDefaultAsync(x => x.Id == id && x.OwnerId == userId, ct);
+        if (strategy == null) return NotFound();
+
+        if (string.IsNullOrWhiteSpace(strategy.AiInsightsJson))
+            return BadRequest(new { ok = false, error = "No AI insights found. Generate a playbook first." });
+
+        StrategyAiPlaybook? playbook;
+        try
+        {
+            playbook = JsonSerializer.Deserialize<StrategyAiPlaybook>(strategy.AiInsightsJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+        catch
+        {
+            return BadRequest(new { ok = false, error = "AI JSON could not be parsed." });
+        }
+
+        if (playbook?.RecommendedActions == null || playbook.RecommendedActions.Count == 0)
+            return BadRequest(new { ok = false, error = "AI did not return any recommended actions." });
+
+        var now = DateTime.UtcNow;
+        var created = 0;
+
+        foreach (var a in playbook.RecommendedActions.Take(20))
+        {
+            if (string.IsNullOrWhiteSpace(a.Title)) continue;
+
+            var due = a.DueDays != null
+                ? now.AddDays(Math.Clamp(a.DueDays.Value, 1, 365))
+                : (DateTime?)null;
+
+            _db.Actions.Add(new ActionItem
+            {
+                OwnerId = userId,
+                WorkspaceId = strategy.WorkspaceId,
+                StrategyId = strategy.Id,
+                Title = a.Title.Trim(),
+                Description = string.IsNullOrWhiteSpace(a.Description) ? null : a.Description.Trim(),
+                Category = string.IsNullOrWhiteSpace(a.Category) ? "AI" : a.Category.Trim(),
+                Status = "Planned",
+                Priority = Math.Clamp(a.Priority ?? 3, 1, 5) * 10,
+                DueAtUtc = due,
+                SourceBook = strategy.SourceBook,
+                CreatedAtUtc = now,
+                UpdatedAtUtc = now
+            });
+            created++;
+        }
+
+        if (created == 0)
+            return BadRequest(new { ok = false, error = "No valid action items were found in AI output." });
+
+        await _db.SaveChangesAsync(ct);
+        return Json(new { ok = true, created });
+    }
+
+    private static string? TryExtractOneLineSummary(string aiJson)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(aiJson);
+            if (doc.RootElement.TryGetProperty("oneLineSummary", out var s) && s.ValueKind == JsonValueKind.String)
+                return s.GetString();
+        }
+        catch
+        {
+            // ignore
+        }
+        return null;
+    }
+
+    public sealed class StrategyAiRequest
+    {
+        public string? MarketOrArena { get; set; }
+        public string? Objective { get; set; }
+        public string? Competitor { get; set; }
+        public string? OurPosition { get; set; }
+        public string? Constraints { get; set; }
+        public string? TimeHorizon { get; set; }
+        public string? EthicalLine { get; set; }
+        public string? SuccessDefinition { get; set; }
+    }
+
+    public sealed class StrategyAiPlaybook
+    {
+        [JsonPropertyName("recommendedActions")]
+        public List<StrategyAiAction> RecommendedActions { get; set; } = new();
+    }
+
+    public sealed class StrategyAiAction
+    {
+        [JsonPropertyName("title")]
+        public string? Title { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("priority")]
+        public int? Priority { get; set; }
+
+        [JsonPropertyName("dueDays")]
+        public int? DueDays { get; set; }
+
+        [JsonPropertyName("category")]
+        public string? Category { get; set; }
     }
 }

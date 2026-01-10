@@ -59,4 +59,23 @@ public class Strategy
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAtUtc { get; set; }
+
+    // ------------------------------------------------------------
+    // AI (Competitive Playbook)
+    // ------------------------------------------------------------
+    /// <summary>
+    /// Raw JSON returned by the AI Playbook generator.
+    /// Stored so users can revisit / iterate without re-running AI.
+    /// </summary>
+    public string? AiInsightsJson { get; set; }
+
+    /// <summary>
+    /// Short human-readable summary of the last AI run.
+    /// </summary>
+    public string? AiSummary { get; set; }
+
+    /// <summary>
+    /// Timestamp of the last AI generation for this strategy.
+    /// </summary>
+    public DateTime? AiUpdatedAtUtc { get; set; }
 }
