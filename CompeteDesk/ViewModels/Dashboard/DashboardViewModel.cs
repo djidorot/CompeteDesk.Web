@@ -6,8 +6,17 @@ namespace CompeteDesk.ViewModels.Dashboard
 {
     public sealed class DashboardViewModel
     {
+        public int? WorkspaceId { get; set; }
         public string WorkspaceName { get; set; } = "My Workspace";
         public string UserDisplayName { get; set; } = "User";
+
+        // Business profile (required for AI analysis)
+        public string? BusinessType { get; set; }
+        public string? Country { get; set; }
+        public bool NeedsBusinessProfile { get; set; }
+
+        // Latest AI report (if available)
+        public BusinessAnalysisViewModel? BusinessAnalysis { get; set; }
 
         // Command header
         public string StrategyMode { get; set; } = "Growth"; // Offensive / Defensive / Growth / Stability
@@ -76,6 +85,42 @@ namespace CompeteDesk.ViewModels.Dashboard
 
             return vm;
         }
+    }
+
+    public sealed class BusinessAnalysisViewModel
+    {
+        public DateTime CreatedAtUtc { get; set; }
+
+        public List<string> Strengths { get; set; } = new();
+        public List<string> Weaknesses { get; set; } = new();
+        public List<string> Opportunities { get; set; } = new();
+        public List<string> Threats { get; set; } = new();
+
+        public ForceVm Rivalry { get; set; } = new();
+        public ForceVm NewEntrants { get; set; } = new();
+        public ForceVm Substitutes { get; set; } = new();
+        public ForceVm SupplierPower { get; set; } = new();
+        public ForceVm BuyerPower { get; set; } = new();
+
+        public List<CompetitorVm> Competitors { get; set; } = new();
+    }
+
+    public sealed class ForceVm
+    {
+        public int Score { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public sealed class CompetitorVm
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? WhyRelevant { get; set; }
+
+        public ForceVm Rivalry { get; set; } = new();
+        public ForceVm NewEntrants { get; set; } = new();
+        public ForceVm Substitutes { get; set; } = new();
+        public ForceVm SupplierPower { get; set; } = new();
+        public ForceVm BuyerPower { get; set; } = new();
     }
 
     public sealed class TodayActionItem

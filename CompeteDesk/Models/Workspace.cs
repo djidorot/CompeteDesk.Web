@@ -26,4 +26,16 @@ public class Workspace
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAtUtc { get; set; }
+
+    // ------------------------------------------------------------
+    // Business profile (used for AI SWOT + Porter Five Forces)
+    // ------------------------------------------------------------
+
+    [StringLength(120)]
+    public string? BusinessType { get; set; }
+
+    [StringLength(80)]
+    public string? Country { get; set; }
+
+    public DateTime? BusinessProfileUpdatedAtUtc { get; set; }
 }

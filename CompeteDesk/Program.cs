@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using CompeteDesk.Data;
 using CompeteDesk.Services.OpenAI;
 using CompeteDesk.Services.WebsiteAnalysis;
+using CompeteDesk.Services.BusinessAnalysis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,7 @@ builder.Services.AddHttpClient<OpenAiChatClient>(c =>
 });
 
 builder.Services.AddScoped<WebsiteAnalysisService>();
+builder.Services.AddScoped<BusinessAnalysisService>();
 
 // Identity + External Login (Google)
 builder.Services

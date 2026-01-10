@@ -7,6 +7,7 @@
 }
 
 <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/dashboard-business-analysis.css" asp-append-version="true" />
 
 <div class="cd-dashboard">
 
@@ -53,6 +54,172 @@
 
     <!-- Main Grid -->
     <div class="cd-grid mt-3">
+
+        <!-- Business Analysis (AI) -->
+        <section class="cd-panel card shadow-sm cd-biz" data-cd-biz-root
+                 data-workspace-id="@Model.WorkspaceId"
+                 data-needs-profile="@Model.NeedsBusinessProfile.ToString().ToLowerInvariant()">
+            <div class="card-body">
+                <div class="cd-panel-head">
+                    <h2 class="cd-h2">Business Analysis (AI)</h2>
+                    <div class="cd-panel-actions">
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-cd-biz-edit>
+                            @(Model.NeedsBusinessProfile ? "Set business profile" : "Edit profile")
+                        </button>
+
+                        <form method="post" asp-controller="Dashboard" asp-action="GenerateBusinessAnalysis" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="workspaceId" value="@Model.WorkspaceId" />
+                            <button type="submit" class="btn btn-sm btn-primary" data-cd-biz-generate>
+                                @(Model.BusinessAnalysis == null ? "Generate" : "Regenerate")
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="cd-muted small">
+                    Profile: <strong>@(string.IsNullOrWhiteSpace(Model.BusinessType) ? "—" : Model.BusinessType)</strong>
+                    <span class="mx-1">•</span>
+                    Country: <strong>@(string.IsNullOrWhiteSpace(Model.Country) ? "—" : Model.Country)</strong>
+                </div>
+
+                @if (Model.BusinessAnalysis == null)
+                {
+                    <div class="cd-biz-empty mt-3">
+                        <div class="cd-muted">No analysis generated yet. Click <strong>Generate</strong> to create SWOT + Porter's Five Forces (and competitors) for this workspace.</div>
+                    </div>
+                }
+                else
+                {
+                    <div class="cd-biz-grid mt-3">
+                        <!-- SWOT -->
+                        <div class="cd-biz-card">
+                            <div class="cd-biz-title">SWOT</div>
+                            <div class="cd-biz-swot">
+                                <div>
+                                    <div class="cd-biz-h">Strengths</div>
+                                    <ul class="cd-biz-ul">
+                                        @foreach (var x in Model.BusinessAnalysis.Strengths)
+                                        {
+                                            <li>@x</li>
+                                        }
+                                    </ul>
+                                </div>
+                                <div>
+                                    <div class="cd-biz-h">Weaknesses</div>
+                                    <ul class="cd-biz-ul">
+                                        @foreach (var x in Model.BusinessAnalysis.Weaknesses)
+                                        {
+                                            <li>@x</li>
+                                        }
+                                    </ul>
+                                </div>
+                                <div>
+                                    <div class="cd-biz-h">Opportunities</div>
+                                    <ul class="cd-biz-ul">
+                                        @foreach (var x in Model.BusinessAnalysis.Opportunities)
+                                        {
+                                            <li>@x</li>
+                                        }
+                                    </ul>
+                                </div>
+                                <div>
+                                    <div class="cd-biz-h">Threats</div>
+                                    <ul class="cd-biz-ul">
+                                        @foreach (var x in Model.BusinessAnalysis.Threats)
+                                        {
+                                            <li>@x</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Five Forces (business) -->
+                        <div class="cd-biz-card">
+                            <div class="cd-biz-title">Porter’s Five Forces (Your Business)</div>
+                            <div class="cd-biz-forces">
+                                @{
+                                    var f = Model.BusinessAnalysis;
+                                }
+
+                                <div class="cd-force">
+                                    <div class="cd-force-name">Rivalry</div>
+                                    <div class="cd-force-score" data-score="@f.Rivalry.Score">@f.Rivalry.Score / 5</div>
+                                    <div class="cd-muted small">@f.Rivalry.Notes</div>
+                                </div>
+                                <div class="cd-force">
+                                    <div class="cd-force-name">Threat of New Entrants</div>
+                                    <div class="cd-force-score" data-score="@f.NewEntrants.Score">@f.NewEntrants.Score / 5</div>
+                                    <div class="cd-muted small">@f.NewEntrants.Notes</div>
+                                </div>
+                                <div class="cd-force">
+                                    <div class="cd-force-name">Threat of Substitutes</div>
+                                    <div class="cd-force-score" data-score="@f.Substitutes.Score">@f.Substitutes.Score / 5</div>
+                                    <div class="cd-muted small">@f.Substitutes.Notes</div>
+                                </div>
+                                <div class="cd-force">
+                                    <div class="cd-force-name">Supplier Power</div>
+                                    <div class="cd-force-score" data-score="@f.SupplierPower.Score">@f.SupplierPower.Score / 5</div>
+                                    <div class="cd-muted small">@f.SupplierPower.Notes</div>
+                                </div>
+                                <div class="cd-force">
+                                    <div class="cd-force-name">Buyer Power</div>
+                                    <div class="cd-force-score" data-score="@f.BuyerPower.Score">@f.BuyerPower.Score / 5</div>
+                                    <div class="cd-muted small">@f.BuyerPower.Notes</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Competitors -->
+                        <div class="cd-biz-card">
+                            <div class="cd-biz-title">Key Competitors (Auto-identified)</div>
+                            <div class="cd-biz-competitors">
+                                @foreach (var c in Model.BusinessAnalysis.Competitors)
+                                {
+                                    <span class="cd-comp-chip" title="@c.WhyRelevant">@c.Name</span>
+                                }
+                            </div>
+
+                            <div class="cd-biz-title mt-3">Competitor Five Forces Summary</div>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle cd-biz-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Competitor</th>
+                                            <th class="text-nowrap">Rivalry</th>
+                                            <th class="text-nowrap">New Entrants</th>
+                                            <th class="text-nowrap">Substitutes</th>
+                                            <th class="text-nowrap">Supplier</th>
+                                            <th class="text-nowrap">Buyer</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var c in Model.BusinessAnalysis.Competitors)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-semibold">@c.Name</div>
+                                                    @if (!string.IsNullOrWhiteSpace(c.WhyRelevant))
+                                                    {
+                                                        <div class="cd-muted small">@c.WhyRelevant</div>
+                                                    }
+                                                </td>
+                                                <td><span class="cd-score-pill" data-score="@c.Rivalry.Score">@c.Rivalry.Score</span></td>
+                                                <td><span class="cd-score-pill" data-score="@c.NewEntrants.Score">@c.NewEntrants.Score</span></td>
+                                                <td><span class="cd-score-pill" data-score="@c.Substitutes.Score">@c.Substitutes.Score</span></td>
+                                                <td><span class="cd-score-pill" data-score="@c.SupplierPower.Score">@c.SupplierPower.Score</span></td>
+                                                <td><span class="cd-score-pill" data-score="@c.BuyerPower.Score">@c.BuyerPower.Score</span></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
         <!-- Today -->
         <section class="cd-panel card shadow-sm">
             <div class="card-body">
@@ -238,6 +405,48 @@
     </div>
 </div>
 
+<!-- Business Profile Modal -->
+<div class="modal fade" id="cdBizModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set your business profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">
+                    This is required to generate your SWOT Analysis and Porter’s Five Forces (including key competitors for your location).
+                </p>
+
+                <form id="cdBizProfileForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="workspaceId" value="@Model.WorkspaceId" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Type of business</label>
+                        <input class="form-control" name="businessType" value="@Model.BusinessType" placeholder="e.g., Online Coding School, Coffee Shop, SaaS" required />
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Location / Country</label>
+                        <input class="form-control" name="country" value="@Model.Country" placeholder="e.g., Philippines" required />
+                    </div>
+
+                    <div class="cd-biz-modal-error text-danger small d-none" data-cd-biz-error></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" data-cd-biz-save>Save</button>
+                <button type="button" class="btn btn-primary d-none" disabled data-cd-biz-saving>
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                    Saving…
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard-business-analysis.js" asp-append-version="true"></script>
 }

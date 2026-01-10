@@ -35,6 +35,7 @@ namespace CompeteDesk.Data
             await EnsureWarIntelTableAsync(db);
             await EnsureWarPlansTableAsync(db);
             await EnsureWebsiteAnalysisReportsTableAsync(db);
+            await EnsureBusinessAnalysisReportsTableAsync(db);
 
             await NormalizeSourceBooksAsync(db);
         }
@@ -147,6 +148,9 @@ CREATE TABLE Workspaces (
     Name TEXT NOT NULL,
     Description TEXT NULL,
     OwnerId TEXT NOT NULL,
+    BusinessType TEXT NULL,
+    Country TEXT NULL,
+    BusinessProfileUpdatedAtUtc TEXT NULL,
     CreatedAtUtc TEXT NOT NULL,
     UpdatedAtUtc TEXT NULL
 );");
@@ -159,12 +163,52 @@ CREATE TABLE Workspaces (
                 await EnsureColumnAsync(db, "Workspaces", "OwnerId", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Workspaces", "CreatedAtUtc", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Workspaces", "UpdatedAtUtc", "TEXT", nullable: true);
+
+                // Business profile
+                await EnsureColumnAsync(db, "Workspaces", "BusinessType", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Workspaces", "Country", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Workspaces", "BusinessProfileUpdatedAtUtc", "TEXT", nullable: true);
             }
 
             // Create indexes AFTER columns exist.
             await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_Workspaces_OwnerId_Name
 ON Workspaces (OwnerId, Name);");
+        }
+
+        private static async Task EnsureBusinessAnalysisReportsTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "BusinessAnalysisReports"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE BusinessAnalysisReports (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    WorkspaceId INTEGER NOT NULL,
+    OwnerId TEXT NOT NULL,
+    BusinessType TEXT NOT NULL,
+    Country TEXT NOT NULL,
+    AiInsightsJson TEXT NOT NULL,
+    CreatedAtUtc TEXT NOT NULL,
+    FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE CASCADE
+);");
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "BusinessAnalysisReports", "WorkspaceId", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "BusinessAnalysisReports", "OwnerId", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "BusinessAnalysisReports", "BusinessType", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "BusinessAnalysisReports", "Country", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "BusinessAnalysisReports", "AiInsightsJson", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "BusinessAnalysisReports", "CreatedAtUtc", "TEXT", nullable: true);
+            }
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_BusinessAnalysisReports_Owner_CreatedAtUtc
+ON BusinessAnalysisReports (OwnerId, CreatedAtUtc);");
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_BusinessAnalysisReports_WorkspaceId
+ON BusinessAnalysisReports (WorkspaceId);");
         }
 
         private static async Task EnsureStrategiesTableAsync(ApplicationDbContext db)

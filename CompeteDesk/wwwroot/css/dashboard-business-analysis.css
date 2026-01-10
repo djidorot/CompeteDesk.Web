@@ -1,0 +1,127 @@
+.cd-biz {
+    grid-column: 1 / -1;
+}
+
+.cd-biz .cd-biz-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+@media (min-width: 992px) {
+    .cd-biz .cd-biz-grid {
+        grid-template-columns: 1.2fr 1fr;
+    }
+}
+
+@media (min-width: 1200px) {
+    .cd-biz .cd-biz-grid {
+        grid-template-columns: 1.3fr 1fr 1fr;
+    }
+}
+
+.cd-biz-card {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+}
+
+.cd-biz-title {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.cd-biz-swot {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .cd-biz-swot {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.cd-biz-h {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.cd-biz-ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.cd-biz-ul li {
+    margin-bottom: 6px;
+}
+
+.cd-biz-forces {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+@media (min-width: 768px) {
+    .cd-biz-forces {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.cd-force {
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 14px;
+    padding: 12px;
+    background: rgba(248, 250, 252, 0.7);
+}
+
+.cd-force-name {
+    font-weight: 600;
+}
+
+.cd-force-score {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    margin: 6px 0 6px;
+}
+
+.cd-biz-competitors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cd-comp-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.cd-biz-table th {
+    font-size: 0.8rem;
+    color: rgba(15, 23, 42, 0.7);
+}
+
+.cd-score-pill {
+    display: inline-flex;
+    min-width: 32px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-weight: 700;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    background: rgba(248, 250, 252, 0.9);
+}
