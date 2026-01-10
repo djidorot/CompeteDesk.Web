@@ -1,0 +1,242 @@
+@model CompeteDesk.ViewModels.Dashboard.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    // Tell _Layout to use container-fluid
+    ViewData["LayoutFluid"] = true;
+}
+
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+
+<div class="cd-dashboard">
+
+    <!-- Command Header -->
+    <div class="cd-command card shadow-sm">
+        <div class="card-body">
+            <div class="cd-command-top">
+                <div class="cd-command-left">
+                    <div class="cd-workspace">
+                        <span class="cd-badge">Workspace</span>
+                        <h1 class="cd-title mb-0">@Model.WorkspaceName</h1>
+                        <div class="cd-sub">Welcome back, <strong>@Model.UserDisplayName</strong>. Focus for the week: <span class="cd-focus">“@Model.WeeklyFocus”</span></div>
+                    </div>
+
+                    <div class="cd-meta">
+                        <div class="cd-meta-item">
+                            <div class="cd-meta-label">Strategy Mode</div>
+                            <div class="cd-meta-value">@Model.StrategyMode</div>
+                        </div>
+                        <div class="cd-meta-item">
+                            <div class="cd-meta-label">Active Strategies</div>
+                            <div class="cd-meta-value">@Model.ActiveStrategiesCount</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cd-command-right">
+                    <div class="cd-score">
+                        <div class="cd-score-label">Strategy Score</div>
+                        <div class="cd-score-value">@Model.StrategyScore</div>
+                        <div class="cd-score-meter" role="progressbar" aria-valuenow="@Model.StrategyScore" aria-valuemin="0" aria-valuemax="100">
+                            <div class="cd-score-bar" style="width:@Model.StrategyScore%"></div>
+                        </div>
+                    </div>
+
+                    <div class="cd-status">
+                        <div class="cd-status-label">Status</div>
+                        <div class="cd-status-pill" data-health="@Model.HealthStatus">@Model.HealthStatus</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="cd-grid mt-3">
+        <!-- Today -->
+        <section class="cd-panel card shadow-sm">
+            <div class="card-body">
+                <div class="cd-panel-head">
+                    <h2 class="cd-h2">Today’s Critical Actions</h2>
+                    <div class="cd-panel-actions">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-cd-filter="all">All</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-cd-filter="high">High Impact</button>
+                    </div>
+                </div>
+
+                <div class="cd-actions" id="cdTodayActions">
+                    @for (var i = 0; i < Model.TodayActions.Count; i++)
+                    {
+                        var item = Model.TodayActions[i];
+                        <div class="cd-action-item" data-impact="@item.Impact.ToLowerInvariant()">
+                            <label class="cd-action-check">
+                                <input type="checkbox" class="form-check-input" data-cd-action-check />
+                                <span class="cd-action-title">@item.Title</span>
+                            </label>
+                            <div class="cd-action-meta">
+                                <span class="cd-chip">@item.Principle</span>
+                                <span class="cd-chip cd-chip-impact">@item.Impact Impact</span>
+                                <span class="cd-chip">@item.Minutes min</span>
+                            </div>
+                            <div class="cd-action-cta">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cd-reschedule>Reschedule</button>
+                                <button type="button" class="btn btn-sm btn-primary" data-cd-done>Mark Done</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- Habits -->
+        <section class="cd-panel card shadow-sm">
+            <div class="card-body">
+                <div class="cd-panel-head">
+                    <h2 class="cd-h2">Habit Systems</h2>
+                    <div class="cd-panel-sub">Atomic Habits view: cue → environment → reduce friction.</div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle cd-table">
+                        <thead>
+                            <tr>
+                                <th>Habit</th>
+                                <th class="text-nowrap">Streak</th>
+                                <th>Status</th>
+                                <th class="d-none d-lg-table-cell">Cue</th>
+                                <th class="d-none d-lg-table-cell">Environment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var h in Model.Habits)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="cd-habit-name">@h.Name</div>
+                                        <div class="cd-muted small">@h.Notes</div>
+                                    </td>
+                                    <td class="text-nowrap"><span class="cd-streak">🔥 @h.StreakDays</span></td>
+                                    <td><span class="cd-pill" data-status="@h.Status">@h.Status</span></td>
+                                    <td class="d-none d-lg-table-cell"><span class="cd-muted">@h.Cue</span></td>
+                                    <td class="d-none d-lg-table-cell"><span class="cd-muted">@h.Environment</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategies -->
+        <section class="cd-panel card shadow-sm">
+            <div class="card-body">
+                <div class="cd-panel-head">
+                    <h2 class="cd-h2">Active Strategies</h2>
+                    <div class="cd-panel-actions">
+                        <a class="btn btn-sm btn-outline-primary disabled" href="#" aria-disabled="true" title="Wireframe-only for now">+ Add Strategy</a>
+                    </div>
+                </div>
+
+                <div class="cd-strategy-grid">
+                    @foreach (var s in Model.ActiveStrategies)
+                    {
+                        <div class="cd-strategy card">
+                            <div class="card-body">
+                                <div class="cd-strategy-title">@s.Name</div>
+                                <div class="cd-muted">@s.SourceBook • @s.CorePrinciple</div>
+
+                                <div class="cd-strategy-metrics mt-2">
+                                    <div class="cd-mini">
+                                        <div class="cd-mini-label">Execution</div>
+                                        <div class="cd-mini-value">@s.ExecutionRate%</div>
+                                        <div class="cd-mini-meter">
+                                            <div class="cd-mini-bar" style="width:@s.ExecutionRate%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="cd-mini">
+                                        <div class="cd-mini-label">Effectiveness</div>
+                                        <div class="cd-pill" data-effect="@s.Effectiveness">@s.Effectiveness</div>
+                                    </div>
+                                </div>
+
+                                <div class="cd-strategy-actions mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">Adjust</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">Pause</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- Metrics -->
+        <section class="cd-panel card shadow-sm">
+            <div class="card-body">
+                <div class="cd-panel-head">
+                    <h2 class="cd-h2">Metrics & Momentum</h2>
+                    <div class="cd-panel-sub">Keep a few KPIs visible. Compounding needs feedback.</div>
+                </div>
+
+                <div class="cd-kpi-grid">
+                    @foreach (var k in Model.KeyMetrics)
+                    {
+                        <div class="cd-kpi card">
+                            <div class="card-body">
+                                <div class="cd-kpi-name">@k.Name</div>
+                                <div class="cd-kpi-value">@k.Value</div>
+                                <div class="cd-kpi-trend" data-trend="@k.TrendDirection">
+                                    <span class="cd-kpi-trend-val">@k.Trend</span>
+                                    <span class="cd-muted">• @k.Subtext</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="cd-momentum mt-3">
+                    <div class="cd-momentum-label">Momentum</div>
+                    <div class="cd-momentum-bar" aria-hidden="true">
+                        <div class="cd-momentum-fill"></div>
+                    </div>
+                    <div class="cd-muted small mt-1">Hint: momentum rises when execution is consistent and KPIs move together.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weekly Review -->
+        <section class="cd-panel card shadow-sm">
+            <div class="card-body">
+                <div class="cd-panel-head">
+                    <h2 class="cd-h2">Weekly Review</h2>
+                    <div class="cd-panel-sub">Fast feedback loop: keep → fix → drop.</div>
+                </div>
+
+                <div class="cd-review">
+                    <div class="cd-review-item">
+                        <div class="cd-review-label">What worked</div>
+                        <div class="cd-review-text">@Model.WeeklyReviewHighlight</div>
+                    </div>
+                    <div class="cd-review-item">
+                        <div class="cd-review-label">What failed</div>
+                        <div class="cd-review-text">@Model.WeeklyReviewFailure</div>
+                    </div>
+                    <div class="cd-review-item">
+                        <div class="cd-review-label">Adjustment</div>
+                        <div class="cd-review-text">@Model.WeeklyReviewAdjustment</div>
+                    </div>
+
+                    <div class="cd-review-cta mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Coming soon">Open Review Form</button>
+                        <button type="button" class="btn btn-primary btn-sm" disabled title="Coming soon">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+}
