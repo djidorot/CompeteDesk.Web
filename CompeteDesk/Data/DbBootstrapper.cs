@@ -35,6 +35,8 @@ namespace CompeteDesk.Data
             await EnsureWarIntelTableAsync(db);
             await EnsureWarPlansTableAsync(db);
             await EnsureWebsiteAnalysisReportsTableAsync(db);
+
+            await NormalizeSourceBooksAsync(db);
         }
 
         private static async Task EnsureWarIntelTableAsync(ApplicationDbContext db)
@@ -422,6 +424,21 @@ CREATE TABLE WebsiteAnalysisReports (
                     "WebsiteAnalysisReports", "(OwnerId, Url)");
             }
         }
+
+
+        
+        private static async Task NormalizeSourceBooksAsync(ApplicationDbContext db)
+        {
+            // Remove legacy book-title labels from existing data so UI no longer shows them.
+            // Safe to run repeatedly.
+            await db.Database.ExecuteSqlRawAsync(@"
+UPDATE Strategies
+SET SourceBook = NULL
+WHERE SourceBook IS NOT NULL
+  AND (SourceBook LIKE '%33 Strategies of War%' OR SourceBook LIKE '%Atomic Habits%');
+");
+        }
+
 
         // Optional for later (migrations-based)
         public static void EnsureDatabaseUpToDate(WebApplication app)

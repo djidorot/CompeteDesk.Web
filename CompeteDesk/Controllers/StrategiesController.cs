@@ -102,7 +102,7 @@ public class StrategiesController : Controller
         // Default values
         var model = new Strategy
         {
-            SourceBook = "The 33 Strategies of War",
+            SourceBook = null,
             Status = "Active",
             Priority = 0
         };
@@ -130,7 +130,7 @@ public class StrategiesController : Controller
         model.CreatedAtUtc = DateTime.UtcNow;
         model.UpdatedAtUtc = DateTime.UtcNow;
         model.Status = string.IsNullOrWhiteSpace(model.Status) ? "Active" : model.Status;
-        model.SourceBook = string.IsNullOrWhiteSpace(model.SourceBook) ? "The 33 Strategies of War" : model.SourceBook;
+        model.SourceBook = string.IsNullOrWhiteSpace(model.SourceBook) ? null : model.SourceBook;
 
         if (!ModelState.IsValid) return View(model);
 
@@ -284,7 +284,7 @@ public class StrategiesController : Controller
         foreach (var s in seeds)
         {
             s.OwnerId = userId;
-            s.SourceBook = "The 33 Strategies of War";
+            s.SourceBook = null;
             s.Status = "Active";
             s.CreatedAtUtc = now;
             s.UpdatedAtUtc = now;

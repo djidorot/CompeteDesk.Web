@@ -231,7 +231,7 @@ public class WarRoomController : Controller
         return View(new WarPlan
         {
             Status = "Draft",
-            SourceBook = "The 33 Strategies of War"
+            SourceBook = null
         });
     }
 
@@ -251,7 +251,7 @@ public class WarRoomController : Controller
         model.CreatedAtUtc = DateTime.UtcNow;
         model.UpdatedAtUtc = DateTime.UtcNow;
         model.Status = string.IsNullOrWhiteSpace(model.Status) ? "Draft" : model.Status;
-        model.SourceBook = string.IsNullOrWhiteSpace(model.SourceBook) ? "The 33 Strategies of War" : model.SourceBook;
+        model.SourceBook = string.IsNullOrWhiteSpace(model.SourceBook) ? null : model.SourceBook;
 
         if (!ModelState.IsValid) return View(model);
 

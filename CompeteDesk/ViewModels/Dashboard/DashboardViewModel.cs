@@ -42,9 +42,9 @@ namespace CompeteDesk.ViewModels.Dashboard
 
             vm.TodayActions.AddRange(new[]
             {
-                new TodayActionItem { Title = "Publish 1 high-leverage post", Principle = "Atomic Habits • Make it obvious", Impact = "High", Minutes = 25 },
+                new TodayActionItem { Title = "Publish 1 high-leverage post", Principle = "Strategy Playbook • Make it obvious", Impact = "High", Minutes = 25 },
                 new TodayActionItem { Title = "Review competitor pricing page", Principle = "33 Strategies • Intelligence", Impact = "Medium", Minutes = 15 },
-                new TodayActionItem { Title = "Send 10 outreach messages", Principle = "Atomic Habits • Reduce friction", Impact = "High", Minutes = 30 },
+                new TodayActionItem { Title = "Send 10 outreach messages", Principle = "Strategy Playbook • Reduce friction", Impact = "High", Minutes = 30 },
             });
 
             vm.Habits.AddRange(new[]
@@ -56,8 +56,8 @@ namespace CompeteDesk.ViewModels.Dashboard
 
             vm.ActiveStrategies.AddRange(new[]
             {
-                new StrategyCardItem { Name = "Systems Over Goals", SourceBook = "Atomic Habits", CorePrinciple = "Design the system", ExecutionRate = 83, Effectiveness = "High" },
-                new StrategyCardItem { Name = "Habit Stacking for Sales", SourceBook = "Atomic Habits", CorePrinciple = "After X, I do Y", ExecutionRate = 76, Effectiveness = "Medium" },
+                new StrategyCardItem { Name = "Systems Over Goals", SourceBook = "Strategy Playbook", CorePrinciple = "Design the system", ExecutionRate = 83, Effectiveness = "High" },
+                new StrategyCardItem { Name = "Habit Stacking for Sales", SourceBook = "Strategy Playbook", CorePrinciple = "After X, I do Y", ExecutionRate = 76, Effectiveness = "Medium" },
                 new StrategyCardItem { Name = "War Room Intelligence", SourceBook = "33 Strategies of War", CorePrinciple = "Gather intel before acting", ExecutionRate = 65, Effectiveness = "Medium" },
                 new StrategyCardItem { Name = "Defensive Positioning", SourceBook = "33 Strategies of War", CorePrinciple = "Secure key territory", ExecutionRate = 92, Effectiveness = "High" },
             });

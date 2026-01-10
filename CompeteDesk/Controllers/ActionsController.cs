@@ -94,7 +94,7 @@ public class ActionsController : Controller
 
         var model = new ActionItem
         {
-            SourceBook = "The 33 Strategies of War",
+            SourceBook = null,
             Status = "Planned",
             Priority = 0
         };
@@ -118,7 +118,7 @@ public class ActionsController : Controller
         model.CreatedAtUtc = DateTime.UtcNow;
         model.UpdatedAtUtc = DateTime.UtcNow;
         model.Status = string.IsNullOrWhiteSpace(model.Status) ? "Planned" : model.Status;
-        model.SourceBook = string.IsNullOrWhiteSpace(model.SourceBook) ? "The 33 Strategies of War" : model.SourceBook;
+        model.SourceBook = string.IsNullOrWhiteSpace(model.SourceBook) ? null : model.SourceBook;
 
         if (!ModelState.IsValid) return View(model);
 

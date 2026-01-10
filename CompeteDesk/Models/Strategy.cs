@@ -6,7 +6,7 @@ namespace CompeteDesk.Models;
 /// <summary>
 /// A Strategy is a reusable “play” you can apply to a Workspace.
 /// In CompeteDesk, you can create strategies inspired by books like
-/// <em>The 33 Strategies of War</em> and adapt them to your business context.
+/// Capture strategies and adapt them to your business context.
 /// </summary>
 public class Strategy
 {
@@ -31,7 +31,7 @@ public class Strategy
     public string Name { get; set; } = string.Empty;
 
     [StringLength(120)]
-    public string? SourceBook { get; set; } = "The 33 Strategies of War";
+    public string? SourceBook { get; set; }
 
     [StringLength(300)]
     public string? CorePrinciple { get; set; }
