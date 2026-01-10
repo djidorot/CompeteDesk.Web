@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext
     }
 
     public DbSet<Workspace> Workspaces => Set<Workspace>();
+    public DbSet<Strategy> Strategies => Set<Strategy>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -22,6 +23,19 @@ public class ApplicationDbContext : IdentityDbContext
             b.Property(x => x.Name).IsRequired().HasMaxLength(120);
             b.Property(x => x.Description).HasMaxLength(1000);
             b.HasIndex(x => new { x.OwnerId, x.Name });
+        });
+
+        builder.Entity<Strategy>(b =>
+        {
+            b.Property(x => x.Name).IsRequired().HasMaxLength(160);
+            b.Property(x => x.SourceBook).HasMaxLength(120);
+            b.Property(x => x.CorePrinciple).HasMaxLength(300);
+            b.Property(x => x.Summary).HasMaxLength(2000);
+            b.Property(x => x.Category).HasMaxLength(80);
+            b.Property(x => x.Status).IsRequired().HasMaxLength(24);
+
+            b.HasIndex(x => new { x.OwnerId, x.Status });
+            b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
         });
     }
 }

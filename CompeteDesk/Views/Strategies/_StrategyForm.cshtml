@@ -1,0 +1,49 @@
+@model CompeteDesk.Models.Strategy
+
+<div class="cd-formGrid">
+    <div class="cd-field">
+        <label asp-for="Name" class="cd-label"></label>
+        <input asp-for="Name" class="form-control cd-input" placeholder="e.g., Know Your Enemy" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="cd-field">
+        <label asp-for="Category" class="cd-label"></label>
+        <input asp-for="Category" class="form-control cd-input" placeholder="e.g., Offensive" />
+        <span asp-validation-for="Category" class="text-danger"></span>
+    </div>
+
+    <div class="cd-field">
+        <label asp-for="Status" class="cd-label"></label>
+        <select asp-for="Status" class="form-select cd-input">
+            <option value="Active">Active</option>
+            <option value="Archived">Archived</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <div class="cd-field">
+        <label asp-for="Priority" class="cd-label"></label>
+        <input asp-for="Priority" type="number" class="form-control cd-input" />
+        <div class="cd-help">Higher priority appears first.</div>
+        <span asp-validation-for="Priority" class="text-danger"></span>
+    </div>
+
+    <div class="cd-field cd-field--full">
+        <label asp-for="CorePrinciple" class="cd-label"></label>
+        <input asp-for="CorePrinciple" class="form-control cd-input" placeholder="1-sentence principle" />
+        <span asp-validation-for="CorePrinciple" class="text-danger"></span>
+    </div>
+
+    <div class="cd-field cd-field--full">
+        <label asp-for="Summary" class="cd-label"></label>
+        <textarea asp-for="Summary" class="form-control cd-input" rows="5" placeholder="How will you apply this in your business?"></textarea>
+        <span asp-validation-for="Summary" class="text-danger"></span>
+    </div>
+
+    <div class="cd-field cd-field--full">
+        <label asp-for="SourceBook" class="cd-label"></label>
+        <input asp-for="SourceBook" class="form-control cd-input" />
+        <span asp-validation-for="SourceBook" class="text-danger"></span>
+    </div>
+</div>

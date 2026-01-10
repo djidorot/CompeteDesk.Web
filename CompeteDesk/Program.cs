@@ -52,7 +52,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await DbBootstrapper.EnsureWorkspacesTableAsync(app.Services);
+    await DbBootstrapper.EnsureCoreTablesAsync(app.Services);
 
 }
 
