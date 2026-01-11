@@ -10,6 +10,10 @@ namespace CompeteDesk.ViewModels.Dashboard
         public int WorkspaceId { get; set; }
         public string WorkspaceName { get; set; } = "My Workspace";
 
+        // When true, the user hasn't created a workspace yet.
+        // The Dashboard should still render and guide them to create one.
+        public bool NeedsWorkspace { get; set; }
+
         // User context
         public string UserDisplayName { get; set; } = "User";
 
@@ -23,6 +27,9 @@ namespace CompeteDesk.ViewModels.Dashboard
 
         // Feature Overview tiles (for the "Overview" page section)
         public List<FeatureTileItem> FeatureTiles { get; set; } = new();
+
+        // Overview summary (counts + quick access to each module)
+        public List<OverviewSummaryItem> OverviewSummary { get; set; } = new();
 
         // Command header
         public string StrategyMode { get; set; } = "Growth"; // Offensive / Defensive / Growth / Stability
@@ -98,6 +105,17 @@ namespace CompeteDesk.ViewModels.Dashboard
                 new FeatureTileItem { Title = "Business Analysis (AI)", Description = "SWOT + Porter’s Five Forces + competitors.", Href = "/Dashboard" }
             });
 
+            // Default overview summary (will be replaced with real counts by DashboardController)
+            vm.OverviewSummary.AddRange(new[]
+            {
+                new OverviewSummaryItem { Title = "Strategies", Href = "/Strategies", Count = 4, Subtitle = "Playbooks and strategic moves", Badge = "Active" },
+                new OverviewSummaryItem { Title = "Actions", Href = "/Actions", Count = 9, Subtitle = "Execution and to-dos", Badge = "Today" },
+                new OverviewSummaryItem { Title = "Website Analysis", Href = "/WebsiteAnalysis", Count = 2, Subtitle = "Website insight reports", Badge = "AI" },
+                new OverviewSummaryItem { Title = "War Room", Href = "/WarRoom", Count = 3, Subtitle = "Intel + plans", Badge = "Ops" },
+                new OverviewSummaryItem { Title = "Habits", Href = "/Habits", Count = 0, Subtitle = "Systems & routines", Badge = "Coming soon", Disabled = true },
+                new OverviewSummaryItem { Title = "Metrics", Href = "/Metrics", Count = 0, Subtitle = "KPIs & tracking", Badge = "Coming soon", Disabled = true },
+            });
+
             vm.TodayActions.AddRange(new[]
             {
                 new TodayActionItem { Title = "Publish 1 high-leverage post", Subtitle = "Strategy Playbook • Make it obvious", Impact = "High", Minutes = 25 },
@@ -141,6 +159,16 @@ namespace CompeteDesk.ViewModels.Dashboard
 
             return vm;
         }
+    }
+
+    public sealed class OverviewSummaryItem
+    {
+        public string Title { get; set; } = "";
+        public string Subtitle { get; set; } = "";
+        public int Count { get; set; }
+        public string? Badge { get; set; }
+        public string Href { get; set; } = "#";
+        public bool Disabled { get; set; }
     }
 
     public sealed class FeatureTileItem

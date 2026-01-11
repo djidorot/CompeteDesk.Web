@@ -11,6 +11,19 @@
 
 <div class="cd-dashboard">
 
+    @if (Model.NeedsWorkspace)
+    {
+        <div class="card shadow-sm mb-3">
+            <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                    <div class="fw-semibold">Create your first workspace</div>
+                    <div class="cd-muted">Workspaces keep your strategies, actions, website reports, and war room plans organized.</div>
+                </div>
+                <a class="btn btn-primary" href="/Workspaces/Create">+ New Workspace</a>
+            </div>
+        </div>
+    }
+
     <!-- Command Header -->
     <div class="cd-command card shadow-sm">
         <div class="card-body">
@@ -61,6 +74,42 @@
                 <div class="cd-panel-head">
                     <h2 class="cd-h2">Overview</h2>
                     <div class="cd-muted">Quick summary of everything available in CompeteDesk.</div>
+                </div>
+
+                <div class="cd-overview-grid">
+                    @foreach (var o in Model.OverviewSummary)
+                    {
+                        var cardClass = o.Disabled ? "cd-overview-card cd-overview-card--disabled" : "cd-overview-card";
+                        if (o.Disabled)
+                        {
+                            <div class="@cardClass" title="Coming soon">
+                                <div class="cd-overview-top">
+                                    <div class="cd-overview-title">@o.Title</div>
+                                    @if (!string.IsNullOrWhiteSpace(o.Badge))
+                                    {
+                                        <span class="cd-overview-badge">@o.Badge</span>
+                                    }
+                                </div>
+                                <div class="cd-overview-count">@o.Count</div>
+                                <div class="cd-overview-sub">@o.Subtitle</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <a class="@cardClass" href="@o.Href">
+                                <div class="cd-overview-top">
+                                    <div class="cd-overview-title">@o.Title</div>
+                                    @if (!string.IsNullOrWhiteSpace(o.Badge))
+                                    {
+                                        <span class="cd-overview-badge">@o.Badge</span>
+                                    }
+                                </div>
+                                <div class="cd-overview-count">@o.Count</div>
+                                <div class="cd-overview-sub">@o.Subtitle</div>
+                                <div class="cd-overview-link">Open →</div>
+                            </a>
+                        }
+                    }
                 </div>
 
                 <div class="cd-feature-grid">
