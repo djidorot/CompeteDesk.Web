@@ -18,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext
 	public DbSet<WarPlan> WarPlans => Set<WarPlan>();
     public DbSet<WebsiteAnalysisReport> WebsiteAnalysisReports => Set<WebsiteAnalysisReport>();
     public DbSet<BusinessAnalysisReport> BusinessAnalysisReports => Set<BusinessAnalysisReport>();
+    public DbSet<DecisionTrace> DecisionTraces => Set<DecisionTrace>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -116,6 +117,28 @@ public class ApplicationDbContext : IdentityDbContext
 
             b.HasIndex(x => new { x.OwnerId, x.CreatedAtUtc });
             b.HasIndex(x => x.WorkspaceId);
+        });
+
+
+
+        builder.Entity<DecisionTrace>(b =>
+        {
+            b.Property(x => x.OwnerId).IsRequired();
+            b.Property(x => x.Feature).IsRequired().HasMaxLength(120);
+            b.Property(x => x.EntityType).HasMaxLength(80);
+            b.Property(x => x.EntityTitle).HasMaxLength(200);
+            b.Property(x => x.CorrelationId).IsRequired().HasMaxLength(64);
+
+            // Demonstrate intent: store prompts + payloads + outputs in TEXT JSON columns.
+            b.Property(x => x.InputJson);
+            b.Property(x => x.OutputJson);
+
+            b.Property(x => x.AiProvider).HasMaxLength(40);
+            b.Property(x => x.Model).HasMaxLength(80);
+
+            b.HasIndex(x => new { x.OwnerId, x.CreatedAtUtc });
+            b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
+            b.HasIndex(x => new { x.OwnerId, x.Feature });
         });
 
     }

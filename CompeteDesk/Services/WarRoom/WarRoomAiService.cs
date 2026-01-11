@@ -1,32 +1,33 @@
+// FILE: CompeteDesk/Services/WarRoom/WarRoomAiService.cs
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using CompeteDesk.Data;
-using CompeteDesk.Models;
 using CompeteDesk.Services.OpenAI;
+using CompeteDesk.Services.Ai;
 
 namespace CompeteDesk.Services.WarRoom;
 
-/// <summary>
-/// War Room AI helpers:
-/// - Intel Brief (directed telescope): compress selected intel into a usable brief.
-/// - Red-Team Plan: stress-test a plan for gaps, risks, contradictions, and missing intel.
-///
-/// Uses the existing <see cref="OpenAiChatClient"/> which enforces JSON output.
-/// </summary>
 public sealed class WarRoomAiService
 {
     private readonly ApplicationDbContext _db;
     private readonly OpenAiChatClient _ai;
+    private readonly DecisionTraceService _trace;
+    private readonly AiContextPackBuilder _contextPack;
 
-    public WarRoomAiService(ApplicationDbContext db, OpenAiChatClient ai)
+    public WarRoomAiService(
+        ApplicationDbContext db,
+        OpenAiChatClient ai,
+        DecisionTraceService trace,
+        AiContextPackBuilder contextPack)
     {
         _db = db;
         _ai = ai;
+        _trace = trace;
+        _contextPack = contextPack;
     }
 
     public bool IsConfigured => _ai.IsConfigured;
@@ -42,18 +43,21 @@ public sealed class WarRoomAiService
             .ToListAsync(ct);
 
         if (items.Count == 0)
-        {
             return JsonDocument.Parse("{\"error\":\"No intel selected.\"}");
-        }
 
-        // Keep payload small but useful.
+        var workspaceId = items.FirstOrDefault()?.WorkspaceId;
+
+        var ctx = await _contextPack.BuildAsync(ownerId, workspaceId, ct);
+
         var payload = new
         {
             intent = "intel_brief",
             nowUtc = DateTime.UtcNow,
+            contextPack = JsonDocument.Parse(ctx).RootElement,
             intel = items.Select(i => new
             {
                 i.Id,
+                i.WorkspaceId,
                 i.Title,
                 i.Subject,
                 i.Signal,
@@ -82,8 +86,39 @@ public sealed class WarRoomAiService
             "  \"overallConfidence1to5\": number\n" +
             "}";
 
-        var json = JsonSerializer.Serialize(payload);
-        var result = await _ai.CreateJsonInsightsAsync(systemPrompt, json, ct);
+        var inputJson = JsonSerializer.Serialize(payload);
+
+        var startedUtc = DateTime.UtcNow;
+        var result = await _ai.CreateJsonInsightsAsync(systemPrompt, inputJson, ct);
+        var durationMs = (int)(DateTime.UtcNow - startedUtc).TotalMilliseconds;
+
+        // FIX: Match your existing DecisionTraceService.LogAsync overload (no 'operation', etc.)
+        try
+        {
+            await _trace.LogAsync(
+                ownerId: ownerId,
+                workspaceId: workspaceId,
+                feature: "WarRoom.CreateIntelBrief",
+                input: new
+                {
+                    systemPrompt,
+                    inputJson,
+                    durationMs,
+                    contextPack = JsonDocument.Parse(ctx).RootElement,
+                    intelCount = items.Count
+                },
+                outputJson: result,
+                entityType: "WarIntel",
+                entityId: null,
+                entityTitle: $"IntelBrief ({items.Count} items)",
+                ct: ct
+            );
+        }
+        catch
+        {
+            // Never block user flows.
+        }
+
         return JsonDocument.Parse(result);
     }
 
@@ -96,7 +131,8 @@ public sealed class WarRoomAiService
         if (plan == null)
             return JsonDocument.Parse("{\"error\":\"Plan not found.\"}");
 
-        // Pull recent intel in same workspace (optional) to challenge assumptions.
+        var ctx = await _contextPack.BuildAsync(ownerId, plan.WorkspaceId, ct);
+
         var intel = await _db.WarIntel
             .AsNoTracking()
             .Where(x => x.OwnerId == ownerId && (plan.WorkspaceId == null || x.WorkspaceId == plan.WorkspaceId))
@@ -109,9 +145,11 @@ public sealed class WarRoomAiService
         {
             intent = "red_team_plan",
             nowUtc = DateTime.UtcNow,
+            contextPack = JsonDocument.Parse(ctx).RootElement,
             plan = new
             {
                 plan.Id,
+                plan.WorkspaceId,
                 plan.Name,
                 plan.Status,
                 plan.Objective,
@@ -143,8 +181,40 @@ public sealed class WarRoomAiService
             "  \"confidenceInPlan1to5\": number\n" +
             "}";
 
-        var json = JsonSerializer.Serialize(payload);
-        var result = await _ai.CreateJsonInsightsAsync(systemPrompt, json, ct);
+        var inputJson = JsonSerializer.Serialize(payload);
+
+        var startedUtc = DateTime.UtcNow;
+        var result = await _ai.CreateJsonInsightsAsync(systemPrompt, inputJson, ct);
+        var durationMs = (int)(DateTime.UtcNow - startedUtc).TotalMilliseconds;
+
+        // FIX: Match your existing DecisionTraceService.LogAsync overload (no 'operation', etc.)
+        try
+        {
+            await _trace.LogAsync(
+                ownerId: ownerId,
+                workspaceId: plan.WorkspaceId,
+                feature: "WarRoom.RedTeamPlan",
+                input: new
+                {
+                    systemPrompt,
+                    inputJson,
+                    durationMs,
+                    contextPack = JsonDocument.Parse(ctx).RootElement,
+                    planId = plan.Id,
+                    planName = plan.Name
+                },
+                outputJson: result,
+                entityType: "WarPlan",
+                entityId: plan.Id,
+                entityTitle: plan.Name,
+                ct: ct
+            );
+        }
+        catch
+        {
+            // Never block user flows.
+        }
+
         return JsonDocument.Parse(result);
     }
 }

@@ -135,6 +135,20 @@
             <span class="cd-sidebar__text">War Room</span>
         </a>
 
+
+        <a class="cd-sidebar__link @(currentController == "AiHistory" ? "is-active" : "")" asp-controller="AiHistory"
+            asp-action="Index">
+            <span class="cd-sidebar__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 8v5l3 3"></path>
+                    <path d="M3 12a9 9 0 1 0 9-9"></path>
+                    <path d="M3 5v7h7"></path>
+                </svg>
+            </span>
+            <span class="cd-sidebar__text">AI History</span>
+        </a>
+
         <a class="cd-sidebar__link" asp-controller="Home" asp-action="Privacy">
             <span class="cd-sidebar__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"

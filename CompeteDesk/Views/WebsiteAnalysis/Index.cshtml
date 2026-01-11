@@ -12,7 +12,8 @@
     <div class="cd-wa__header">
         <div>
             <h1 class="cd-wa__title">Website Analysis</h1>
-            <p class="cd-wa__sub">Submit a website URL. We’ll fetch basic metrics and (optionally) ask OpenAI for structured insights.</p>
+            <p class="cd-wa__sub">Submit a website URL. We’ll fetch basic metrics and (optionally) ask AI for structured
+                insights.</p>
         </div>
     </div>
 
@@ -29,7 +30,8 @@
                 @Html.AntiForgeryToken()
                 <div class="cd-wa__row">
                     <label class="cd-wa__label" for="Url">Website URL</label>
-                    <input class="form-control cd-wa__input" id="Url" name="Url" value="@Model.Url" placeholder="https://example.com" required />
+                    <input class="form-control cd-wa__input" id="Url" name="Url" value="@Model.Url"
+                        placeholder="https://example.com" required />
                 </div>
 
                 <div class="cd-wa__actions">
@@ -100,7 +102,8 @@
                                         </td>
                                         <td class="text-nowrap">HTTP @r.HttpStatusCode</td>
                                         <td class="text-nowrap">@r.ResponseTimeMs ms</td>
-                                        <td class="text-nowrap">@r.CreatedAtUtc.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</td>
+                                        <td class="text-nowrap">@r.CreatedAtUtc.ToLocalTime().ToString("MMM dd, yyyy HH:mm")
+                                        </td>
                                     </tr>
                                 }
                             </tbody>

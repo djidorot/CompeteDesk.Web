@@ -4,7 +4,6 @@
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/bin/Debug/net9.0/CompeteDesk.Data/obj/project.assets.json
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/bin/Debug/net9.0/CompeteDesk.staticwebassets.runtime.json
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/bin/Debug/net9.0/CompeteDesk.staticwebassets.endpoints.json
-/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/bin/Debug/net9.0/app.db
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/bin/Debug/net9.0/CompeteDesk
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/bin/Debug/net9.0/CompeteDesk.deps.json
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/bin/Debug/net9.0/CompeteDesk.runtimeconfig.json
@@ -221,6 +220,7 @@
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/compressed/v0zgfp0y55-87fc7y1x7t.gz
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/compressed/yfc7ypekbg-mlv21k5csn.gz
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/compressed/5gksbs33rg-o3duuzgp85.gz
+/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/compressed/6tsvsbtz18-jwqaz36wij.gz
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/compressed/8vpx90zwna-78ldyrnq99.gz
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/compressed/a0oi4fh28f-lataln5b42.gz
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/compressed/hsd3ytgep1-wexj58i4kb.gz
@@ -295,3 +295,4 @@
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/CompeteDesk.pdb
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/CompeteDesk.genruntimeconfig.cache
 /Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/obj/Debug/net9.0/ref/CompeteDesk.dll
+/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/bin/Debug/net9.0/app.db

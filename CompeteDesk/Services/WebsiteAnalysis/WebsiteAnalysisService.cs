@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -8,9 +7,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using CompeteDesk.Data;
 using CompeteDesk.Models;
+using CompeteDesk.Services.Ai;
 using CompeteDesk.Services.OpenAI;
 
 namespace CompeteDesk.Services.WebsiteAnalysis;
@@ -20,8 +19,6 @@ public sealed class WebsiteAnalysisService
     private static readonly Regex TitleRx =
         new(@"<title\b[^>]*>(.*?)</title>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
 
-    // FIX: In verbatim strings (@""), do NOT use \".
-    // Use "" to represent a double-quote.
     private static readonly Regex MetaDescRx =
         new(@"<meta\s+[^>]*name\s*=\s*['""]description['""][^>]*content\s*=\s*['""](.*?)['""][^>]*>",
             RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
@@ -62,12 +59,21 @@ public sealed class WebsiteAnalysisService
     private readonly IHttpClientFactory _httpFactory;
     private readonly OpenAiChatClient _openAi;
     private readonly ApplicationDbContext _db;
+    private readonly DecisionTraceService _trace;
+    private readonly AiContextPackBuilder _contextPack;
 
-    public WebsiteAnalysisService(IHttpClientFactory httpFactory, OpenAiChatClient openAi, ApplicationDbContext db)
+    public WebsiteAnalysisService(
+        IHttpClientFactory httpFactory,
+        OpenAiChatClient openAi,
+        ApplicationDbContext db,
+        DecisionTraceService trace,
+        AiContextPackBuilder contextPack)
     {
         _httpFactory = httpFactory;
         _openAi = openAi;
         _db = db;
+        _trace = trace;
+        _contextPack = contextPack;
     }
 
     public async Task<WebsiteAnalysisReport> AnalyzeAndSaveAsync(string urlInput, string ownerId, int? workspaceId, CancellationToken ct)
@@ -89,18 +95,15 @@ public sealed class WebsiteAnalysisService
             sw.Stop();
             finalUri = res.RequestMessage?.RequestUri;
 
-            // Read up to 1MB for parsing (avoid huge pages).
             html = await ReadAtMostAsync(res, maxBytes: 1024 * 1024, ct);
         }
         catch (TaskCanceledException)
         {
             sw.Stop();
-            // keep html null
         }
         catch
         {
             sw.Stop();
-            // keep html null
         }
 
         var report = new WebsiteAnalysisReport
@@ -142,25 +145,50 @@ public sealed class WebsiteAnalysisService
             report.WordCount = EstimateWordCount(html);
         }
 
-        // Security headers
         if (res != null)
         {
             report.HasCspHeader = res.Headers.Contains("Content-Security-Policy") || res.Content.Headers.Contains("Content-Security-Policy");
             report.HasHstsHeader = res.Headers.Contains("Strict-Transport-Security") || res.Content.Headers.Contains("Strict-Transport-Security");
         }
 
-        // AI Insights
         await AddAiInsightsAsync(report, ct);
 
         _db.WebsiteAnalysisReports.Add(report);
         await _db.SaveChangesAsync(ct);
+
+        // Traceability (use your existing LogAsync overload)
+        try
+        {
+            var ctxJson = await _contextPack.BuildAsync(ownerId, workspaceId, ct);
+
+            await _trace.LogAsync(
+                ownerId: ownerId,
+                workspaceId: workspaceId,
+                feature: "WebsiteAnalysis.Analyze",
+                input: new
+                {
+                    urlInput,
+                    normalizedUrl = normalized,
+                    contextPack = JsonDocument.Parse(ctxJson).RootElement,
+                    system = "WebsiteAnalysisService.AddAiInsightsAsync"
+                },
+                outputJson: report.AiInsightsJson ?? "{}",
+                entityType: "WebsiteAnalysisReport",
+                entityId: report.Id,
+                entityTitle: report.Url,
+                ct: ct
+            );
+        }
+        catch
+        {
+            // Never block user flows.
+        }
 
         return report;
     }
 
     private async Task AddAiInsightsAsync(WebsiteAnalysisReport report, CancellationToken ct)
     {
-        // Always provide deterministic baseline even if OpenAI isn't configured.
         var payload = new
         {
             url = report.Url,
@@ -185,7 +213,6 @@ public sealed class WebsiteAnalysisService
             hasHstsHeader = report.HasHstsHeader
         };
 
-        // FIX: Use a verbatim string to avoid raw-string delimiter issues.
         var systemPrompt = @"You are an expert product strategist + SEO/UX auditor.
 Given website crawl metrics (JSON), produce a concise, actionable assessment.
 
@@ -215,9 +242,7 @@ Rules:
                 overallStatus = report.HttpStatusCode >= 200 && report.HttpStatusCode < 400 ? "At Risk" : "Off Track",
                 score = report.HttpStatusCode >= 200 && report.HttpStatusCode < 400 ? 60 : 20,
                 strengths = new[] { "Basic metrics captured (configure OpenAI for deeper insights)." },
-                weaknesses = new[] { _openAi.IsConfigured ? "" : "OpenAI not configured (set OpenAI:ApiKey)." }
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .ToArray(),
+                weaknesses = new[] { "OpenAI not configured (set OpenAI:ApiKey)." },
                 quickWins = Array.Empty<string>(),
                 risks = Array.Empty<string>(),
                 recommendedNextActions = new[]
@@ -265,7 +290,6 @@ Rules:
         if (!Uri.TryCreate(s, UriKind.Absolute, out var uri))
             throw new ArgumentException("Invalid URL.");
 
-        // Safety: only allow http/https
         if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
             throw new ArgumentException("Only http/https URLs are supported.");
 
@@ -274,7 +298,6 @@ Rules:
 
     private static async Task<string?> ReadAtMostAsync(HttpResponseMessage res, int maxBytes, CancellationToken ct)
     {
-        // Prefer content-length if present, but still cap reading.
         using var stream = await res.Content.ReadAsStreamAsync(ct);
         var buffer = new byte[16 * 1024];
         int read;
@@ -290,16 +313,9 @@ Rules:
             ms.Write(buffer, 0, read);
         }
 
-        // Try to decode as UTF-8, fallback to ISO-8859-1.
         var bytes = ms.ToArray();
-        try
-        {
-            return System.Text.Encoding.UTF8.GetString(bytes);
-        }
-        catch
-        {
-            return System.Text.Encoding.Latin1.GetString(bytes);
-        }
+        try { return System.Text.Encoding.UTF8.GetString(bytes); }
+        catch { return System.Text.Encoding.Latin1.GetString(bytes); }
     }
 
     private static string? ExtractFirst(Regex rx, string html)
@@ -345,7 +361,6 @@ Rules:
 
     private static int CountImagesMissingAlt(string html)
     {
-        // Count all <img>, then count those with alt attribute and non-empty value.
         var total = ImgRx.Matches(html).Count;
         if (total == 0) return 0;
 

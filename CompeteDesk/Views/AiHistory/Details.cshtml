@@ -1,0 +1,71 @@
+@model CompeteDesk.Models.DecisionTrace
+
+<link rel="stylesheet" href="~/css/ai-history.css" />
+
+<div class="cd-page">
+    <div class="cd-page-header">
+        <div>
+            <h1 class="cd-title">AI Trace</h1>
+            <div class="cd-subtitle">
+                <span class="badge bg-light text-dark border">@Model.Feature</span>
+                <span class="ms-2 text-muted">UTC @Model.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm:ss")</span>
+            </div>
+        </div>
+
+        <div class="cd-actions">
+            <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-4">
+            <div class="cd-card">
+                <div class="cd-card-header">
+                    <div class="cd-card-title">Metadata</div>
+                </div>
+
+                <div class="cd-kv">
+                    <div class="cd-k">Trace ID</div>
+                    <div class="cd-v">@Model.Id</div>
+
+                    <div class="cd-k">Correlation</div>
+                    <div class="cd-v"><code>@Model.CorrelationId</code></div>
+
+                    <div class="cd-k">Workspace</div>
+                    <div class="cd-v">@(Model.WorkspaceId?.ToString() ?? "-")</div>
+
+                    <div class="cd-k">Entity</div>
+                    <div class="cd-v">@Model.EntityType @Model.EntityId</div>
+
+                    <div class="cd-k">Title</div>
+                    <div class="cd-v">@Model.EntityTitle</div>
+
+                    <div class="cd-k">Provider</div>
+                    <div class="cd-v">@Model.AiProvider</div>
+
+                    <div class="cd-k">Model</div>
+                    <div class="cd-v">@Model.Model</div>
+
+                    <div class="cd-k">Temperature</div>
+                    <div class="cd-v">@Model.Temperature</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="cd-card mb-3">
+                <div class="cd-card-header">
+                    <div class="cd-card-title">Inputs (system prompt + payload + context pack)</div>
+                </div>
+                <pre class="cd-pre">@Model.InputJson</pre>
+            </div>
+
+            <div class="cd-card">
+                <div class="cd-card-header">
+                    <div class="cd-card-title">Output</div>
+                </div>
+                <pre class="cd-pre">@Model.OutputJson</pre>
+            </div>
+        </div>
+    </div>
+</div>

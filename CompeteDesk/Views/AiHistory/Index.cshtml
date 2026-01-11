@@ -1,0 +1,86 @@
+@model CompeteDesk.ViewModels.AiHistory.AiHistoryIndexViewModel
+
+<link rel="stylesheet" href="~/css/ai-history.css" />
+
+<div class="cd-page">
+    <div class="cd-page-header">
+        <div>
+            <h1 class="cd-title">AI History</h1>
+            <div class="cd-subtitle">Every AI output is saved with inputs + context for traceability.</div>
+        </div>
+    </div>
+
+    <form method="get" class="cd-filters">
+        <input type="hidden" name="workspaceId" value="@Model.WorkspaceId" />
+        <div class="cd-filter-row">
+            <div class="cd-field">
+                <label class="cd-label">Search</label>
+                <input class="form-control" name="q" value="@Model.Q" placeholder="Feature, entity, title..." />
+            </div>
+
+            <div class="cd-field">
+                <label class="cd-label">Feature</label>
+                <input class="form-control" name="feature" value="@Model.Feature" placeholder="e.g. WarRoom.RedTeamPlan" />
+            </div>
+
+            <div class="cd-field cd-field-actions">
+                <label class="cd-label d-none d-md-block">&nbsp;</label>
+                <button class="btn btn-primary w-100" type="submit">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="cd-card">
+        <div class="cd-card-header">
+            <div class="cd-card-title">Recent traces</div>
+            <div class="cd-card-meta">Showing up to 200 items</div>
+        </div>
+
+        @if (Model.Items == null || Model.Items.Count == 0)
+        {
+            <div class="cd-empty">
+                No traces yet. Generate an analysis (War Room, Website Analysis, Business Analysis) and it will show up here.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 180px;">When (UTC)</th>
+                            <th>Feature</th>
+                            <th style="width: 120px;">Workspace</th>
+                            <th>Entity</th>
+                            <th style="width: 110px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Items)
+                        {
+                            <tr>
+                                <td class="text-muted">@row.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td><span class="badge bg-light text-dark border">@row.Feature</span></td>
+                                <td class="text-muted">@(row.WorkspaceId?.ToString() ?? "-")</td>
+                                <td class="text-muted">
+                                    @if (!string.IsNullOrWhiteSpace(row.EntityTitle))
+                                    {
+                                        <span class="fw-semibold">@row.EntityTitle</span>
+                                        <span class="ms-2">(@row.EntityType @row.EntityId)</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@row.EntityType @row.EntityId</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@row.Id">Open</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
