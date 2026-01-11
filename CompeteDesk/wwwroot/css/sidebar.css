@@ -8,7 +8,7 @@
   --cd-border: rgba(15, 23, 42, .10);
 
   --cd-text: #0f172a;
-  --cd-muted: #64748b;
+  --cd-muted: #334155; /* darker for better contrast */
 
   --cd-accent: #6d5efc;
   --cd-accent-soft: rgba(109, 94, 252, .14);
@@ -63,15 +63,17 @@ body{
 }
 
 .cd-sidebar__logo{
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
   display: grid;
   place-items: center;
-  background: var(--cd-accent);
-  color: #fff;
+  /* background: var(--cd-accent);
+  color: #fff; */
   font-weight: 800;
-  box-shadow: 0 10px 24px rgba(109, 94, 252, .25);
+  font-size: 14px;
+  line-height: 1;
+  box-shadow: 0 8px 18px rgba(109, 94, 252, .22);
 }
 
 .cd-sidebar__brandText{
@@ -175,18 +177,19 @@ body{
 }
 
 .cd-sidebar__icon{
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 12px;
   display: grid;
   place-items: center;
-  background: rgba(15, 23, 42, .04);
+  background: rgba(15, 23, 42, .08);
+  border: 1px solid rgba(15, 23, 42, .12);
   color: var(--cd-muted);
 }
 
 .cd-navico{
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .cd-sidebar__text{
@@ -195,8 +198,15 @@ body{
 }
 
 .cd-sidebar__link:hover{
-  background: rgba(15, 23, 42, .03);
-  border-color: rgba(15, 23, 42, .06);
+  background: rgba(15, 23, 42, .04);
+  border-color: rgba(15, 23, 42, .10);
+  color: var(--cd-text);
+}
+
+.cd-sidebar__link:hover .cd-sidebar__icon{
+  background: rgba(15, 23, 42, .10);
+  border-color: rgba(15, 23, 42, .12);
+  color: var(--cd-text);
 }
 
 .cd-sidebar__link.is-active{
@@ -205,7 +215,7 @@ body{
 }
 
 .cd-sidebar__link.is-active .cd-sidebar__icon{
-  background: rgba(109, 94, 252, .16);
+  background: rgba(109, 94, 252, .22);
   color: var(--cd-accent);
 }
 

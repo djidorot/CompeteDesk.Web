@@ -2,6 +2,16 @@ html {
   font-size: 14px;
 }
 
+
+
+:root{
+  /* Brand theme (chess purple) */
+  --bs-primary: #5b136e;
+  --bs-primary-rgb: 91, 19, 110;
+  --bs-link-color: #5b136e;
+  --bs-link-hover-color: #4a0f59;
+}
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -9,7 +19,7 @@ html {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(91, 19, 110, .35);
 }
 
 html {

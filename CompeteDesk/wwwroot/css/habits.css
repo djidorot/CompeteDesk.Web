@@ -1,0 +1,25 @@
+/* Habits page (lightweight placeholder) */
+.cd-page { padding-top: 8px; }
+.cd-page__header { display:flex; flex-direction:column; gap:6px; }
+.cd-h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+.cd-h2 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
+.cd-muted { color: rgba(17, 24, 39, 0.7); }
+
+.cd-card {
+    border: 1px solid rgba(17, 24, 39, 0.10);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+}
+
+.cd-card__body { padding: 18px 18px; }
+
+.cd-list { margin: 0; padding-left: 18px; }
+.cd-list li { margin: 8px 0; }
+
+.cd-note {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+}
