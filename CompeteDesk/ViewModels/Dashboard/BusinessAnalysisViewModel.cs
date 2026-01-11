@@ -59,6 +59,7 @@ namespace CompeteDesk.ViewModels.Dashboard
         public string Name { get; set; } = "";
         public string? Website { get; set; }
         public string? Summary { get; set; }
+        public string? WhyRelevant { get; set; }
 
         public ForceVm Rivalry { get; set; } = new();
         public ForceVm NewEntrants { get; set; } = new();

@@ -31,17 +31,43 @@ namespace CompeteDesk.ViewModels.Dashboard
         public string HealthStatus { get; set; } = "On Track"; // On Track / At Risk / Off Track
         public string WeeklyFocus { get; set; } = "Make the right actions easy — and automatic.";
 
+        // Weekly review (reflection)
+        public string WeeklyReviewHighlight { get; set; } = "";
+        public string WeeklyReviewFailure { get; set; } = "";
+        public string WeeklyReviewAdjustment { get; set; } = "";
+
         // Today's critical actions
         public List<TodayActionItem> TodayActions { get; set; } = new();
 
         // Habit systems
         public List<HabitSystemItem> HabitSystems { get; set; } = new();
 
+        // Back-compat for older dashboard view
+        public List<HabitSystemItem> Habits
+        {
+            get => HabitSystems;
+            set => HabitSystems = value ?? new();
+        }
+
         // Strategies summary cards
         public List<StrategyCardItem> StrategyCards { get; set; } = new();
 
+        // Back-compat for older dashboard view
+        public List<StrategyCardItem> ActiveStrategies
+        {
+            get => StrategyCards;
+            set => StrategyCards = value ?? new();
+        }
+
         // Metrics/KPIs
         public List<MetricKpiItem> Kpis { get; set; } = new();
+
+        // Back-compat for older dashboard view
+        public List<MetricKpiItem> KeyMetrics
+        {
+            get => Kpis;
+            set => Kpis = value ?? new();
+        }
 
         public static DashboardViewModel Sample(string userDisplayName)
         {
@@ -121,6 +147,7 @@ namespace CompeteDesk.ViewModels.Dashboard
     {
         public string Title { get; set; } = "";
         public string Description { get; set; } = "";
+        public string? Badge { get; set; }
         public string Href { get; set; } = "#";
     }
 
@@ -128,12 +155,18 @@ namespace CompeteDesk.ViewModels.Dashboard
     {
         public string Title { get; set; } = "";
         public string Subtitle { get; set; } = "";
+        public string Principle { get; set; } = ""; // e.g., "Make it obvious"
         public string Impact { get; set; } = "Medium"; // Low/Medium/High
         public int Minutes { get; set; }
     }
 
     public sealed class HabitSystemItem
     {
+        // Back-compat for the Razor view (Index.cshtml) which expects Name + StreakDays
+        public string Name { get => Habit; set => Habit = value; }
+        public int StreakDays { get => Streak; set => Streak = value; }
+
+        // Canonical fields
         public string Habit { get; set; } = "";
         public int Streak { get; set; }
         public string Status { get; set; } = "";
