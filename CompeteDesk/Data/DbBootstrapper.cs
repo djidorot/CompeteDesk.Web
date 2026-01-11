@@ -147,7 +147,9 @@ CREATE TABLE Workspaces (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     Name TEXT NOT NULL,
     Description TEXT NULL,
-    OwnerId TEXT NOT NULL,
+    -- NOTE: Legacy shipped SQLite uses OwnerUserId (NOT NULL). Keep that column name
+    -- and map the C# property Workspace.OwnerId to it in ApplicationDbContext.
+    OwnerUserId TEXT NOT NULL,
     BusinessType TEXT NULL,
     Country TEXT NULL,
     BusinessProfileUpdatedAtUtc TEXT NULL,
@@ -160,6 +162,8 @@ CREATE TABLE Workspaces (
                 // Patch older schemas safely (nullable columns + defaults avoided).
                 await EnsureColumnAsync(db, "Workspaces", "Name", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Workspaces", "Description", "TEXT", nullable: true);
+                // Support both old/new naming (OwnerId vs OwnerUserId)
+                await EnsureColumnAsync(db, "Workspaces", "OwnerUserId", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Workspaces", "OwnerId", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Workspaces", "CreatedAtUtc", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Workspaces", "UpdatedAtUtc", "TEXT", nullable: true);
@@ -168,12 +172,25 @@ CREATE TABLE Workspaces (
                 await EnsureColumnAsync(db, "Workspaces", "BusinessType", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Workspaces", "Country", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Workspaces", "BusinessProfileUpdatedAtUtc", "TEXT", nullable: true);
+
+                // If a DB has OwnerId but not OwnerUserId (or vice-versa), copy values so inserts/queries work.
+                // SQLite has limited ALTER TABLE, so we avoid trying to change NOT NULL constraints.
+                // We just ensure both columns exist and keep them in sync for existing rows.
+                await db.Database.ExecuteSqlRawAsync(@"
+UPDATE Workspaces
+SET OwnerUserId = COALESCE(OwnerUserId, OwnerId)
+WHERE OwnerUserId IS NULL;" );
+
+                await db.Database.ExecuteSqlRawAsync(@"
+UPDATE Workspaces
+SET OwnerId = COALESCE(OwnerId, OwnerUserId)
+WHERE OwnerId IS NULL;" );
             }
 
             // Create indexes AFTER columns exist.
             await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_Workspaces_OwnerId_Name
-ON Workspaces (OwnerId, Name);");
+ON Workspaces (OwnerUserId, Name);");
         }
 
         private static async Task EnsureBusinessAnalysisReportsTableAsync(ApplicationDbContext db)

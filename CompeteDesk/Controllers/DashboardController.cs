@@ -72,7 +72,7 @@ public class DashboardController : Controller
                 new OverviewSummaryItem { Title = "Metrics", Subtitle = "KPIs & tracking", Count = 0, Badge = "Coming soon", Href = "/Metrics", Disabled = true },
                 new OverviewSummaryItem { Title = "Website Analysis", Subtitle = "Website insight reports", Count = 0, Badge = "AI", Href = "/WebsiteAnalysis" },
                 new OverviewSummaryItem { Title = "War Room", Subtitle = "Intel + plans", Count = 0, Badge = "0 intel • 0 plans", Href = "/WarRoom" },
-                new OverviewSummaryItem { Title = "Business Analysis (AI)", Subtitle = "SWOT + Five Forces + competitors", Count = 0, Badge = "Create a workspace", Href = "/Dashboard" },
+                new OverviewSummaryItem { Title = "Business Analysis (AI)", Subtitle = "SWOT + Five Forces + competitors", Count = 0, Badge = "Create a workspace", Href = "/BusinessAnalysis" },
             };
 
             ViewData["Title"] = "Dashboard";

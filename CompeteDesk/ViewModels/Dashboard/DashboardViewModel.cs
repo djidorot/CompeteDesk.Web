@@ -102,7 +102,7 @@ namespace CompeteDesk.ViewModels.Dashboard
                 new FeatureTileItem { Title = "Metrics", Description = "Measure what matters with KPIs.", Href = "/Metrics" },
                 new FeatureTileItem { Title = "Website Analysis", Description = "Analyze a website and generate insights.", Href = "/WebsiteAnalysis" },
                 new FeatureTileItem { Title = "War Room", Description = "Capture intel and plans for competition.", Href = "/WarRoom" },
-                new FeatureTileItem { Title = "Business Analysis (AI)", Description = "SWOT + Porter’s Five Forces + competitors.", Href = "/Dashboard" }
+                new FeatureTileItem { Title = "Business Analysis (AI)", Description = "SWOT + Porter’s Five Forces + competitors.", Href = "/BusinessAnalysis" }
             });
 
             // Default overview summary (will be replaced with real counts by DashboardController)

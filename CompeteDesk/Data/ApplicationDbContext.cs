@@ -27,6 +27,12 @@ public class ApplicationDbContext : IdentityDbContext
         {
             b.Property(x => x.Name).IsRequired().HasMaxLength(120);
             b.Property(x => x.Description).HasMaxLength(1000);
+            // Back-compat: some existing SQLite schemas use Workspaces.OwnerUserId (NOT NULL)
+            // instead of Workspaces.OwnerId. Keep the domain model property as OwnerId,
+            // but map it to the legacy column name.
+            b.Property(x => x.OwnerId)
+                .HasColumnName("OwnerUserId")
+                .IsRequired();
             b.Property(x => x.BusinessType).HasMaxLength(120);
             b.Property(x => x.Country).HasMaxLength(80);
             b.HasIndex(x => new { x.OwnerId, x.Name });

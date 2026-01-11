@@ -1,0 +1,237 @@
+@model CompeteDesk.ViewModels.BusinessAnalysis.BusinessAnalysisPageViewModel
+@{
+    ViewData["Title"] = "Business Analysis";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+}
+
+<link rel="stylesheet" href="~/css/business-analysis.css" asp-append-version="true" />
+
+<div class="cd-biz" data-cd-biz-root data-needs-profile="@Model.NeedsBusinessProfile">
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <h1 class="cd-biz-title mb-1">Business Analysis (AI)</h1>
+                <div class="cd-muted">SWOT + Porter’s Five Forces + competitors for <strong>@Model.WorkspaceName</strong>.</div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                @if (Model.NeedsWorkspace)
+                {
+                    <a class="btn btn-primary" href="/Workspaces/Create">+ New Workspace</a>
+                }
+                else
+                {
+                    <button class="btn btn-outline-secondary" type="button" data-cd-biz-edit>Update Profile</button>
+                    <form method="post" action="/Dashboard/GenerateBusinessAnalysis" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="workspaceId" value="@Model.WorkspaceId" />
+                        <button class="btn btn-primary" type="submit" data-cd-biz-generate>Generate</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (Model.NeedsWorkspace)
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="fw-semibold">No workspace yet</div>
+                <div class="cd-muted">Create a workspace first to generate SWOT, Five Forces, and competitor insights.</div>
+            </div>
+        </div>
+    }
+    else if (Model.Latest is null)
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="fw-semibold">No analysis yet</div>
+                <div class="cd-muted">Click <strong>Generate</strong> to create your first Business Analysis report.</div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="cd-biz-meta mb-3">
+            <span class="cd-chip">Business Type: <strong>@(Model.Latest.BusinessType)</strong></span>
+            <span class="cd-chip">Country: <strong>@(Model.Latest.Country)</strong></span>
+            <span class="cd-chip">Generated: <strong>@Model.Latest.CreatedAtUtc.ToLocalTime().ToString("MMM d, yyyy • h:mm tt")</strong></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="cd-section-title">SWOT</div>
+                        <div class="cd-swot">
+                            <div class="cd-swot-cell">
+                                <div class="cd-swot-head">Strengths</div>
+                                <ul class="cd-list">
+                                    @foreach (var x in Model.Latest.Strengths)
+                                    {
+                                        <li>@x</li>
+                                    }
+                                </ul>
+                            </div>
+                            <div class="cd-swot-cell">
+                                <div class="cd-swot-head">Weaknesses</div>
+                                <ul class="cd-list">
+                                    @foreach (var x in Model.Latest.Weaknesses)
+                                    {
+                                        <li>@x</li>
+                                    }
+                                </ul>
+                            </div>
+                            <div class="cd-swot-cell">
+                                <div class="cd-swot-head">Opportunities</div>
+                                <ul class="cd-list">
+                                    @foreach (var x in Model.Latest.Opportunities)
+                                    {
+                                        <li>@x</li>
+                                    }
+                                </ul>
+                            </div>
+                            <div class="cd-swot-cell">
+                                <div class="cd-swot-head">Threats</div>
+                                <ul class="cd-list">
+                                    @foreach (var x in Model.Latest.Threats)
+                                    {
+                                        <li>@x</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="cd-section-title">Porter’s Five Forces</div>
+                        <div class="cd-forces">
+                            <div class="cd-force">
+                                <div class="cd-force-name">Rivalry</div>
+                                <div class="cd-force-pill">@Model.Latest.Rivalry.Level (@Model.Latest.Rivalry.Score/5)</div>
+                                <div class="cd-muted">@Model.Latest.Rivalry.Notes</div>
+                            </div>
+                            <div class="cd-force">
+                                <div class="cd-force-name">Threat of New Entrants</div>
+                                <div class="cd-force-pill">@Model.Latest.NewEntrants.Level (@Model.Latest.NewEntrants.Score/5)</div>
+                                <div class="cd-muted">@Model.Latest.NewEntrants.Notes</div>
+                            </div>
+                            <div class="cd-force">
+                                <div class="cd-force-name">Threat of Substitutes</div>
+                                <div class="cd-force-pill">@Model.Latest.Substitutes.Level (@Model.Latest.Substitutes.Score/5)</div>
+                                <div class="cd-muted">@Model.Latest.Substitutes.Notes</div>
+                            </div>
+                            <div class="cd-force">
+                                <div class="cd-force-name">Supplier Power</div>
+                                <div class="cd-force-pill">@Model.Latest.SupplierPower.Level (@Model.Latest.SupplierPower.Score/5)</div>
+                                <div class="cd-muted">@Model.Latest.SupplierPower.Notes</div>
+                            </div>
+                            <div class="cd-force">
+                                <div class="cd-force-name">Buyer Power</div>
+                                <div class="cd-force-pill">@Model.Latest.BuyerPower.Level (@Model.Latest.BuyerPower.Score/5)</div>
+                                <div class="cd-muted">@Model.Latest.BuyerPower.Notes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="cd-section-title">Competitors</div>
+                        @if (Model.Latest.Competitors.Count == 0)
+                        {
+                            <div class="cd-muted">No competitors returned by the AI.</div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table align-middle cd-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th class="d-none d-lg-table-cell">Why relevant</th>
+                                            <th class="text-nowrap">Rivalry</th>
+                                            <th class="text-nowrap">New entrants</th>
+                                            <th class="text-nowrap">Substitutes</th>
+                                            <th class="text-nowrap">Supplier power</th>
+                                            <th class="text-nowrap">Buyer power</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var c in Model.Latest.Competitors)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-semibold">@c.Name</div>
+                                                    @if (!string.IsNullOrWhiteSpace(c.Website))
+                                                    {
+                                                        <a class="small" href="@c.Website" target="_blank" rel="noopener">@c.Website</a>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(c.Summary))
+                                                    {
+                                                        <div class="cd-muted small">@c.Summary</div>
+                                                    }
+                                                </td>
+                                                <td class="d-none d-lg-table-cell"><span class="cd-muted">@c.WhyRelevant</span></td>
+                                                <td><span class="cd-pill" data-level="@c.Rivalry.Level">@c.Rivalry.Level</span></td>
+                                                <td><span class="cd-pill" data-level="@c.NewEntrants.Level">@c.NewEntrants.Level</span></td>
+                                                <td><span class="cd-pill" data-level="@c.Substitutes.Level">@c.Substitutes.Level</span></td>
+                                                <td><span class="cd-pill" data-level="@c.SupplierPower.Level">@c.SupplierPower.Level</span></td>
+                                                <td><span class="cd-pill" data-level="@c.BuyerPower.Level">@c.BuyerPower.Level</span></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Profile Modal (reuses existing dashboard-business-analysis.js) -->
+    <div class="modal fade" id="cdBizModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Business Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger d-none" data-cd-biz-error></div>
+
+                    <form id="cdBizProfileForm" action="/Dashboard/SetBusinessProfile" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="workspaceId" value="@Model.WorkspaceId" />
+
+                        <div class="mb-2">
+                            <label class="form-label">Business type</label>
+                            <input class="form-control" name="businessType" value="@(Model.BusinessType ?? "")" placeholder="e.g., Online education, SaaS, Retail" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Country</label>
+                            <input class="form-control" name="country" value="@(Model.Country ?? "")" placeholder="e.g., Philippines" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-cd-biz-save>Save &amp; Generate</button>
+                    <button type="button" class="btn btn-primary d-none" disabled data-cd-biz-saving>Saving…</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="~/js/dashboard-business-analysis.js" asp-append-version="true"></script>
+<script src="~/js/business-analysis-page.js" asp-append-version="true"></script>

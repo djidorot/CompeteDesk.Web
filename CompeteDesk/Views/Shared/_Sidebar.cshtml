@@ -30,16 +30,7 @@
         </button>
     </div>
 
-    <div class="cd-sidebar__search">
-        <span class="cd-sidebar__searchIco" aria-hidden="true">
-            <svg viewBox="0 0 24 24" class="cd-ico" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="7"></circle>
-                <path d="M21 21l-4.3-4.3"></path>
-            </svg>
-        </span>
-        <input class="cd-sidebar__searchInput" type="search" placeholder="Search…" aria-label="Search" />
-    </div>
+    @* NOTE: Removed sidebar search to avoid duplicate search UI (topbar already has search). *@
 
     <div class="cd-sidebar__cta">
         <a class="cd-btn cd-btn--primary cd-btn--block" asp-controller="Workspaces" asp-action="Create">
@@ -70,7 +61,8 @@
             <span class="cd-sidebar__text">Overview</span>
         </a>
 
-        <a class="cd-sidebar__link @(currentController == "Strategies" ? "is-active" : "")" asp-controller="Strategies" asp-action="Index">
+        <a class="cd-sidebar__link @(currentController == "Strategies" ? "is-active" : "")" asp-controller="Strategies"
+            asp-action="Index">
             <span class="cd-sidebar__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -82,7 +74,8 @@
             <span class="cd-sidebar__text">Strategies</span>
         </a>
 
-        <a class="cd-sidebar__link @(currentController == "Actions" ? "is-active" : "")" asp-controller="Actions" asp-action="Index">
+        <a class="cd-sidebar__link @(currentController == "Actions" ? "is-active" : "")" asp-controller="Actions"
+            asp-action="Index">
             <span class="cd-sidebar__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -115,7 +108,8 @@
             <span class="cd-sidebar__text">Metrics</span>
         </a>
 
-        <a class="cd-sidebar__link @(currentController == "WebsiteAnalysis" ? "is-active" : "")" asp-controller="WebsiteAnalysis" asp-action="Index">
+        <a class="cd-sidebar__link @(currentController == "WebsiteAnalysis" ? "is-active" : "")"
+            asp-controller="WebsiteAnalysis" asp-action="Index">
             <span class="cd-sidebar__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -128,7 +122,8 @@
             <span class="cd-sidebar__text">Website Analysis</span>
         </a>
 
-        <a class="cd-sidebar__link @(currentController == "WarRoom" ? "is-active" : "")" asp-controller="WarRoom" asp-action="Index">
+        <a class="cd-sidebar__link @(currentController == "WarRoom" ? "is-active" : "")" asp-controller="WarRoom"
+            asp-action="Index">
             <span class="cd-sidebar__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">

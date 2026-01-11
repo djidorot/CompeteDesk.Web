@@ -65,6 +65,12 @@ public sealed class CompetitorResult
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
+
+    [JsonPropertyName("website")]
+    public string? Website { get; set; }
+
+    [JsonPropertyName("summary")]
+    public string? Summary { get; set; }
     [JsonPropertyName("whyRelevant")]
     public string? WhyRelevant { get; set; }
 
