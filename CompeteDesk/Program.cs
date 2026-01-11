@@ -4,6 +4,7 @@ using CompeteDesk.Data;
 using CompeteDesk.Services.OpenAI;
 using CompeteDesk.Services.WebsiteAnalysis;
 using CompeteDesk.Services.BusinessAnalysis;
+using CompeteDesk.Services.WarRoom;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ builder.Services.AddHttpClient<OpenAiChatClient>(c =>
 
 builder.Services.AddScoped<WebsiteAnalysisService>();
 builder.Services.AddScoped<BusinessAnalysisService>();
+builder.Services.AddScoped<WarRoomAiService>();
 
 // Identity + External Login (Google)
 builder.Services

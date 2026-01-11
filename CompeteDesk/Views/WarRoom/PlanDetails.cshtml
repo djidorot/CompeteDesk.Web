@@ -16,6 +16,7 @@
                 <div class="cd-muted">Status: @Model.Status</div>
             </div>
             <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary cd-btn" type="button" data-war-ai-redteam-btn data-plan-id="@Model.Id">AI Red-Team</button>
                 <a class="btn btn-outline-secondary cd-btn" asp-action="PlanEdit" asp-route-id="@Model.Id">Edit</a>
                 <a class="btn btn-outline-danger cd-btn" asp-action="PlanDelete" asp-route-id="@Model.Id">Delete</a>
             </div>
@@ -71,6 +72,29 @@
 
         <div class="d-flex gap-2 mt-3">
             <a class="btn btn-outline-secondary cd-btn" asp-action="Index" asp-route-tab="plans">Back to Plans</a>
+        </div>
+
+        <form class="d-none" data-war-ai-token method="post">
+            @Html.AntiForgeryToken()
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="warAiModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="warAiModalTitle">AI</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="cd-war-ai" id="warAiModalBody">
+                    <div class="cd-muted">Preparing…</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>

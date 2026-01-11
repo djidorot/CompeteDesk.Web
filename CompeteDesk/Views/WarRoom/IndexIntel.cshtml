@@ -34,10 +34,15 @@
                 <div class="cd-field cd-field--actions">
                     <label class="cd-label" aria-hidden="true">&nbsp;</label>
                     <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary cd-btn" type="button" data-war-ai-brief-btn disabled>AI Brief</button>
                         <button class="btn btn-outline-secondary cd-btn" type="submit">Filter</button>
                         <a class="btn btn-outline-secondary cd-btn" asp-action="Index" asp-route-tab="intel">Reset</a>
                     </div>
                 </div>
+            </form>
+
+            <form class="d-none" data-war-ai-token method="post">
+                @Html.AntiForgeryToken()
             </form>
         </div>
     </div>
@@ -57,6 +62,9 @@
             <div class="card shadow-sm cd-intel">
                 <div class="card-body">
                     <div class="cd-intel__top">
+                        <div class="cd-intel__select">
+                            <input class="form-check-input" type="checkbox" value="@i.Id" data-war-intel-select aria-label="Select intel" />
+                        </div>
                         <div>
                             <div class="cd-intel__title">@i.Title</div>
                             <div class="cd-intel__meta">
@@ -101,6 +109,25 @@
                 </div>
             </div>
         }
+    </div>
+</div>
+
+<div class="modal fade" id="warAiModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="warAiModalTitle">AI</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="cd-war-ai" id="warAiModalBody">
+                    <div class="cd-muted">Preparing…</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 

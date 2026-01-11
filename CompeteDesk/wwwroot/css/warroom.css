@@ -61,6 +61,22 @@
     gap: 12px;
 }
 
+.cd-intel__select {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+    margin-right: 2px;
+}
+
+.cd-war-ai h6 {
+    font-weight: 800;
+    margin-top: 14px;
+}
+
+.cd-war-ai ul {
+    margin-bottom: 0;
+}
+
 .cd-intel__title,
 .cd-plan__title {
     font-weight: 800;
