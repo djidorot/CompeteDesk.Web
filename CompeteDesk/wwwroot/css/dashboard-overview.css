@@ -14,78 +14,7 @@
   .cd-overview-grid{ grid-template-columns: 1fr; }
 }
 
-.cd-overview-card{
-  display:block;
-  text-decoration:none;
-  border: 1px solid rgba(17,24,39,.08);
-  border-radius: 16px;
-  padding: 14px 14px;
-  background: #fff;
-  transition: transform .08s ease, box-shadow .08s ease;
-}
-
-.cd-overview-card:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(17,24,39,.08);
-}
-
-.cd-overview-card--disabled,
-.cd-overview-card--disabled:hover{
-  transform:none;
-  box-shadow:none;
-  opacity: .65;
-  cursor:not-allowed;
-}
-
-.cd-overview-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:8px;
-}
-
-.cd-overview-title{
-  font-weight: 900;
-  color:#111827;
-  letter-spacing:-.2px;
-}
-
-.cd-overview-badge{
-  display:inline-flex;
-  align-items:center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  color:#4f46e5;
-  background: rgba(79,70,229,.10);
-  border: 1px solid rgba(79,70,229,.14);
-  white-space:nowrap;
-}
-
-.cd-overview-count{
-  font-size: 28px;
-  font-weight: 1000;
-  color:#111827;
-  letter-spacing:-.5px;
-  line-height: 1;
-}
-
-.cd-overview-sub{
-  color:#6b7280;
-  font-size: 13px;
-  line-height: 1.35;
-  margin-top: 6px;
-}
-
-.cd-overview-link{
-  margin-top: 10px;
-  font-weight: 800;
-  color:#2563eb;
-  font-size: 13px;
-}
-
+/* Feature overview tiles (bottom section) */
 .cd-feature-grid{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -102,12 +31,14 @@
 
 .cd-feature-card{
   display:block;
-  text-decoration:none;
+  text-decoration: none;
   border: 1px solid rgba(17,24,39,.08);
   border-radius: 16px;
   padding: 14px 14px;
   background: #fff;
   transition: transform .08s ease, box-shadow .08s ease;
+  overflow: hidden; /* FIX: prevent pills/text bleeding into neighbor cards */
+  min-width: 0;     /* FIX: allow flex/grid children to shrink */
 }
 
 .cd-feature-card:hover{
@@ -115,33 +46,54 @@
   box-shadow: 0 10px 24px rgba(17,24,39,.08);
 }
 
+/* Title row (title + pill) */
 .cd-feature-top{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:8px;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;  /* FIX: allow badge to wrap instead of overflowing */
 }
 
 .cd-feature-title{
   font-weight: 900;
   color:#111827;
   letter-spacing:-.2px;
+  min-width: 0; /* FIX: allow truncation */
 }
 
-.cd-feature-badge{
+.cd-pill{
   display:inline-flex;
   align-items:center;
-  padding: 3px 10px;
+  gap: 6px;
+  padding: 6px 10px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
-  color:#4f46e5;
-  background: rgba(79,70,229,.10);
-  border: 1px solid rgba(79,70,229,.14);
+  border: 1px solid rgba(109,94,252,.28);
+  background: rgba(109,94,252,.10);
+  color: #4f46e5;
+  max-width: 100%;     /* FIX */
+  white-space: nowrap; /* FIX: keep pill single-line */
+  overflow: hidden;    /* FIX */
+  text-overflow: ellipsis; /* FIX */
+}
+
+/* Optional: allow long pill text to wrap instead of ellipsis
+   (uncomment if you prefer wrapping)
+.cd-pill{ white-space: normal; }
+*/
+
+.cd-feature-count{
+  font-size: 44px;
+  font-weight: 900;
+  color:#111827;
+  line-height: 1;
+  margin-top: 6px;
 }
 
 .cd-feature-desc{
+  margin-top: 8px;
   color:#6b7280;
   font-size: 13px;
   line-height: 1.35;
@@ -153,4 +105,10 @@
   font-weight: 800;
   color:#2563eb;
   font-size: 13px;
+}
+
+/* Extra safety: grid items must be allowed to shrink */
+.cd-overview-grid > *,
+.cd-feature-grid > *{
+  min-width: 0;
 }
