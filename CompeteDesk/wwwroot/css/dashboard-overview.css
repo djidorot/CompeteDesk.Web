@@ -1,7 +1,9 @@
-/* Dashboard - Overview tiles */
+/* Dashboard - Overview + Feature tiles (unified styling) */
+
+/* --- Overview grid (should match feature grid width/feel) --- */
 .cd-overview-grid{
   display:grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
   margin-top: 14px;
 }
@@ -14,7 +16,111 @@
   .cd-overview-grid{ grid-template-columns: 1fr; }
 }
 
-/* Feature overview tiles (bottom section) */
+/* Overview cards */
+.cd-overview-card{
+  display:flex;
+  flex-direction:column;
+  text-decoration:none;
+  color: inherit;
+  border: 1px solid rgba(17,24,39,.08);
+  border-radius: 16px;
+  padding: 14px 14px;
+  background: #fff;
+  transition: transform .08s ease, box-shadow .08s ease, border-color .08s ease;
+  overflow: hidden; /* prevents pills/text bleeding outside the card */
+  min-width: 0;
+  min-height: 168px; /* keep consistent height with the sample feature cards */
+}
+
+.cd-overview-card:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, .08);
+  border-color: rgba(37, 99, 235, .35);
+}
+
+.cd-overview-card:focus-visible{
+  outline: 3px solid rgba(37, 99, 235, .35);
+  outline-offset: 2px;
+}
+
+.cd-overview-card--disabled{
+  cursor: default;
+  background: #f8f9fb;
+  box-shadow: none;
+}
+
+.cd-overview-card--disabled:hover{
+  transform:none;
+  box-shadow:none;
+  border-color: rgba(17,24,39,.08);
+}
+
+.cd-overview-top{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap: 6px;
+  min-width: 0;
+  margin-bottom: 10px; /* spacing from count */
+}
+
+.cd-overview-title{
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+
+  width: 100%;
+  min-width: 0;
+
+  white-space: nowrap;         /* keep title in one line */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cd-overview-badge{
+  font-size: 12px;
+  font-weight: 800;
+  color:#2563eb;
+  background: rgba(37,99,235,.10);
+  border: 1px solid rgba(37,99,235,.22);
+  border-radius: 999px;
+  padding: 6px 10px;
+
+  display:inline-block;
+  max-width: 100%;
+  align-self: flex-start;
+
+  white-space: nowrap;         /* no wrap */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cd-overview-count{
+  font-size: 46px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.cd-overview-sub{
+  margin-top: 10px;
+  color:#667085;
+  font-size: 14px;
+  line-height: 1.35;
+  min-height: 36px; /* keeps spacing consistent even when short */
+}
+
+.cd-overview-link{
+  margin-top: auto; /* push to the bottom like the sample cards */
+  padding-top: 10px;
+  font-weight: 800;
+  color:#2563eb;
+  font-size: 13px;
+}
+
+/* --- Feature grid (sample cards below) --- */
 .cd-feature-grid{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -30,78 +136,77 @@
 }
 
 .cd-feature-card{
-  display:block;
+  display:flex;
+  flex-direction:column;
   text-decoration: none;
+  color: inherit;
   border: 1px solid rgba(17,24,39,.08);
   border-radius: 16px;
   padding: 14px 14px;
   background: #fff;
   transition: transform .08s ease, box-shadow .08s ease;
-  overflow: hidden; /* FIX: prevent pills/text bleeding into neighbor cards */
-  min-width: 0;     /* FIX: allow flex/grid children to shrink */
+  overflow: hidden;
+  min-width: 0;
+  min-height: 168px;
 }
 
 .cd-feature-card:hover{
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(17,24,39,.08);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, .08);
 }
 
-/* Title row (title + pill) */
 .cd-feature-top{
   display:flex;
-  align-items:center;
-  justify-content: space-between;
+  align-items:flex-start;
+  justify-content:space-between;
   gap: 10px;
-  flex-wrap: wrap;  /* FIX: allow badge to wrap instead of overflowing */
+  min-width: 0;
+  margin-bottom: 10px;
 }
 
 .cd-feature-title{
-  font-weight: 900;
-  color:#111827;
-  letter-spacing:-.2px;
-  min-width: 0; /* FIX: allow truncation */
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+
+  flex: 1 1 auto;
+  min-width: 0;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.cd-pill{
-  display:inline-flex;
-  align-items:center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
+.cd-feature-badge{
   font-size: 12px;
   font-weight: 800;
-  border: 1px solid rgba(109,94,252,.28);
-  background: rgba(109,94,252,.10);
-  color: #4f46e5;
-  max-width: 100%;     /* FIX */
-  white-space: nowrap; /* FIX: keep pill single-line */
-  overflow: hidden;    /* FIX */
-  text-overflow: ellipsis; /* FIX */
-}
+  color:#2563eb;
+  background: rgba(37,99,235,.10);
+  border: 1px solid rgba(37,99,235,.22);
+  border-radius: 999px;
+  padding: 6px 10px;
 
-/* Optional: allow long pill text to wrap instead of ellipsis
-   (uncomment if you prefer wrapping)
-.cd-pill{ white-space: normal; }
-*/
+  display:inline-block;
+  flex: 0 0 auto;
+  max-width: 60%;
 
-.cd-feature-count{
-  font-size: 44px;
-  font-weight: 900;
-  color:#111827;
-  line-height: 1;
-  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cd-feature-desc{
-  margin-top: 8px;
-  color:#6b7280;
-  font-size: 13px;
+  margin-top: 6px;
+  color:#667085;
+  font-size: 14px;
   line-height: 1.35;
-  min-height: 40px;
+  min-height: 36px;
 }
 
 .cd-feature-link{
-  margin-top: 10px;
+  margin-top: auto;
+  padding-top: 10px;
   font-weight: 800;
   color:#2563eb;
   font-size: 13px;
