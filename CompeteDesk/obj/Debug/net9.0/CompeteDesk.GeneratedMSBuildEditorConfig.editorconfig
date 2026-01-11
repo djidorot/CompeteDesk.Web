@@ -72,8 +72,28 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGFzaGJvYXJkL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/Habits/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSGFiaXRzL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/Habits/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSGFiaXRzL0RlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/Habits/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSGFiaXRzL0RldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/Habits/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSGFiaXRzL0VkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/Habits/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSGFiaXRzL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/Habits/_HabitForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSGFiaXRzL19IYWJpdEZvcm0uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/djidorot/Downloads/CompeteDesk.Web/CompeteDesk/Views/Home/Index.cshtml]

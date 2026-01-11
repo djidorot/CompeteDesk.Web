@@ -1,10 +1,154 @@
-/* Habits page (lightweight placeholder) */
-.cd-page { padding-top: 8px; }
-.cd-page__header { display:flex; flex-direction:column; gap:6px; }
-.cd-h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
-.cd-h2 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
-.cd-muted { color: rgba(17, 24, 39, 0.7); }
+/* Habits (Workspace + Strategy tied routines) */
 
+.habits-page { padding-top: 8px; }
+
+.habits-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 16px;
+}
+
+.habits-header__actions{
+    display:flex;
+    gap: 10px;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+.habits-grid{
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 16px;
+}
+
+.habit-card{
+    grid-column: span 12;
+    position: relative;
+}
+
+@media (min-width: 992px){
+    .habit-card{ grid-column: span 6; }
+}
+
+@media (min-width: 1200px){
+    .habit-card{ grid-column: span 4; }
+}
+
+.habit-card--inactive{
+    opacity: 0.75;
+}
+
+.habit-card__top{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+}
+
+.habit-card__menu{
+    display:flex;
+    gap: 8px;
+    flex-wrap:wrap;
+    align-items:flex-start;
+}
+
+.habit-card__titlewrap{
+    min-width: 0;
+}
+
+.habit-title{
+    margin: 6px 0 6px;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.habit-desc{
+    margin: 10px 0 0;
+}
+
+.habit-pill{
+    display:inline-flex;
+    align-items:center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(17, 24, 39, 0.06);
+    border: 1px solid rgba(17, 24, 39, 0.10);
+}
+
+.habit-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px;
+    font-size: 0.9rem;
+    margin-top: 2px;
+}
+
+.habit-meta__sep{
+    color: rgba(17, 24, 39, 0.35);
+}
+
+.habit-meta__item{
+    color: rgba(17, 24, 39, 0.70);
+}
+
+.habit-progress{
+    margin-top: 14px;
+}
+
+.habit-progress__row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.habit-progress__label{
+    min-width: 0;
+}
+
+.habit-progress__pct{
+    font-weight: 800;
+}
+
+.habit-progress__bar{
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(17, 24, 39, 0.08);
+    border: 1px solid rgba(17, 24, 39, 0.10);
+    overflow: hidden;
+}
+
+.habit-progress__barfill{
+    height: 100%;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.85);
+}
+
+.habit-card__actions{
+    margin-top: 16px;
+    display:flex;
+    flex-wrap:wrap;
+    gap: 10px;
+    align-items:center;
+}
+
+.habit-inactive-note{
+    position:absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* Keep the existing card look (page-specific) */
 .cd-card {
     border: 1px solid rgba(17, 24, 39, 0.10);
     border-radius: 16px;
@@ -13,13 +157,3 @@
 }
 
 .cd-card__body { padding: 18px 18px; }
-
-.cd-list { margin: 0; padding-left: 18px; }
-.cd-list li { margin: 8px 0; }
-
-.cd-note {
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: rgba(99, 102, 241, 0.08);
-    border: 1px solid rgba(99, 102, 241, 0.18);
-}

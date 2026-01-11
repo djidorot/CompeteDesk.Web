@@ -1,0 +1,67 @@
+@using System
+@model CompeteDesk.Models.Habit
+
+@{
+    ViewData["Title"] = "Habit Details";
+    var workspaceName = ViewBag.WorkspaceName as string ?? "";
+    var strategyName = ViewBag.StrategyName as string;
+    var periodStart = (DateTime)ViewBag.PeriodStartUtc;
+    var periodEnd = (DateTime)ViewBag.PeriodEndUtc;
+    var periodCount = (int)ViewBag.PeriodCount;
+    var pct = Model.TargetCount <= 0 ? 0 : (int)Math.Round((double)Math.Min(periodCount, Model.TargetCount) / Model.TargetCount * 100.0);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/habits.css" asp-append-version="true" />
+}
+
+<div class="cd-page habits-page">
+    <div class="cd-page__header habits-header">
+        <div>
+            <div class="habit-pill">@Model.Frequency</div>
+            <h1 class="cd-h1 mb-1">@Model.Title</h1>
+            <div class="habit-meta">
+                <span class="habit-meta__item">Workspace: <strong>@workspaceName</strong></span>
+                @if (!string.IsNullOrWhiteSpace(strategyName))
+                {
+                    <span class="habit-meta__sep">•</span>
+                    <span class="habit-meta__item">Strategy: <strong>@strategyName</strong></span>
+                }
+            </div>
+        </div>
+        <div class="habits-header__actions">
+            <a class="btn btn-outline-secondary cd-btn" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+            <a class="btn btn-outline-danger cd-btn" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+        </div>
+    </div>
+
+    <div class="cd-card mt-4">
+        <div class="cd-card__body">
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <p class="cd-muted">@Model.Description</p>
+            }
+
+            <div class="habit-progress mt-3">
+                <div class="habit-progress__row">
+                    <div class="habit-progress__label">
+                        <strong>@periodCount</strong> / @Model.TargetCount
+                        <span class="cd-muted">(@periodStart.ToString("MMM d")–@periodEnd.ToString("MMM d"))</span>
+                    </div>
+                    <div class="habit-progress__pct">@pct%</div>
+                </div>
+                <div class="habit-progress__bar" role="progressbar" aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100">
+                    <div class="habit-progress__barfill" style="width:@pct%"></div>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <form method="post" asp-action="Checkin" asp-route-id="@Model.Id">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-primary cd-btn" type="submit" @(Model.IsActive ? "" : "disabled")>✅ Check in today</button>
+                </form>
+                <a class="btn btn-outline-secondary cd-btn" asp-action="Index" asp-route-workspaceId="@Model.WorkspaceId">Back</a>
+            </div>
+        </div>
+    </div>
+</div>

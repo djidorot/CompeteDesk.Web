@@ -19,6 +19,8 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<WebsiteAnalysisReport> WebsiteAnalysisReports => Set<WebsiteAnalysisReport>();
     public DbSet<BusinessAnalysisReport> BusinessAnalysisReports => Set<BusinessAnalysisReport>();
     public DbSet<DecisionTrace> DecisionTraces => Set<DecisionTrace>();
+    public DbSet<Habit> Habits => Set<Habit>();
+    public DbSet<HabitCheckin> HabitCheckins => Set<HabitCheckin>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -119,6 +121,27 @@ public class ApplicationDbContext : IdentityDbContext
             b.HasIndex(x => x.WorkspaceId);
         });
 
+
+
+
+        builder.Entity<Habit>(b =>
+        {
+            b.Property(x => x.OwnerId).IsRequired();
+            b.Property(x => x.Title).IsRequired().HasMaxLength(200);
+            b.Property(x => x.Description).HasMaxLength(2000);
+            b.Property(x => x.Frequency).IsRequired().HasMaxLength(16);
+            b.HasIndex(x => new { x.OwnerId, x.IsActive });
+            b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
+            b.HasIndex(x => new { x.StrategyId, x.OwnerId });
+        });
+
+        builder.Entity<HabitCheckin>(b =>
+        {
+            b.Property(x => x.OwnerId).IsRequired();
+            b.Property(x => x.Note).HasMaxLength(500);
+            b.HasIndex(x => new { x.OwnerId, x.OccurredOnUtc });
+            b.HasIndex(x => new { x.HabitId, x.OwnerId, x.OccurredOnUtc }).IsUnique();
+        });
 
 
         builder.Entity<DecisionTrace>(b =>

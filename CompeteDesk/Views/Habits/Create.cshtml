@@ -1,0 +1,35 @@
+@model CompeteDesk.ViewModels.Habits.HabitEditViewModel
+
+@{
+    ViewData["Title"] = "New Habit";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/habits.css" asp-append-version="true" />
+}
+
+<div class="cd-page habits-page">
+    <div class="cd-page__header">
+        <div>
+            <h1 class="cd-h1 mb-1">New Habit</h1>
+            <p class="cd-muted mb-0">Create a routine tied to a Workspace and optional Strategy.</p>
+        </div>
+    </div>
+
+    <div class="cd-card mt-4">
+        <div class="cd-card__body">
+            <form method="post">
+                @Html.AntiForgeryToken()
+                <partial name="_HabitForm" model="Model" />
+                <div class="mt-4 d-flex gap-2">
+                    <button class="btn btn-primary cd-btn" type="submit">Create</button>
+                    <a class="btn btn-outline-secondary cd-btn" asp-action="Index">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

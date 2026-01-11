@@ -1,0 +1,35 @@
+@model CompeteDesk.Models.Habit
+
+@{
+    ViewData["Title"] = "Delete Habit";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/habits.css" asp-append-version="true" />
+}
+
+<div class="cd-page habits-page">
+    <div class="cd-page__header">
+        <div>
+            <h1 class="cd-h1 mb-1">Delete Habit</h1>
+            <p class="cd-muted mb-0">This will remove the habit and its check-ins.</p>
+        </div>
+    </div>
+
+    <div class="cd-card mt-4">
+        <div class="cd-card__body">
+            <div class="cd-note">
+                Are you sure you want to delete <strong>@Model.Title</strong>?
+            </div>
+
+            <form method="post" asp-action="Delete" class="mt-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex gap-2">
+                    <button class="btn btn-danger cd-btn" type="submit">Delete</button>
+                    <a class="btn btn-outline-secondary cd-btn" asp-action="Index" asp-route-workspaceId="@Model.WorkspaceId">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

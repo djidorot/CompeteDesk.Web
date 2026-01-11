@@ -36,6 +36,8 @@ namespace CompeteDesk.Data
             await EnsureWarPlansTableAsync(db);
             await EnsureWebsiteAnalysisReportsTableAsync(db);
             await EnsureBusinessAnalysisReportsTableAsync(db);
+            await EnsureHabitsTableAsync(db);
+            await EnsureHabitCheckinsTableAsync(db);
 
             await NormalizeSourceBooksAsync(db);
         }
@@ -226,6 +228,91 @@ ON BusinessAnalysisReports (OwnerId, CreatedAtUtc);");
             await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_BusinessAnalysisReports_WorkspaceId
 ON BusinessAnalysisReports (WorkspaceId);");
+        }
+
+
+        private static async Task EnsureHabitsTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "Habits"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE Habits (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    WorkspaceId INTEGER NOT NULL,
+    StrategyId INTEGER NULL,
+    OwnerId TEXT NOT NULL,
+    Title TEXT NOT NULL,
+    Description TEXT NULL,
+    Frequency TEXT NOT NULL,
+    TargetCount INTEGER NOT NULL DEFAULT 1,
+    IsActive INTEGER NOT NULL DEFAULT 1,
+    CreatedAtUtc TEXT NOT NULL,
+    UpdatedAtUtc TEXT NULL,
+    FOREIGN KEY (WorkspaceId) REFERENCES Workspaces (Id) ON DELETE CASCADE,
+    FOREIGN KEY (StrategyId) REFERENCES Strategies (Id) ON DELETE SET NULL
+);");
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "Habits", "WorkspaceId", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "Habits", "StrategyId", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "Habits", "OwnerId", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Habits", "Title", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Habits", "Description", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Habits", "Frequency", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Habits", "TargetCount", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "Habits", "IsActive", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "Habits", "CreatedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "Habits", "UpdatedAtUtc", "TEXT", nullable: true);
+            }
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_Habits_OwnerId_IsActive
+ON Habits (OwnerId, IsActive);");
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_Habits_WorkspaceId_OwnerId
+ON Habits (WorkspaceId, OwnerId);");
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_Habits_StrategyId_OwnerId
+ON Habits (StrategyId, OwnerId);");
+        }
+
+        private static async Task EnsureHabitCheckinsTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "HabitCheckins"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE HabitCheckins (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    HabitId INTEGER NOT NULL,
+    OwnerId TEXT NOT NULL,
+    OccurredOnUtc TEXT NOT NULL,
+    Count INTEGER NOT NULL DEFAULT 1,
+    Note TEXT NULL,
+    CreatedAtUtc TEXT NOT NULL,
+    FOREIGN KEY (HabitId) REFERENCES Habits (Id) ON DELETE CASCADE
+);");
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "HabitCheckins", "HabitId", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "HabitCheckins", "OwnerId", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "HabitCheckins", "OccurredOnUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "HabitCheckins", "Count", "INTEGER", nullable: true);
+                await EnsureColumnAsync(db, "HabitCheckins", "Note", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "HabitCheckins", "CreatedAtUtc", "TEXT", nullable: true);
+            }
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_HabitCheckins_OwnerId_OccurredOnUtc
+ON HabitCheckins (OwnerId, OccurredOnUtc);");
+
+            // Prevent duplicates for the same habit on the same day.
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE UNIQUE INDEX IF NOT EXISTS UX_HabitCheckins_HabitId_OwnerId_OccurredOnUtc
+ON HabitCheckins (HabitId, OwnerId, OccurredOnUtc);");
         }
 
         private static async Task EnsureStrategiesTableAsync(ApplicationDbContext db)
