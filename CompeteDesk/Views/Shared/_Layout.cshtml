@@ -12,6 +12,9 @@
         <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/topbar.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/CompeteDesk.styles.css" asp-append-version="true" />
+
+        @* Allow pages to inject page-specific CSS into the HEAD *@
+        @RenderSection("Styles", required: false)
     </head>
 
     <body>
@@ -134,6 +137,7 @@
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/sidebar.js" asp-append-version="true"></script>
+
         @RenderSection("Scripts", required: false)
     </body>
 
