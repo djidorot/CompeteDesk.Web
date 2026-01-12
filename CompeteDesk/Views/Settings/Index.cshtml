@@ -1,0 +1,71 @@
+@model CompeteDesk.ViewModels.Settings.SettingsIndexViewModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<div class="cd-page">
+    <div class="cd-page__header">
+        <div>
+            <h1 class="cd-page__title">Settings</h1>
+            <p class="cd-page__subtitle">Manage your profile and preferences.</p>
+        </div>
+    </div>
+
+    <div class="cd-grid cd-grid--2">
+        <section class="cd-card">
+            <div class="cd-card__header">
+                <h2 class="cd-card__title">Profile</h2>
+            </div>
+            <div class="cd-card__body">
+                <div class="cd-field">
+                    <div class="cd-field__label">Email</div>
+                    <div class="cd-field__value">@Model.Email</div>
+                </div>
+                <div class="cd-field">
+                    <div class="cd-field__label">Display name</div>
+                    <div class="cd-field__value">@Model.DisplayName</div>
+                </div>
+
+                <div class="cd-hint" style="margin-top:12px;">
+                    Profile editing can be enabled next (name, avatar, timezone, org/workspace defaults).
+                </div>
+            </div>
+        </section>
+
+        <section class="cd-card">
+            <div class="cd-card__header">
+                <h2 class="cd-card__title">Security</h2>
+            </div>
+            <div class="cd-card__body">
+                <ul class="cd-list">
+                    <li>Password change is available under <strong>Account</strong> (Identity pages).</li>
+                    <li>Optional: enable 2FA, recovery codes, and session management.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="cd-card">
+            <div class="cd-card__header">
+                <h2 class="cd-card__title">AI Preferences</h2>
+            </div>
+            <div class="cd-card__body">
+                <ul class="cd-list">
+                    <li>Control how AI drafts plans, summaries, and recommendations.</li>
+                    <li>Future: default tone, verbosity, and whether to store AI traces.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="cd-card">
+            <div class="cd-card__header">
+                <h2 class="cd-card__title">Notifications</h2>
+            </div>
+            <div class="cd-card__body">
+                <ul class="cd-list">
+                    <li>Future: email alerts for overdue actions, new intel, and AI run results.</li>
+                    <li>Future: daily digest and weekly summary.</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+</div>
