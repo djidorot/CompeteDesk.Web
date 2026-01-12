@@ -16,7 +16,9 @@
 <aside class="cd-sidebar" data-cd-sidebar>
     <div class="cd-sidebar__top">
         <a class="cd-sidebar__brand" asp-controller="Home" asp-action="Index" aria-label="CompeteDesk home">
-            <span class="cd-sidebar__logo" aria-hidden="true">C</span>
+            <span class="cd-sidebar__logo" aria-hidden="true">
+                <img src="~/images/cd-logo.png" alt="CompeteDesk" style="height:28px;" />
+            </span>
             <span class="cd-sidebar__brandText">CompeteDesk</span>
         </a>
 
@@ -86,7 +88,8 @@
             <span class="cd-sidebar__text">Actions</span>
         </a>
 
-        <a class="cd-sidebar__link @(currentController == "Habits" ? "is-active" : "")" asp-controller="Habits" asp-action="Index"><span class="cd-sidebar__icon" aria-hidden="true">
+        <a class="cd-sidebar__link @(currentController == "Habits" ? "is-active" : "")" asp-controller="Habits"
+            asp-action="Index"><span class="cd-sidebar__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 2s4 4 4 9a4 4 0 0 1-8 0c0-5 4-9 4-9z"></path>
