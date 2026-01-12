@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,8 @@ namespace CompeteDesk.Controllers;
 [Authorize]
 public class DashboardController : Controller
 {
+    private const string ActiveWorkspaceCookieName = "cd.activeWorkspaceId";
+
     private readonly ApplicationDbContext _db;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly BusinessAnalysisService _biz;
@@ -35,17 +38,68 @@ public class DashboardController : Controller
     }
 
     // GET: /Dashboard
-    public async Task<IActionResult> Index(CancellationToken ct)
+    // Optional workspaceId lets users switch between workspaces.
+    public async Task<IActionResult> Index(int? workspaceId, CancellationToken ct)
     {
         var userId = await GetUserIdAsync();
         if (string.IsNullOrWhiteSpace(userId)) return Challenge();
 
-        // Use latest workspace as the active context.
-        var ws = await _db.Workspaces
-            .AsNoTracking()
-            .Where(w => w.OwnerId == userId)
-            .OrderByDescending(w => w.UpdatedAtUtc ?? w.CreatedAtUtc)
-            .FirstOrDefaultAsync(ct);
+        // ------------------------------------------------------------
+        // Determine active workspace context
+        // Priority: querystring workspaceId -> cookie -> latest
+        // ------------------------------------------------------------
+        int? activeId = null;
+
+        if (workspaceId.HasValue && workspaceId.Value > 0)
+        {
+            activeId = workspaceId.Value;
+        }
+        else if (Request.Cookies.TryGetValue(ActiveWorkspaceCookieName, out var cookieVal)
+                 && int.TryParse(cookieVal, out var parsedId)
+                 && parsedId > 0)
+        {
+            activeId = parsedId;
+        }
+
+        Workspace? ws = null;
+
+        if (activeId.HasValue)
+        {
+            ws = await _db.Workspaces
+                .AsNoTracking()
+                .FirstOrDefaultAsync(w => w.Id == activeId.Value && w.OwnerId == userId, ct);
+        }
+
+        // Fallback: latest workspace for this user.
+        if (ws is null)
+        {
+            ws = await _db.Workspaces
+                .AsNoTracking()
+                .Where(w => w.OwnerId == userId)
+                .OrderByDescending(w => w.UpdatedAtUtc ?? w.CreatedAtUtc)
+                .FirstOrDefaultAsync(ct);
+
+            // If the cookie points to a workspace that no longer exists, clear it.
+            if (activeId.HasValue)
+            {
+                Response.Cookies.Delete(ActiveWorkspaceCookieName);
+            }
+        }
+
+        // Persist selection when user explicitly switches workspaces.
+        if (workspaceId.HasValue && ws is not null)
+        {
+            Response.Cookies.Append(
+                ActiveWorkspaceCookieName,
+                ws.Id.ToString(),
+                new CookieOptions
+                {
+                    Expires = DateTimeOffset.UtcNow.AddDays(90),
+                    IsEssential = true,
+                    SameSite = SameSiteMode.Lax,
+                    Secure = Request.IsHttps
+                });
+        }
 
         // IMPORTANT UX:
         // If the user has no workspace yet, do NOT redirect them away from /Dashboard.

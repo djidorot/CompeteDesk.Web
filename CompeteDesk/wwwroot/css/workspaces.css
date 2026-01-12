@@ -22,6 +22,17 @@
   color: rgba(0,0,0,.65);
 }
 
+/* Make workspace rows clickable without looking like plain links */
+.cd-ws-item{
+  text-decoration: none;
+  color: inherit;
+}
+
+.cd-ws-item:hover,
+.cd-ws-item:focus{
+  text-decoration: none;
+}
+
 @media (max-width: 768px){
   .cd-page{ max-width: 100%; }
 }
