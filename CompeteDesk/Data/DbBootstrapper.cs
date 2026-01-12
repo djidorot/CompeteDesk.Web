@@ -643,7 +643,8 @@ CREATE TABLE UserDataControls (
                 await EnsureColumnAsync(db, "UserDataControls", "UpdatedAtUtc", "TEXT", nullable: true);
             }
 
-            await EnsureIndexAsync(db, "IX_UserDataControls_UserId", "UserDataControls", "UserId");
+            // IMPORTANT: columnsSql must include parentheses for valid SQLite syntax.
+            await EnsureIndexAsync(db, "IX_UserDataControls_UserId", "UserDataControls", "(\"UserId\")");
         }
 
 

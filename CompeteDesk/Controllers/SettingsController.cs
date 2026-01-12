@@ -158,7 +158,7 @@ namespace CompeteDesk.Controllers
                         a.Status,
                         a.Category,
                         a.Priority,
-                        a.DueDateUtc,
+                        a.DueAtUtc,
                         a.CreatedAtUtc,
                         a.StrategyId,
                         a.WorkspaceId
@@ -175,8 +175,9 @@ namespace CompeteDesk.Controllers
                     return ExportList(items.Select(s => new
                     {
                         s.Id,
-                        s.Title,
-                        s.Framework,
+                        s.Name,
+                        s.Category,
+                        s.SourceBook,
                         s.Status,
                         s.CreatedAtUtc,
                         s.WorkspaceId
@@ -363,7 +364,7 @@ namespace CompeteDesk.Controllers
             var needs = s.Contains(',') || s.Contains('"') || s.Contains('\n') || s.Contains('\r');
             if (!needs) return s;
 
-            return """ + s.Replace(""", """") + """;
+            return "\""+ s.Replace("\"", "\"\"") + "\"";
         }
 
         private static int NormalizeRetention(int value)
