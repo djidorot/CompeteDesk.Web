@@ -1,0 +1,133 @@
+/* Metrics page (light UI) */
+
+.cd-metrics{
+  padding: 10px 0 24px;
+}
+
+.cd-metrics__head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap: 12px;
+  margin: 6px 0 14px;
+}
+
+.cd-metrics__title{
+  margin:0;
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing:-0.02em;
+}
+
+.cd-metrics__sub{
+  margin-top: 6px;
+  color: rgba(17,24,39,0.70);
+}
+
+.cd-metrics__grid{
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
+
+.cd-metrics__card{
+  grid-column: span 12;
+  border-radius: 16px;
+  border: 1px solid rgba(17,24,39,0.08);
+}
+
+@media (min-width: 576px){
+  .cd-metrics__card{ grid-column: span 6; }
+}
+
+@media (min-width: 992px){
+  .cd-metrics__card{ grid-column: span 4; }
+}
+
+.cd-metrics__kpiLabel{
+  font-weight: 700;
+  color: rgba(17,24,39,0.65);
+  margin-bottom: 6px;
+}
+
+.cd-metrics__kpiValue{
+  font-size: 2.0rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.0;
+}
+
+.cd-metrics__kpiSmall{
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: rgba(17,24,39,0.55);
+  margin-left: 4px;
+}
+
+.cd-metrics__kpiHint{
+  margin-top: 10px;
+  color: rgba(17,24,39,0.62);
+  font-size: 0.92rem;
+}
+
+.cd-metrics__row{
+  margin-top: 12px;
+}
+
+.cd-metrics__wide{
+  border-radius: 16px;
+  border: 1px solid rgba(17,24,39,0.08);
+}
+
+.cd-metrics__sectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.cd-metrics__sectionTitle{
+  font-weight: 900;
+  font-size: 1.05rem;
+}
+
+.cd-metrics__sectionSub{
+  color: rgba(17,24,39,0.62);
+  margin-top: 2px;
+}
+
+.cd-metrics__statusGrid{
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.cd-metrics__statusPill{
+  grid-column: span 12;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(17,24,39,0.08);
+  background: rgba(99,102,241,0.06);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+@media (min-width: 576px){
+  .cd-metrics__statusPill{ grid-column: span 6; }
+}
+
+@media (min-width: 992px){
+  .cd-metrics__statusPill{ grid-column: span 4; }
+}
+
+.cd-metrics__statusName{
+  font-weight: 800;
+}
+
+.cd-metrics__statusCount{
+  font-weight: 900;
+  font-size: 1.05rem;
+}

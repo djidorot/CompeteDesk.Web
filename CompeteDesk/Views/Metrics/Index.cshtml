@@ -1,0 +1,125 @@
+@model CompeteDesk.ViewModels.Metrics.MetricsViewModel
+@{
+    ViewData["Title"] = "Metrics";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+}
+
+<link rel="stylesheet" href="~/css/metrics.css" asp-append-version="true" />
+
+<div class="cd-metrics">
+    <div class="cd-metrics__head">
+        <div>
+            <h1 class="cd-metrics__title">Metrics</h1>
+            <div class="cd-metrics__sub">A quick snapshot of your system: workspaces, execution, and intel.</div>
+        </div>
+        <div class="cd-metrics__actions">
+            <a class="btn btn-outline-secondary" asp-controller="Dashboard" asp-action="Index">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="cd-metrics__grid">
+        <section class="card shadow-sm cd-metrics__card">
+            <div class="card-body">
+                <div class="cd-metrics__kpiLabel">Workspaces</div>
+                <div class="cd-metrics__kpiValue">@Model.WorkspacesCount</div>
+                <div class="cd-metrics__kpiHint">Containers for strategies, actions, and reports.</div>
+            </div>
+        </section>
+
+        <section class="card shadow-sm cd-metrics__card">
+            <div class="card-body">
+                <div class="cd-metrics__kpiLabel">Strategies</div>
+                <div class="cd-metrics__kpiValue">@Model.StrategiesCount</div>
+                <div class="cd-metrics__kpiHint">Your selected plays and competitive moves.</div>
+            </div>
+        </section>
+
+        <section class="card shadow-sm cd-metrics__card">
+            <div class="card-body">
+                <div class="cd-metrics__kpiLabel">Actions</div>
+                <div class="cd-metrics__kpiValue">@Model.ActionsCount</div>
+                <div class="cd-metrics__kpiHint">Execution items attached to strategies or weekly focus.</div>
+            </div>
+        </section>
+
+        <section class="card shadow-sm cd-metrics__card">
+            <div class="card-body">
+                <div class="cd-metrics__kpiLabel">Habits</div>
+                <div class="cd-metrics__kpiValue">@Model.ActiveHabitsCount<span class="cd-metrics__kpiSmall"> / @Model.HabitsCount</span></div>
+                <div class="cd-metrics__kpiHint">Active habits (left) vs total habits (right).</div>
+            </div>
+        </section>
+
+        <section class="card shadow-sm cd-metrics__card">
+            <div class="card-body">
+                <div class="cd-metrics__kpiLabel">War Room Intel</div>
+                <div class="cd-metrics__kpiValue">@Model.WarIntelCount</div>
+                <div class="cd-metrics__kpiHint">Signals, notes, and observations.</div>
+            </div>
+        </section>
+
+        <section class="card shadow-sm cd-metrics__card">
+            <div class="card-body">
+                <div class="cd-metrics__kpiLabel">War Plans</div>
+                <div class="cd-metrics__kpiValue">@Model.WarPlansCount</div>
+                <div class="cd-metrics__kpiHint">Drafted plans generated from intel + intent.</div>
+            </div>
+        </section>
+
+        <section class="card shadow-sm cd-metrics__card">
+            <div class="card-body">
+                <div class="cd-metrics__kpiLabel">Website Reports</div>
+                <div class="cd-metrics__kpiValue">@Model.WebsiteReportsCount</div>
+                <div class="cd-metrics__kpiHint">Website scans and technical summaries.</div>
+            </div>
+        </section>
+
+        <section class="card shadow-sm cd-metrics__card">
+            <div class="card-body">
+                <div class="cd-metrics__kpiLabel">Business Reports</div>
+                <div class="cd-metrics__kpiValue">@Model.BusinessReportsCount</div>
+                <div class="cd-metrics__kpiHint">AI SWOT / forces outputs saved to your workspace.</div>
+            </div>
+        </section>
+
+        <section class="card shadow-sm cd-metrics__card">
+            <div class="card-body">
+                <div class="cd-metrics__kpiLabel">AI History</div>
+                <div class="cd-metrics__kpiValue">@Model.AiTracesCount</div>
+                <div class="cd-metrics__kpiHint">Decision traces stored for auditing and iteration.</div>
+            </div>
+        </section>
+    </div>
+
+    <div class="cd-metrics__row">
+        <section class="card shadow-sm cd-metrics__wide">
+            <div class="card-body">
+                <div class="cd-metrics__sectionHead">
+                    <div>
+                        <div class="cd-metrics__sectionTitle">Action Status Breakdown</div>
+                        <div class="cd-metrics__sectionSub">Where your execution is right now.</div>
+                    </div>
+                    <a class="btn btn-sm btn-outline-secondary" asp-controller="Actions" asp-action="Index">Open Actions</a>
+                </div>
+
+                @if (Model.ActionStatuses.Count == 0)
+                {
+                    <div class="cd-muted">No actions yet. Create your first action to start tracking progress.</div>
+                }
+                else
+                {
+                    <div class="cd-metrics__statusGrid">
+                        @foreach (var s in Model.ActionStatuses)
+                        {
+                            <div class="cd-metrics__statusPill">
+                                <div class="cd-metrics__statusName">@s.Status</div>
+                                <div class="cd-metrics__statusCount">@s.Count</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>
