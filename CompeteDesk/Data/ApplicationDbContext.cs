@@ -14,6 +14,8 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Workspace> Workspaces => Set<Workspace>();
     public DbSet<Strategy> Strategies => Set<Strategy>();
 	public DbSet<ActionItem> Actions => Set<ActionItem>();
+    // Back-compat alias used by some controllers/views
+    public DbSet<ActionItem> ActionItems => Set<ActionItem>();
 	public DbSet<WarIntel> WarIntel => Set<WarIntel>();
 	public DbSet<WarPlan> WarPlans => Set<WarPlan>();
     public DbSet<WebsiteAnalysisReport> WebsiteAnalysisReports => Set<WebsiteAnalysisReport>();
@@ -58,6 +60,9 @@ public class ApplicationDbContext : IdentityDbContext
 
 		builder.Entity<ActionItem>(b =>
 		{
+			// The physical SQLite table is named "Actions" (created/managed by DbBootstrapper).
+			// Map the ActionItem entity to that table to avoid runtime errors like: no such table: ActionItem
+			b.ToTable("Actions");
 			b.Property(x => x.Title).IsRequired().HasMaxLength(200);
 			b.Property(x => x.Description).HasMaxLength(2000);
 			b.Property(x => x.Status).IsRequired().HasMaxLength(24);
