@@ -100,3 +100,112 @@
 .cd-list li{
   margin: 6px 0;
 }
+
+
+.cd-toast{
+    background:#fff;
+    border:1px solid rgba(0,0,0,.08);
+    border-radius:12px;
+    padding:12px 14px;
+    margin: 0 0 14px 0;
+    box-shadow: 0 8px 20px rgba(0,0,0,.06);
+    max-width: 560px;
+}
+
+.cd-form { margin-top: 8px; }
+.cd-form__grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+}
+@media (max-width: 900px){
+    .cd-form__grid{ grid-template-columns: 1fr; }
+}
+
+.cd-field{ display:flex; flex-direction:column; gap:6px; }
+.cd-label{ font-weight:600; font-size:14px; }
+.cd-select{
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,.12);
+    padding: 0 12px;
+    background: #fff;
+    outline: none;
+}
+.cd-select:focus{
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, .18);
+    border-color: rgba(99, 102, 241, .5);
+}
+.cd-help{ color: rgba(0,0,0,.55); font-size: 12.5px; }
+
+.cd-toggles{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 10px 0 18px;
+}
+@media (max-width: 900px){
+    .cd-toggles{ grid-template-columns: 1fr; }
+}
+
+.cd-toggle{
+    display:flex;
+    gap: 10px;
+    align-items:flex-start;
+    padding: 12px;
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 14px;
+    background:#fff;
+    cursor:pointer;
+}
+.cd-toggle input{ display:none; }
+.cd-toggle__ui{
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.12);
+    position: relative;
+    flex: 0 0 auto;
+    margin-top: 2px;
+    transition: all .15s ease;
+}
+.cd-toggle__ui::after{
+    content:"";
+    position:absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 6px 14px rgba(0,0,0,.15);
+    transition: all .15s ease;
+}
+.cd-toggle input[type="checkbox"]:checked + .cd-toggle__ui{
+    background: rgba(99, 102, 241, .9);
+}
+.cd-toggle input[type="checkbox"]:checked + .cd-toggle__ui::after{
+    left: 21px;
+}
+.cd-toggle__text{ display:flex; flex-direction:column; gap:2px; }
+.cd-toggle__title{ font-weight:700; }
+.cd-toggle__sub{ font-size: 13px; color: rgba(0,0,0,.6); }
+
+.cd-form__actions{
+    display:flex;
+    justify-content:flex-end;
+    margin-top: 4px;
+}
+.cd-btn{
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor:pointer;
+}
+.cd-btn--primary{
+    background: rgba(99, 102, 241, .95);
+    color:#fff;
+}
+.cd-btn--primary:hover{ filter: brightness(.98); }

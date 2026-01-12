@@ -38,6 +38,7 @@ namespace CompeteDesk.Data
             await EnsureBusinessAnalysisReportsTableAsync(db);
             await EnsureHabitsTableAsync(db);
             await EnsureHabitCheckinsTableAsync(db);
+            await EnsureUserAiPreferencesTableAsync(db);
 
             await NormalizeSourceBooksAsync(db);
         }
@@ -442,7 +443,8 @@ ON Actions (WorkspaceId, OwnerId);");
             string tableName,
             string columnName,
             string sqliteType,
-            bool nullable)
+            bool nullable,
+            string? defaultSql = null)
         {
             var conn = (SqliteConnection)db.Database.GetDbConnection();
             await db.Database.OpenConnectionAsync();
@@ -465,12 +467,16 @@ ON Actions (WorkspaceId, OwnerId);");
 
             // If missing, add it.
             // NOTE: SQLite has limited ALTER TABLE support; ADD COLUMN is supported.
-            var nullSql = nullable ? "NULL" : "NOT NULL";
+            // SQLite allows NOT NULL only if a DEFAULT is provided when adding a column.
+// If caller requests NOT NULL but no default is supplied, we fall back to NULL to avoid migration failures on existing DBs.
+var canBeNotNull = !nullable && !string.IsNullOrWhiteSpace(defaultSql);
+var nullSql = canBeNotNull ? "NOT NULL" : "NULL";
+var defaultClause = canBeNotNull ? $" DEFAULT {defaultSql}" : "";
 
-            // WARNING EF1002 (SQL injection): table/column names are controlled by code (not user input),
-            // so it's acceptable in this bootstrapper.
-            await db.Database.ExecuteSqlRawAsync(
-                $"ALTER TABLE \"{tableName}\" ADD COLUMN \"{columnName}\" {sqliteType} {nullSql};");
+// WARNING EF1002 (SQL injection): table/column names are controlled by code (not user input),
+// so it's acceptable in this bootstrapper.
+await db.Database.ExecuteSqlRawAsync(
+    $"ALTER TABLE \"{tableName}\" ADD COLUMN \"{columnName}\" {sqliteType} {nullSql}{defaultClause};");
         }
 
         // -----------------------------------------------------------------------------
@@ -575,6 +581,44 @@ CREATE TABLE WebsiteAnalysisReports (
 
 
         
+
+
+        private static async Task EnsureUserAiPreferencesTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "UserAiPreferences"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE UserAiPreferences (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserId TEXT NOT NULL,
+    Verbosity TEXT NOT NULL DEFAULT 'Balanced',
+    Tone TEXT NOT NULL DEFAULT 'Analytical',
+    AutoDraftPlans INTEGER NOT NULL DEFAULT 1,
+    AutoSummaries INTEGER NOT NULL DEFAULT 1,
+    AutoRecommendations INTEGER NOT NULL DEFAULT 1,
+    StoreDecisionTraces INTEGER NOT NULL DEFAULT 1,
+    CreatedAtUtc TEXT NULL,
+    UpdatedAtUtc TEXT NULL
+);");
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "UserAiPreferences", "UserId", "TEXT", nullable: false, defaultSql: "''");
+                await EnsureColumnAsync(db, "UserAiPreferences", "Verbosity", "TEXT", nullable: false, defaultSql: "'Balanced'");
+                await EnsureColumnAsync(db, "UserAiPreferences", "Tone", "TEXT", nullable: false, defaultSql: "'Analytical'");
+                await EnsureColumnAsync(db, "UserAiPreferences", "AutoDraftPlans", "INTEGER", nullable: false, defaultSql: "1");
+                await EnsureColumnAsync(db, "UserAiPreferences", "AutoSummaries", "INTEGER", nullable: false, defaultSql: "1");
+                await EnsureColumnAsync(db, "UserAiPreferences", "AutoRecommendations", "INTEGER", nullable: false, defaultSql: "1");
+                await EnsureColumnAsync(db, "UserAiPreferences", "StoreDecisionTraces", "INTEGER", nullable: false, defaultSql: "1");
+                await EnsureColumnAsync(db, "UserAiPreferences", "CreatedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "UserAiPreferences", "UpdatedAtUtc", "TEXT", nullable: true);
+            }
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE UNIQUE INDEX IF NOT EXISTS IX_UserAiPreferences_UserId
+ON UserAiPreferences (UserId);");
+        }
+
         private static async Task NormalizeSourceBooksAsync(ApplicationDbContext db)
         {
             // Remove legacy book-title labels from existing data so UI no longer shows them.

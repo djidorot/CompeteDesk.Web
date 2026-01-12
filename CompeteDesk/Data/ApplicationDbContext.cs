@@ -16,6 +16,7 @@ public class ApplicationDbContext : IdentityDbContext
 	public DbSet<ActionItem> Actions => Set<ActionItem>();
     // Back-compat alias used by some controllers/views
     public DbSet<ActionItem> ActionItems => Set<ActionItem>();
+    public DbSet<UserAiPreferences> UserAiPreferences => Set<UserAiPreferences>();
 	public DbSet<WarIntel> WarIntel => Set<WarIntel>();
 	public DbSet<WarPlan> WarPlans => Set<WarPlan>();
     public DbSet<WebsiteAnalysisReport> WebsiteAnalysisReports => Set<WebsiteAnalysisReport>();
@@ -70,7 +71,24 @@ public class ApplicationDbContext : IdentityDbContext
 			b.Property(x => x.SourceBook).HasMaxLength(120);
 
 			b.HasIndex(x => new { x.OwnerId, x.Status });
-			b.HasIndex(x => new { x.StrategyId, x.OwnerId });
+			
+
+builder.Entity<UserAiPreferences>(b =>
+{
+    b.ToTable("UserAiPreferences");
+    b.Property(x => x.UserId).IsRequired().HasMaxLength(128);
+    b.Property(x => x.Verbosity).IsRequired().HasMaxLength(24);
+    b.Property(x => x.Tone).IsRequired().HasMaxLength(24);
+    b.Property(x => x.AutoDraftPlans).IsRequired();
+    b.Property(x => x.AutoSummaries).IsRequired();
+    b.Property(x => x.AutoRecommendations).IsRequired();
+    b.Property(x => x.StoreDecisionTraces).IsRequired();
+    b.Property(x => x.CreatedAtUtc);
+    b.Property(x => x.UpdatedAtUtc);
+
+    b.HasIndex(x => x.UserId).IsUnique();
+});
+b.HasIndex(x => new { x.StrategyId, x.OwnerId });
 			b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
 		});
 

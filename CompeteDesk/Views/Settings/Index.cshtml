@@ -17,24 +17,31 @@
         </div>
     </div>
 
-    <div class="cd-settings-grid">
+    @if (TempData["SettingsSaved"] != null)
+    {
+        <div class="cd-toast" role="status">@TempData["SettingsSaved"]</div>
+    }
+
+    <div class="cd-grid-2">
         <section class="cd-card">
             <div class="cd-card__head">
                 <h2 class="cd-card__title">Profile</h2>
             </div>
             <div class="cd-card__body">
                 <div class="cd-kv">
-                    <div class="cd-kv__k">Email</div>
-                    <div class="cd-kv__v">@Model.Email</div>
-                </div>
-                <div class="cd-kv">
-                    <div class="cd-kv__k">Display name</div>
-                    <div class="cd-kv__v">@Model.DisplayName</div>
+                    <div class="cd-kv__row">
+                        <div class="cd-kv__k">Email</div>
+                        <div class="cd-kv__v">@Model.Email</div>
+                    </div>
+                    <div class="cd-kv__row">
+                        <div class="cd-kv__k">Display name</div>
+                        <div class="cd-kv__v">@Model.DisplayName</div>
+                    </div>
                 </div>
 
-                <div class="cd-muted mt-3">
+                <p class="cd-muted mt-3">
                     Profile editing can be enabled next (name, avatar, timezone, org/workspace defaults).
-                </div>
+                </p>
             </div>
         </section>
 
@@ -50,15 +57,86 @@
             </div>
         </section>
 
-        <section class="cd-card">
-            <div class="cd-card__head">
-                <h2 class="cd-card__title">AI Preferences</h2>
+        <section class="cd-card cd-card--span">
+            <div class="cd-card__head cd-card__head--split">
+                <div>
+                    <h2 class="cd-card__title">AI Preferences</h2>
+                    <p class="cd-muted">Control how AI drafts plans, summaries, and recommendations.</p>
+                </div>
             </div>
+
             <div class="cd-card__body">
-                <ul class="cd-list">
-                    <li>Control how AI drafts plans, summaries, and recommendations.</li>
-                    <li>Future: default tone, verbosity, and whether to store AI traces.</li>
-                </ul>
+                <form asp-action="Index" asp-controller="Settings" method="post" class="cd-form">
+                    @Html.AntiForgeryToken()
+
+                    <div class="cd-form__grid">
+                        <div class="cd-field">
+                            <label class="cd-label" for="Verbosity">Verbosity</label>
+                            <select class="cd-select" id="Verbosity" name="Verbosity">
+                                <option value="Short" selected="@(Model.Verbosity == "Short")">Short</option>
+                                <option value="Balanced" selected="@(Model.Verbosity == "Balanced")">Balanced</option>
+                                <option value="Detailed" selected="@(Model.Verbosity == "Detailed")">Detailed</option>
+                            </select>
+                            <div class="cd-help">Controls answer length and level of detail in AI outputs.</div>
+                        </div>
+
+                        <div class="cd-field">
+                            <label class="cd-label" for="Tone">Default tone</label>
+                            <select class="cd-select" id="Tone" name="Tone">
+                                <option value="Executive" selected="@(Model.Tone == "Executive")">Executive</option>
+                                <option value="Analytical" selected="@(Model.Tone == "Analytical")">Analytical</option>
+                                <option value="Tactical" selected="@(Model.Tone == "Tactical")">Tactical</option>
+                            </select>
+                            <div class="cd-help">Sets the default writing style for AI drafts.</div>
+                        </div>
+                    </div>
+
+                    <div class="cd-toggles">
+                        <label class="cd-toggle">
+                            <input type="hidden" name="AutoDraftPlans" value="false" />
+                            <input type="checkbox" name="AutoDraftPlans" value="true" @(Model.AutoDraftPlans ? "checked" : "") />
+                            <span class="cd-toggle__ui"></span>
+                            <span class="cd-toggle__text">
+                                <span class="cd-toggle__title">Auto-draft plans</span>
+                                <span class="cd-toggle__sub">Suggest War Plans from selected intel and context.</span>
+                            </span>
+                        </label>
+
+                        <label class="cd-toggle">
+                            <input type="hidden" name="AutoSummaries" value="false" />
+                            <input type="checkbox" name="AutoSummaries" value="true" @(Model.AutoSummaries ? "checked" : "") />
+                            <span class="cd-toggle__ui"></span>
+                            <span class="cd-toggle__text">
+                                <span class="cd-toggle__title">Auto-summaries</span>
+                                <span class="cd-toggle__sub">Generate short summaries for long content and reports.</span>
+                            </span>
+                        </label>
+
+                        <label class="cd-toggle">
+                            <input type="hidden" name="AutoRecommendations" value="false" />
+                            <input type="checkbox" name="AutoRecommendations" value="true" @(Model.AutoRecommendations ? "checked" : "") />
+                            <span class="cd-toggle__ui"></span>
+                            <span class="cd-toggle__text">
+                                <span class="cd-toggle__title">Auto-recommendations</span>
+                                <span class="cd-toggle__sub">Suggest next actions, priorities, and risks.</span>
+                            </span>
+                        </label>
+
+                        <label class="cd-toggle">
+                            <input type="hidden" name="StoreDecisionTraces" value="false" />
+                            <input type="checkbox" name="StoreDecisionTraces" value="true" @(Model.StoreDecisionTraces ? "checked" : "") />
+                            <span class="cd-toggle__ui"></span>
+                            <span class="cd-toggle__text">
+                                <span class="cd-toggle__title">Store AI decision traces</span>
+                                <span class="cd-toggle__sub">Keep an audit trail in <strong>AI History</strong> (recommended for transparency).</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="cd-form__actions">
+                        <button type="submit" class="cd-btn cd-btn--primary">Save AI preferences</button>
+                    </div>
+                </form>
             </div>
         </section>
 
