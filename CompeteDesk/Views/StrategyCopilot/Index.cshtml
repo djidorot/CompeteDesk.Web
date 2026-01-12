@@ -1,0 +1,153 @@
+@model CompeteDesk.ViewModels.StrategyCopilot.StrategyCopilotIndexViewModel
+
+@{
+    ViewData["Title"] = "AI Strategy Co-Pilot";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/strategy-copilot.css" asp-append-version="true" />
+}
+
+<div class="cd-page">
+    <div class="cd-page__titleRow">
+        <div>
+            <h1 class="cd-page__title">AI Strategy Co-Pilot</h1>
+            <p class="cd-muted">Synthesize Strategy + Intel + (optional) Strategy Canvas and ERRC to generate Blue Ocean hypotheses and a strategic narrative.</p>
+        </div>
+        <div class="cd-page__actions">
+            <a class="cd-btn cd-btn--ghost" asp-controller="AiHistory" asp-action="Index">View AI History</a>
+        </div>
+    </div>
+
+    <div class="cd-card cd-card--pad">
+        <form data-copilot-form method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="cd-copilot__grid">
+                <div class="cd-copilot__col">
+                    <div class="cd-field">
+                        <label class="cd-label" for="workspaceSelect">Workspace</label>
+                        <select class="cd-input" id="workspaceSelect" data-copilot-workspace>
+                            @foreach (var ws in Model.Workspaces)
+                            {
+                                <option value="@ws.Id" selected="@(Model.WorkspaceId == ws.Id)">@ws.Name</option>
+                            }
+                        </select>
+                        <div class="cd-help">Changing workspace reloads available strategies and intel.</div>
+                    </div>
+
+                    <div class="cd-field">
+                        <label class="cd-label" for="goal">Goal</label>
+                        <input class="cd-input" id="goal" data-copilot-goal placeholder="e.g., Create a differentiated offer for SMB e-commerce sellers" />
+                    </div>
+
+                    <div class="cd-field">
+                        <label class="cd-label" for="scope">Market scope</label>
+                        <input class="cd-input" id="scope" data-copilot-scope placeholder="e.g., PH market, Shopify stores, B2B SaaS" />
+                    </div>
+
+                    <div class="cd-field">
+                        <label class="cd-label" for="constraints">Constraints</label>
+                        <textarea class="cd-input" id="constraints" data-copilot-constraints rows="3" placeholder="Budget, team size, time horizon, compliance, etc."></textarea>
+                    </div>
+                </div>
+
+                <div class="cd-copilot__col">
+                    <div class="cd-field">
+                        <label class="cd-label">Selected strategies</label>
+                        <div class="cd-copilot__picklist">
+                            @if (Model.Strategies.Count == 0)
+                            {
+                                <div class="cd-muted">No active strategies found for this workspace.</div>
+                            }
+                            else
+                            {
+                                foreach (var s in Model.Strategies)
+                                {
+                                    <label class="cd-check">
+                                        <input type="checkbox" value="@s.Id" data-copilot-strategy />
+                                        <span class="cd-check__text">@s.Name <span class="cd-muted">@(string.IsNullOrWhiteSpace(s.Category) ? "" : $"• {s.Category}")</span></span>
+                                    </label>
+                                }
+                            }
+                        </div>
+                        <div class="cd-help">Pick 1–5 strategies you want to blend or stress-test.</div>
+                    </div>
+
+                    <div class="cd-field" style="margin-top:14px">
+                        <label class="cd-label">Selected intel</label>
+                        <div class="cd-copilot__picklist">
+                            @if (Model.Intel.Count == 0)
+                            {
+                                <div class="cd-muted">No intel found for this workspace.</div>
+                            }
+                            else
+                            {
+                                foreach (var i in Model.Intel)
+                                {
+                                    <label class="cd-check">
+                                        <input type="checkbox" value="@i.Id" data-copilot-intel />
+                                        <span class="cd-check__text">
+                                            @i.Title
+                                            <span class="cd-muted">• conf @i.Confidence/5 • @i.ObservedAtUtc.ToString("yyyy-MM-dd")</span>
+                                        </span>
+                                    </label>
+                                }
+                            }
+                        </div>
+                        <div class="cd-help">Pick the signals that matter. The co-pilot will synthesize contradictions + next moves.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cd-copilot__artifacts">
+                <div class="cd-copilot__artifact">
+                    <div class="cd-field">
+                        <label class="cd-label" for="canvas">Strategy canvas (optional)</label>
+                        <textarea class="cd-input" id="canvas" data-copilot-canvas rows="7" placeholder="Paste a simple canvas in text.
+
+Example:
+Factors: price, speed, ease-of-use, support, integrations
+Us:     2,     4,     5,          4,      3
+Comp A: 3,     3,     2,          2,      4
+Comp B: 4,     2,     3,          3,      2"></textarea>
+                        <div class="cd-help">Keep it rough. The co-pilot will infer deltas and propose a differentiated curve.</div>
+                    </div>
+                </div>
+
+                <div class="cd-copilot__artifact">
+                    <div class="cd-field">
+                        <label class="cd-label">ERRC grid (optional)</label>
+                        <div class="cd-copilot__errc">
+                            <textarea class="cd-input" data-copilot-errc-eliminate rows="3" placeholder="Eliminate… (one per line)"></textarea>
+                            <textarea class="cd-input" data-copilot-errc-reduce rows="3" placeholder="Reduce… (one per line)"></textarea>
+                            <textarea class="cd-input" data-copilot-errc-raise rows="3" placeholder="Raise… (one per line)"></textarea>
+                            <textarea class="cd-input" data-copilot-errc-create rows="3" placeholder="Create… (one per line)"></textarea>
+                        </div>
+                        <div class="cd-help">If you don’t have ERRC yet, leave blank—co-pilot will propose a draft.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cd-copilot__footer">
+                <div class="cd-muted" data-copilot-status></div>
+                <button class="cd-btn cd-btn--primary" type="submit" data-copilot-generate>Generate Blue Ocean hypotheses</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="cd-card cd-card--pad" data-copilot-result hidden>
+        <div class="cd-copilot__resultHeader">
+            <h2 class="cd-copilot__resultTitle">Results</h2>
+            <div class="cd-copilot__resultMeta">
+                <span class="cd-ai-pill" data-copilot-confidence></span>
+            </div>
+        </div>
+
+        <div class="cd-copilot__resultBody" data-copilot-sections></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/strategy-copilot.js" asp-append-version="true"></script>
+}

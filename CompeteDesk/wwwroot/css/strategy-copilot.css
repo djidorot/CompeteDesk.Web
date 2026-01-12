@@ -1,0 +1,260 @@
+.cd-page {
+  margin-top: 14px;
+}
+
+.cd-page__titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.cd-page__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.cd-page__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cd-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.04);
+  margin-bottom: 14px;
+}
+
+.cd-card--pad {
+  padding: 16px;
+}
+
+.cd-copilot__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 992px) {
+  .cd-copilot__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cd-field {
+  margin-bottom: 12px;
+}
+
+.cd-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.cd-input {
+  width: 100%;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.cd-help {
+  margin-top: 6px;
+  font-size: .85rem;
+  color: rgba(0,0,0,.6);
+}
+
+.cd-muted {
+  color: rgba(0,0,0,.6);
+}
+
+.cd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cd-btn--primary {
+  background: #0d6efd;
+  color: #fff;
+}
+
+.cd-btn--ghost {
+  background: transparent;
+  border-color: rgba(0,0,0,.12);
+  color: rgba(0,0,0,.85);
+}
+
+.cd-copilot__picklist {
+  max-height: 240px;
+  overflow: auto;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(13,110,253,.02);
+}
+
+.cd-check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 6px 6px;
+  border-radius: 10px;
+}
+
+.cd-check:hover {
+  background: rgba(0,0,0,.03);
+}
+
+.cd-check__text {
+  display: inline-block;
+  line-height: 1.25;
+}
+
+.cd-copilot__artifacts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+@media (max-width: 992px) {
+  .cd-copilot__artifacts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cd-copilot__errc {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cd-copilot__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cd-copilot__resultHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cd-copilot__resultTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.cd-ai-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.12);
+  background: rgba(0,0,0,.03);
+  font-weight: 600;
+  font-size: .9rem;
+}
+
+.cd-ai__section {
+  padding: 12px 0;
+  border-top: 1px solid rgba(0,0,0,.06);
+}
+
+.cd-ai__section:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.cd-ai__sectionTitle {
+  margin: 0 0 8px;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.cd-ai__list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.cd-copilot__headline {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.cd-copilot__hypo {
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(13,110,253,.02);
+}
+
+.cd-copilot__hypoTitle {
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.cd-copilot__hypoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 992px) {
+  .cd-copilot__hypoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cd-copilot__hypoSub {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+@media (max-width: 992px) {
+  .cd-copilot__hypoSub {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cd-k {
+  font-size: .85rem;
+  font-weight: 700;
+  color: rgba(0,0,0,.6);
+  margin-bottom: 4px;
+}
+
+.cd-copilot__errcOut {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 992px) {
+  .cd-copilot__errcOut {
+    grid-template-columns: 1fr;
+  }
+}

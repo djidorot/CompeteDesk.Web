@@ -76,6 +76,19 @@
             <span class="cd-sidebar__text">Strategies</span>
         </a>
 
+        <a class="cd-sidebar__link @(currentController == "StrategyCopilot" ? "is-active" : "")" asp-controller="StrategyCopilot"
+            asp-action="Index">
+            <span class="cd-sidebar__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a7 7 0 0 0-4 12c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2a7 7 0 0 0-4-12z"></path>
+                    <path d="M8.5 18.5h7"></path>
+                    <path d="M10 22h4"></path>
+                </svg>
+            </span>
+            <span class="cd-sidebar__text">AI Co-Pilot</span>
+        </a>
+
         <a class="cd-sidebar__link @(currentController == "Actions" ? "is-active" : "")" asp-controller="Actions"
             asp-action="Index">
             <span class="cd-sidebar__icon" aria-hidden="true">
