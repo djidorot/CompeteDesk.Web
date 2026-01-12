@@ -1,125 +1,233 @@
 @model CompeteDesk.ViewModels.Metrics.MetricsViewModel
 @{
     ViewData["Title"] = "Metrics";
-    ViewData["LayoutFluid"] = true;
-    ViewData["UseSidebar"] = true;
-}
+    string tab = (Model.SelectedTab ?? "overview").ToLowerInvariant();
+    string range = (Model.SelectedRange ?? "day").ToLowerInvariant();
 
+    string TabClass(string key) => tab == key ? "cd-mtabs__tab is-active" : "cd-mtabs__tab";
+    string UrlForTab(string key) => Url.Action("Index", "Metrics", new { tab = key, range = range, from = Model.FromDate, to = Model.ToDate }) ?? "#";
+    string UrlForRange(string key) => Url.Action("Index", "Metrics", new { tab = tab, range = key }) ?? "#";
+
+    // Helpers
+    string Sign(double v) => v > 0 ? "+" : "";
+    string DeltaClass(double v) => v > 0 ? "is-up" : (v < 0 ? "is-down" : "is-flat");
+    string FormatPct(double v) => $"{Sign(v)}{v:0.#}%";
+    }
 <link rel="stylesheet" href="~/css/metrics.css" asp-append-version="true" />
 
 <div class="cd-metrics">
-    <div class="cd-metrics__head">
-        <div>
-            <h1 class="cd-metrics__title">Metrics</h1>
-            <div class="cd-metrics__sub">A quick snapshot of your system: workspaces, execution, and intel.</div>
-        </div>
-        <div class="cd-metrics__actions">
-            <a class="btn btn-outline-secondary" asp-controller="Dashboard" asp-action="Index">Back to Dashboard</a>
+    <div class="cd-mhdr">
+        <h1 class="cd-mhdr__title">Metrics</h1>
+
+        <div class="cd-mhdr__controls">
+            <div class="cd-mselect" data-m-range>
+                <button type="button" class="cd-mselect__btn" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="cd-mselect__label">
+                        @(range == "custom" ? "Custom" :
+                          range == "week" ? "Last 7 days" :
+                          range == "month" ? "Last 30 days" : "Last day")
+                    </span>
+                    <span class="cd-mselect__chev" aria-hidden="true">▾</span>
+                </button>
+                <div class="cd-mselect__menu" role="listbox">
+                    <a class="cd-mselect__item" href="@UrlForRange("day")">Last day</a>
+                    <a class="cd-mselect__item" href="@UrlForRange("week")">Last 7 days</a>
+                    <a class="cd-mselect__item" href="@UrlForRange("month")">Last 30 days</a>
+                    <button class="cd-mselect__item cd-mselect__item--btn" type="button" data-open-custom>Custom…</button>
+                </div>
+            </div>
+
+            <button class="cd-mdate" type="button" data-m-date>
+                <span class="cd-mdate__ico" aria-hidden="true">📅</span>
+                <span class="cd-mdate__text">@Model.FromDate – @Model.ToDate</span>
+            </button>
+
+            <div class="cd-minfo" title="@Model.InfoText">
+                <span aria-hidden="true">ⓘ</span>
+                <span class="cd-minfo__txt">Info</span>
+            </div>
         </div>
     </div>
 
-    <div class="cd-metrics__grid">
-        <section class="card shadow-sm cd-metrics__card">
-            <div class="card-body">
-                <div class="cd-metrics__kpiLabel">Workspaces</div>
-                <div class="cd-metrics__kpiValue">@Model.WorkspacesCount</div>
-                <div class="cd-metrics__kpiHint">Containers for strategies, actions, and reports.</div>
-            </div>
-        </section>
+    <nav class="cd-mtabs" aria-label="Metrics tabs">
+        <a class="@TabClass("overview")" href="@UrlForTab("overview")">Overview</a>
+        <a class="@TabClass("workspaces")" href="@UrlForTab("workspaces")">Workspaces</a>
+        <a class="@TabClass("strategies")" href="@UrlForTab("strategies")">Strategies</a>
+        <a class="@TabClass("actions")" href="@UrlForTab("actions")">Actions</a>
+        <a class="@TabClass("warroom")" href="@UrlForTab("warroom")">War Room</a>
+        <a class="@TabClass("ai")" href="@UrlForTab("ai")">AI History</a>
+    </nav>
 
-        <section class="card shadow-sm cd-metrics__card">
-            <div class="card-body">
-                <div class="cd-metrics__kpiLabel">Strategies</div>
-                <div class="cd-metrics__kpiValue">@Model.StrategiesCount</div>
-                <div class="cd-metrics__kpiHint">Your selected plays and competitive moves.</div>
-            </div>
-        </section>
+    <section class="cd-kpis">
+@foreach (var kpi in Model.Kpis)
+{
+    <div class="cd-kpi">
+        <div class="cd-kpi__top">
+            <div class="cd-kpi__ico" aria-hidden="true">@kpi.Icon</div>
+            <button class="cd-kpi__more" type="button" aria-label="More">…</button>
+        </div>
+        <div class="cd-kpi__label">@kpi.Label</div>
+        <div class="cd-kpi__value">@kpi.ValueText</div>
+        <div class="cd-kpi__delta @DeltaClass(kpi.DeltaPct)">
+            <span class="cd-kpi__arrow" aria-hidden="true">@(kpi.DeltaPct >= 0 ? "↗" : "↘")</span>
+            <span>@FormatPct(kpi.DeltaPct)</span>
+            <span class="cd-kpi__muted">vs. prior period (new items)</span>
+        </div>
+    </div>
+}
+</section>
 
-        <section class="card shadow-sm cd-metrics__card">
-            <div class="card-body">
-                <div class="cd-metrics__kpiLabel">Actions</div>
-                <div class="cd-metrics__kpiValue">@Model.ActionsCount</div>
-                <div class="cd-metrics__kpiHint">Execution items attached to strategies or weekly focus.</div>
+    <section class="cd-mgrid">
+    <div class="cd-panel">
+        <div class="cd-panel__hdr">
+            <div class="cd-panel__title">@Model.LeftChartTitle <span class="cd-i" title="Based on items created in this period.">i</span></div>
+            <div class="cd-panel__actions">
+                <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
+                <button class="cd-iconbtn" type="button" title="Download">⇩</button>
+                <button class="cd-iconbtn" type="button" title="Open">↗</button>
             </div>
-        </section>
-
-        <section class="card shadow-sm cd-metrics__card">
-            <div class="card-body">
-                <div class="cd-metrics__kpiLabel">Habits</div>
-                <div class="cd-metrics__kpiValue">@Model.ActiveHabitsCount<span class="cd-metrics__kpiSmall"> / @Model.HabitsCount</span></div>
-                <div class="cd-metrics__kpiHint">Active habits (left) vs total habits (right).</div>
-            </div>
-        </section>
-
-        <section class="card shadow-sm cd-metrics__card">
-            <div class="card-body">
-                <div class="cd-metrics__kpiLabel">War Room Intel</div>
-                <div class="cd-metrics__kpiValue">@Model.WarIntelCount</div>
-                <div class="cd-metrics__kpiHint">Signals, notes, and observations.</div>
-            </div>
-        </section>
-
-        <section class="card shadow-sm cd-metrics__card">
-            <div class="card-body">
-                <div class="cd-metrics__kpiLabel">War Plans</div>
-                <div class="cd-metrics__kpiValue">@Model.WarPlansCount</div>
-                <div class="cd-metrics__kpiHint">Drafted plans generated from intel + intent.</div>
-            </div>
-        </section>
-
-        <section class="card shadow-sm cd-metrics__card">
-            <div class="card-body">
-                <div class="cd-metrics__kpiLabel">Website Reports</div>
-                <div class="cd-metrics__kpiValue">@Model.WebsiteReportsCount</div>
-                <div class="cd-metrics__kpiHint">Website scans and technical summaries.</div>
-            </div>
-        </section>
-
-        <section class="card shadow-sm cd-metrics__card">
-            <div class="card-body">
-                <div class="cd-metrics__kpiLabel">Business Reports</div>
-                <div class="cd-metrics__kpiValue">@Model.BusinessReportsCount</div>
-                <div class="cd-metrics__kpiHint">AI SWOT / forces outputs saved to your workspace.</div>
-            </div>
-        </section>
-
-        <section class="card shadow-sm cd-metrics__card">
-            <div class="card-body">
-                <div class="cd-metrics__kpiLabel">AI History</div>
-                <div class="cd-metrics__kpiValue">@Model.AiTracesCount</div>
-                <div class="cd-metrics__kpiHint">Decision traces stored for auditing and iteration.</div>
-            </div>
-        </section>
+        </div>
+        <div class="cd-panel__body">
+            @await Html.PartialAsync("_MetricsChart", new { Points = Model.LeftChartPoints, Labels = Model.LeftChartLabels, Percent = Model.LeftChartPercent })
+        </div>
     </div>
 
-    <div class="cd-metrics__row">
-        <section class="card shadow-sm cd-metrics__wide">
-            <div class="card-body">
-                <div class="cd-metrics__sectionHead">
-                    <div>
-                        <div class="cd-metrics__sectionTitle">Action Status Breakdown</div>
-                        <div class="cd-metrics__sectionSub">Where your execution is right now.</div>
-                    </div>
-                    <a class="btn btn-sm btn-outline-secondary" asp-controller="Actions" asp-action="Index">Open Actions</a>
+    <div class="cd-panel">
+        <div class="cd-panel__hdr">
+            <div class="cd-panel__title">@Model.RightChartTitle <span class="cd-i" title="Based on items created in this period.">i</span></div>
+            <div class="cd-panel__actions">
+                <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
+                <button class="cd-iconbtn" type="button" title="Download">⇩</button>
+                <button class="cd-iconbtn" type="button" title="Open">↗</button>
+            </div>
+        </div>
+        <div class="cd-panel__body">
+            @await Html.PartialAsync("_MetricsChart", new { Points = Model.RightChartPoints, Labels = Model.RightChartLabels, Percent = Model.RightChartPercent })
+        </div>
+    </div>
+
+    <div class="cd-panel">
+        <div class="cd-panel__hdr">
+            <div class="cd-panel__title">@Model.LeftTableTitle</div>
+            <div class="cd-panel__actions">
+                <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
+                <button class="cd-iconbtn" type="button" title="Filter">⟂</button>
+                <button class="cd-iconbtn" type="button" title="Download">⇩</button>
+                <button class="cd-btn" type="button">Explore more</button>
+            </div>
+        </div>
+        <div class="cd-panel__body">
+            <div class="cd-tablewrap">
+                <table class="cd-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th class="cd-ta-r">Total</th>
+                            <th class="cd-ta-r">Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.LeftTableRows.Count == 0)
+                        {
+                            <tr><td colspan="3" class="cd-muted">No data in this period.</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var row in Model.LeftTableRows)
+                            {
+                                <tr>
+                                    <td>@row.Name</td>
+                                    <td class="cd-ta-r">@row.ValueText</td>
+                                    <td class="cd-ta-r">
+                                        <span class="cd-chip @DeltaClass(row.ChangePct)">
+                                            <span class="cd-chip__txt">@FormatPct(row.ChangePct)</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="cd-panel">
+        <div class="cd-panel__hdr">
+            <div class="cd-panel__title">@Model.RightTableTitle</div>
+            <div class="cd-panel__actions">
+                <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
+                <button class="cd-iconbtn" type="button" title="Filter">⟂</button>
+                <button class="cd-iconbtn" type="button" title="Download">⇩</button>
+                <button class="cd-btn" type="button">Explore more</button>
+            </div>
+        </div>
+        <div class="cd-panel__body">
+            <div class="cd-tablewrap">
+                <table class="cd-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th class="cd-ta-r">Total</th>
+                            <th class="cd-ta-r">Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RightTableRows.Count == 0)
+                        {
+                            <tr><td colspan="3" class="cd-muted">No data in this period.</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var row in Model.RightTableRows)
+                            {
+                                <tr>
+                                    <td>@row.Name</td>
+                                    <td class="cd-ta-r">@row.ValueText</td>
+                                    <td class="cd-ta-r">
+                                        <span class="cd-chip @DeltaClass(row.ChangePct)">
+                                            <span class="cd-chip__txt">@FormatPct(row.ChangePct)</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <div class="cd-modal" data-custom-modal hidden>
+        <div class="cd-modal__backdrop" data-close></div>
+        <div class="cd-modal__card" role="dialog" aria-modal="true" aria-label="Custom date range">
+            <div class="cd-modal__hdr">
+                <div class="cd-modal__title">Custom range</div>
+                <button class="cd-iconbtn" type="button" data-close aria-label="Close">✕</button>
+            </div>
+
+            <form class="cd-modal__body" method="get" action="@Url.Action("Index","Metrics")">
+                <input type="hidden" name="tab" value="@tab" />
+                <input type="hidden" name="range" value="custom" />
+
+                <div class="cd-field">
+                    <label class="cd-field__label" for="from">From</label>
+                    <input class="cd-field__input" type="date" id="from" name="from" value="@Model.FromDate" />
                 </div>
 
-                @if (Model.ActionStatuses.Count == 0)
-                {
-                    <div class="cd-muted">No actions yet. Create your first action to start tracking progress.</div>
-                }
-                else
-                {
-                    <div class="cd-metrics__statusGrid">
-                        @foreach (var s in Model.ActionStatuses)
-                        {
-                            <div class="cd-metrics__statusPill">
-                                <div class="cd-metrics__statusName">@s.Status</div>
-                                <div class="cd-metrics__statusCount">@s.Count</div>
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-        </section>
+                <div class="cd-field">
+                    <label class="cd-field__label" for="to">To</label>
+                    <input class="cd-field__input" type="date" id="to" name="to" value="@Model.ToDate" />
+                </div>
+
+                <div class="cd-modal__actions">
+                    <button class="cd-btnlite" type="button" data-close>Cancel</button>
+                    <button class="cd-btnprimary" type="submit">Apply</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+<script src="~/js/metrics.js" asp-append-version="true"></script>
