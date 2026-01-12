@@ -1,17 +1,18 @@
-// ADDED FILE: CompeteDesk/Controllers/SettingsController.cs
+// UPDATED FILE: CompeteDesk/Controllers/SettingsController.cs
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using CompeteDesk.Models;
+using CompeteDesk.ViewModels.Settings;
 
 namespace CompeteDesk.Controllers
 {
     [Authorize]
     public class SettingsController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public SettingsController(UserManager<ApplicationUser> userManager)
+        public SettingsController(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
         }
@@ -20,10 +21,11 @@ namespace CompeteDesk.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
-            var vm = new ViewModels.Settings.SettingsIndexViewModel
+
+            var vm = new SettingsIndexViewModel
             {
-                Email = user?.Email ?? "",
-                DisplayName = user?.UserName ?? "",
+                Email = user?.Email ?? string.Empty,
+                DisplayName = user?.UserName ?? string.Empty,
             };
 
             return View(vm);
