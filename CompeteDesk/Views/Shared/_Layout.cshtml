@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/topbar.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/topbar-ai-search.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/CompeteDesk.styles.css" asp-append-version="true" />
 
         @* Allow pages to inject page-specific CSS into the HEAD *@
@@ -90,8 +91,9 @@
                                     <circle cx="11" cy="11" r="7"></circle>
                                     <path d="M21 21l-4.3-4.3"></path>
                                 </svg>
-                                <input type="search" class="cd-topbar__searchInput" placeholder="Search…"
-                                    aria-label="Top search" />
+                                <input type="search" id="cdTopbarAiSearch" class="cd-topbar__searchInput" placeholder="Search…"
+                                    aria-label="Top search" data-ai-search-url="/api/ai-search" />
+                                <div id="cdTopbarAiSearchPanel" class="cd-aiSearchPanel" aria-live="polite" aria-label="AI search results" hidden></div>
                             </div>
                         </div>
 
@@ -139,6 +141,7 @@
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/sidebar.js" asp-append-version="true"></script>
+        <script src="~/js/topbar-ai-search.js" asp-append-version="true"></script>
 
         @RenderSection("Scripts", required: false)
     </body>

@@ -8,6 +8,7 @@ using CompeteDesk.Services.WarRoom;
 using CompeteDesk.Services.Ai;
 using CompeteDesk.Services.Habits;
 using CompeteDesk.Services.StrategyCopilot;
+using CompeteDesk.Services.Gemini;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,15 @@ builder.Services.AddHttpClient("site-analyzer", c =>
 
 // HttpClient for OpenAI.
 builder.Services.AddHttpClient<OpenAiChatClient>(c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(40);
+});
+
+
+
+// Gemini (Google AI) - used for Topbar AI Search
+builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
+builder.Services.AddHttpClient<GeminiClient>(c =>
 {
     c.Timeout = TimeSpan.FromSeconds(40);
 });
