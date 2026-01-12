@@ -17,6 +17,7 @@ public class ApplicationDbContext : IdentityDbContext
     // Back-compat alias used by some controllers/views
     public DbSet<ActionItem> ActionItems => Set<ActionItem>();
     public DbSet<UserAiPreferences> UserAiPreferences => Set<UserAiPreferences>();
+    public DbSet<UserDataControls> UserDataControls => Set<UserDataControls>();
 	public DbSet<WarIntel> WarIntel => Set<WarIntel>();
 	public DbSet<WarPlan> WarPlans => Set<WarPlan>();
     public DbSet<WebsiteAnalysisReport> WebsiteAnalysisReports => Set<WebsiteAnalysisReport>();
@@ -88,6 +89,19 @@ builder.Entity<UserAiPreferences>(b =>
 
     b.HasIndex(x => x.UserId).IsUnique();
 });
+
+builder.Entity<UserDataControls>(b =>
+{
+    b.ToTable("UserDataControls");
+    b.Property(x => x.UserId).IsRequired().HasMaxLength(128);
+    b.Property(x => x.RetentionDays).IsRequired();
+    b.Property(x => x.ExportFormat).IsRequired().HasMaxLength(16);
+    b.Property(x => x.CreatedAtUtc);
+    b.Property(x => x.UpdatedAtUtc);
+
+    b.HasIndex(x => x.UserId).IsUnique();
+});
+
 b.HasIndex(x => new { x.StrategyId, x.OwnerId });
 			b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
 		});

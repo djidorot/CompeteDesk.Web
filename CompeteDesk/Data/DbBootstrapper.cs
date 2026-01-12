@@ -39,6 +39,7 @@ namespace CompeteDesk.Data
             await EnsureHabitsTableAsync(db);
             await EnsureHabitCheckinsTableAsync(db);
             await EnsureUserAiPreferencesTableAsync(db);
+            await EnsureUserDataControlsTableAsync(db);
 
             await NormalizeSourceBooksAsync(db);
         }
@@ -618,6 +619,33 @@ CREATE TABLE UserAiPreferences (
 CREATE UNIQUE INDEX IF NOT EXISTS IX_UserAiPreferences_UserId
 ON UserAiPreferences (UserId);");
         }
+
+        private static async Task EnsureUserDataControlsTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "UserDataControls"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE UserDataControls (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserId TEXT NOT NULL,
+    RetentionDays INTEGER NOT NULL DEFAULT 90,
+    ExportFormat TEXT NOT NULL DEFAULT 'json',
+    CreatedAtUtc TEXT NULL,
+    UpdatedAtUtc TEXT NULL
+);");
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "UserDataControls", "UserId", "TEXT", nullable: false, defaultSql: "''");
+                await EnsureColumnAsync(db, "UserDataControls", "RetentionDays", "INTEGER", nullable: false, defaultSql: "90");
+                await EnsureColumnAsync(db, "UserDataControls", "ExportFormat", "TEXT", nullable: false, defaultSql: "'json'");
+                await EnsureColumnAsync(db, "UserDataControls", "CreatedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "UserDataControls", "UpdatedAtUtc", "TEXT", nullable: true);
+            }
+
+            await EnsureIndexAsync(db, "IX_UserDataControls_UserId", "UserDataControls", "UserId");
+        }
+
 
         private static async Task NormalizeSourceBooksAsync(ApplicationDbContext db)
         {

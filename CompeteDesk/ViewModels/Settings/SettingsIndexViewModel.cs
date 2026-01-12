@@ -14,5 +14,12 @@ namespace CompeteDesk.ViewModels.Settings
         public bool AutoSummaries { get; set; } = true;
         public bool AutoRecommendations { get; set; } = true;
         public bool StoreDecisionTraces { get; set; } = true;
+
+        // Data & Analytics Controls
+        public int RetentionDays { get; set; } = 90; // 30 | 90 | 365
+        public string ExportFormat { get; set; } = "json"; // csv | json
+
+        // Reset demo data confirmation
+        public string? ResetConfirm { get; set; }
     }
 }

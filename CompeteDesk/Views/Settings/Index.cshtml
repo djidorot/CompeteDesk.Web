@@ -15,12 +15,22 @@
             <h1 class="cd-page__title">Settings</h1>
             <p class="cd-page__sub">Manage your profile and preferences.</p>
         </div>
-    </div>
 
-    @if (TempData["SettingsSaved"] != null)
-    {
-        <div class="cd-toast" role="status">@TempData["SettingsSaved"]</div>
-    }
+        <div class="cd-page__actions">
+            @if (!string.IsNullOrWhiteSpace(ViewData["SavedMessage"] as string))
+            {
+                <span class="cd-badge cd-badge--ok">@ViewData["SavedMessage"]</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(ViewData["ExportError"] as string))
+            {
+                <span class="cd-badge cd-badge--warn">@ViewData["ExportError"]</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(ViewData["ResetMessage"] as string))
+            {
+                <span class="cd-badge cd-badge--info">@ViewData["ResetMessage"]</span>
+            }
+        </div>
+    </div>
 
     <div class="cd-grid-2">
         <section class="cd-card">
@@ -54,6 +64,10 @@
                     <li>Password change is available under <strong>Account</strong> (Identity pages).</li>
                     <li>Optional: enable 2FA, recovery codes, and session management.</li>
                 </ul>
+
+                <div class="cd-actions mt-3">
+                    <a class="cd-btn cd-btn--ghost" href="/Identity/Account/Manage">Open Account</a>
+                </div>
             </div>
         </section>
 
@@ -93,48 +107,89 @@
 
                     <div class="cd-toggles">
                         <label class="cd-toggle">
-                            <input type="hidden" name="AutoDraftPlans" value="false" />
                             <input type="checkbox" name="AutoDraftPlans" value="true" @(Model.AutoDraftPlans ? "checked" : "") />
-                            <span class="cd-toggle__ui"></span>
-                            <span class="cd-toggle__text">
-                                <span class="cd-toggle__title">Auto-draft plans</span>
-                                <span class="cd-toggle__sub">Suggest War Plans from selected intel and context.</span>
-                            </span>
+                            <span>Auto-draft plans</span>
                         </label>
 
                         <label class="cd-toggle">
-                            <input type="hidden" name="AutoSummaries" value="false" />
                             <input type="checkbox" name="AutoSummaries" value="true" @(Model.AutoSummaries ? "checked" : "") />
-                            <span class="cd-toggle__ui"></span>
-                            <span class="cd-toggle__text">
-                                <span class="cd-toggle__title">Auto-summaries</span>
-                                <span class="cd-toggle__sub">Generate short summaries for long content and reports.</span>
-                            </span>
+                            <span>Auto-summaries</span>
                         </label>
 
                         <label class="cd-toggle">
-                            <input type="hidden" name="AutoRecommendations" value="false" />
                             <input type="checkbox" name="AutoRecommendations" value="true" @(Model.AutoRecommendations ? "checked" : "") />
-                            <span class="cd-toggle__ui"></span>
-                            <span class="cd-toggle__text">
-                                <span class="cd-toggle__title">Auto-recommendations</span>
-                                <span class="cd-toggle__sub">Suggest next actions, priorities, and risks.</span>
-                            </span>
+                            <span>Auto-recommendations</span>
                         </label>
 
                         <label class="cd-toggle">
-                            <input type="hidden" name="StoreDecisionTraces" value="false" />
                             <input type="checkbox" name="StoreDecisionTraces" value="true" @(Model.StoreDecisionTraces ? "checked" : "") />
-                            <span class="cd-toggle__ui"></span>
-                            <span class="cd-toggle__text">
-                                <span class="cd-toggle__title">Store AI decision traces</span>
-                                <span class="cd-toggle__sub">Keep an audit trail in <strong>AI History</strong> (recommended for transparency).</span>
-                            </span>
+                            <span>Store AI decision traces</span>
                         </label>
                     </div>
 
-                    <div class="cd-form__actions">
-                        <button type="submit" class="cd-btn cd-btn--primary">Save AI preferences</button>
+                    <div class="cd-divider"></div>
+
+                    <div class="cd-sectionhead">
+                        <h3 class="cd-sectionhead__title">Data &amp; Analytics Controls</h3>
+                        <p class="cd-muted">Retention for log-like data (AI History, analysis reports) and export tools.</p>
+                    </div>
+
+                    <div class="cd-form__grid">
+                        <div class="cd-field">
+                            <label class="cd-label" for="RetentionDays">Data retention</label>
+                            <select class="cd-select" id="RetentionDays" name="RetentionDays">
+                                <option value="30" selected="@(Model.RetentionDays == 30)">Keep 30 days</option>
+                                <option value="90" selected="@(Model.RetentionDays == 90)">Keep 90 days</option>
+                                <option value="365" selected="@(Model.RetentionDays == 365)">Keep 365 days</option>
+                            </select>
+                            <div class="cd-help">Older AI traces and analysis logs are automatically deleted.</div>
+                        </div>
+
+                        <div class="cd-field">
+                            <label class="cd-label" for="ExportFormat">Default export format</label>
+                            <select class="cd-select" id="ExportFormat" name="ExportFormat">
+                                <option value="json" selected="@(Model.ExportFormat?.ToLower() == "json")">JSON</option>
+                                <option value="csv" selected="@(Model.ExportFormat?.ToLower() == "csv")">CSV</option>
+                            </select>
+                            <div class="cd-help">Used when you click Export (you can still override per export).</div>
+                        </div>
+                    </div>
+
+                    <div class="cd-actions">
+                        <button type="submit" class="cd-btn cd-btn--primary">Save settings</button>
+
+                        <div class="cd-export">
+                            <span class="cd-export__label">Export:</span>
+                            <a class="cd-btn cd-btn--ghost"
+                               href="@Url.Action("Export","Settings", new { entity = "actions", format = Model.ExportFormat })">Actions</a>
+                            <a class="cd-btn cd-btn--ghost"
+                               href="@Url.Action("Export","Settings", new { entity = "strategies", format = Model.ExportFormat })">Strategies</a>
+                            <a class="cd-btn cd-btn--ghost"
+                               href="@Url.Action("Export","Settings", new { entity = "metrics", format = Model.ExportFormat, days = 30 })">Metrics</a>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="cd-divider"></div>
+
+                <form asp-action="ResetDemoData" asp-controller="Settings" method="post" class="cd-form cd-reset">
+                    @Html.AntiForgeryToken()
+                    <div class="cd-sectionhead">
+                        <h3 class="cd-sectionhead__title">Reset demo data</h3>
+                        <p class="cd-muted">Deletes your Workspaces, Strategies, Actions, War Room items, reports, habits, and AI traces. Your account remains.</p>
+                    </div>
+
+                    <div class="cd-reset__row">
+                        <div class="cd-field">
+                            <label class="cd-label" for="ResetConfirm">Type <code>RESET</code> to confirm</label>
+                            <input class="cd-input" id="ResetConfirm" name="ResetConfirm" placeholder="RESET" />
+                        </div>
+
+                        <button type="submit" class="cd-btn cd-btn--danger">Reset</button>
+                    </div>
+
+                    <div class="cd-help">
+                        Tip: Use this for onboarding/testing if you want a clean slate.
                     </div>
                 </form>
             </div>
