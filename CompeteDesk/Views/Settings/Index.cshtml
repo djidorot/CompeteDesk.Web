@@ -1,39 +1,45 @@
 @model CompeteDesk.ViewModels.Settings.SettingsIndexViewModel
 @{
     ViewData["Title"] = "Settings";
+    ViewData["LayoutFluid"] = true;
+    ViewData["UseSidebar"] = true;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/settings.css" asp-append-version="true" />
 }
 
 <div class="cd-page">
-    <div class="cd-page__header">
+    <div class="cd-page__head">
         <div>
             <h1 class="cd-page__title">Settings</h1>
-            <p class="cd-page__subtitle">Manage your profile and preferences.</p>
+            <p class="cd-page__sub">Manage your profile and preferences.</p>
         </div>
     </div>
 
-    <div class="cd-grid cd-grid--2">
+    <div class="cd-settings-grid">
         <section class="cd-card">
-            <div class="cd-card__header">
+            <div class="cd-card__head">
                 <h2 class="cd-card__title">Profile</h2>
             </div>
             <div class="cd-card__body">
-                <div class="cd-field">
-                    <div class="cd-field__label">Email</div>
-                    <div class="cd-field__value">@Model.Email</div>
+                <div class="cd-kv">
+                    <div class="cd-kv__k">Email</div>
+                    <div class="cd-kv__v">@Model.Email</div>
                 </div>
-                <div class="cd-field">
-                    <div class="cd-field__label">Display name</div>
-                    <div class="cd-field__value">@Model.DisplayName</div>
+                <div class="cd-kv">
+                    <div class="cd-kv__k">Display name</div>
+                    <div class="cd-kv__v">@Model.DisplayName</div>
                 </div>
 
-                <div class="cd-hint" style="margin-top:12px;">
+                <div class="cd-muted mt-3">
                     Profile editing can be enabled next (name, avatar, timezone, org/workspace defaults).
                 </div>
             </div>
         </section>
 
         <section class="cd-card">
-            <div class="cd-card__header">
+            <div class="cd-card__head">
                 <h2 class="cd-card__title">Security</h2>
             </div>
             <div class="cd-card__body">
@@ -45,7 +51,7 @@
         </section>
 
         <section class="cd-card">
-            <div class="cd-card__header">
+            <div class="cd-card__head">
                 <h2 class="cd-card__title">AI Preferences</h2>
             </div>
             <div class="cd-card__body">
@@ -57,7 +63,7 @@
         </section>
 
         <section class="cd-card">
-            <div class="cd-card__header">
+            <div class="cd-card__head">
                 <h2 class="cd-card__title">Notifications</h2>
             </div>
             <div class="cd-card__body">
