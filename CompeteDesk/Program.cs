@@ -6,6 +6,7 @@ using CompeteDesk.Services.WebsiteAnalysis;
 using CompeteDesk.Services.BusinessAnalysis;
 using CompeteDesk.Services.WarRoom;
 using CompeteDesk.Services.Ai;
+using CompeteDesk.Services.Habits;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,7 @@ builder.Services.AddHttpClient<OpenAiChatClient>(c =>
 builder.Services.AddScoped<WebsiteAnalysisService>();
 builder.Services.AddScoped<BusinessAnalysisService>();
 builder.Services.AddScoped<WarRoomAiService>();
+builder.Services.AddScoped<HabitsAiService>();
 builder.Services.AddScoped<DecisionTraceService>();
 builder.Services.AddScoped<AiContextPackBuilder>();
 

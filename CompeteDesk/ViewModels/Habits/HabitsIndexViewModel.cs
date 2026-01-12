@@ -13,4 +13,7 @@ public class HabitsIndexViewModel
     public List<(int Id, string Name)> Strategies { get; set; } = new();
 
     public List<HabitListItemViewModel> Habits { get; set; } = new();
+
+    // AI integration
+    public bool IsAiConfigured { get; set; }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CompeteDesk.Data;
 using CompeteDesk.Models;
+using CompeteDesk.Services.Habits;
 using CompeteDesk.ViewModels.Habits;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -17,11 +18,13 @@ public class HabitsController : Controller
 {
     private readonly ApplicationDbContext _db;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly HabitsAiService _ai;
 
-    public HabitsController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
+    public HabitsController(ApplicationDbContext db, UserManager<IdentityUser> userManager, HabitsAiService ai)
     {
         _db = db;
         _userManager = userManager;
+        _ai = ai;
     }
 
     private async Task<string> GetUserIdAsync()
@@ -68,7 +71,8 @@ public class HabitsController : Controller
             Query = q?.Trim() ?? "",
             WorkspaceId = workspaceId,
             StrategyId = strategyId,
-            Frequency = (frequency ?? "").Trim()
+            Frequency = (frequency ?? "").Trim(),
+            IsAiConfigured = _ai.IsConfigured
         };
 
         vm.Workspaces = await _db.Workspaces.AsNoTracking()
@@ -180,6 +184,131 @@ public class HabitsController : Controller
         }).ToList();
 
         return View(vm);
+    }
+
+    // ------------------------------------------------------------
+    // AI: Suggest habits (returns JSON for the UI)
+    // ------------------------------------------------------------
+
+    public sealed class HabitSuggestionDto
+    {
+        public string Title { get; set; } = "";
+        public string? Description { get; set; }
+        public string Frequency { get; set; } = "Daily";
+        public int TargetCount { get; set; } = 1;
+        public string? Cue { get; set; }
+        public string? Routine { get; set; }
+        public string? Reward { get; set; }
+        public string? Rationale { get; set; }
+    }
+
+    public sealed class AiSuggestRequest
+    {
+        public int WorkspaceId { get; set; }
+        public int? StrategyId { get; set; }
+        public string? Goal { get; set; }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AiSuggest([FromForm] AiSuggestRequest req)
+    {
+        if (!_ai.IsConfigured)
+            return Json(new { ok = false, error = "AI is not configured. Add OpenAI settings in appsettings or user secrets." });
+
+        var userId = await GetUserIdAsync();
+        if (string.IsNullOrWhiteSpace(userId)) return Json(new { ok = false, error = "Not authenticated." });
+
+        if (req.WorkspaceId <= 0)
+            return Json(new { ok = false, error = "Please select a Workspace." });
+
+        var doc = await _ai.SuggestAsync(userId, req.WorkspaceId, req.StrategyId, req.Goal, HttpContext.RequestAborted);
+        var root = doc.RootElement;
+
+        if (root.TryGetProperty("error", out var err))
+            return Json(new { ok = false, error = err.GetString() ?? "AI error" });
+
+        return Json(new { ok = true, data = root });
+    }
+
+    public sealed class AiCreateRequest
+    {
+        public int WorkspaceId { get; set; }
+        public int? StrategyId { get; set; }
+        public List<HabitSuggestionDto> Suggestions { get; set; } = new();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AiCreate([FromBody] AiCreateRequest req)
+    {
+        var userId = await GetUserIdAsync();
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
+        if (req.WorkspaceId <= 0 || req.Suggestions.Count == 0)
+            return BadRequest(new { ok = false, error = "No suggestions provided." });
+
+        // Validate workspace belongs to user
+        var wsOk = await _db.Workspaces.AsNoTracking().AnyAsync(x => x.OwnerId == userId && x.Id == req.WorkspaceId);
+        if (!wsOk)
+            return BadRequest(new { ok = false, error = "Workspace not found." });
+
+        // Strategy is optional but if provided, validate
+        if (req.StrategyId.HasValue)
+        {
+            var stOk = await _db.Strategies.AsNoTracking().AnyAsync(x => x.OwnerId == userId && x.Id == req.StrategyId.Value);
+            if (!stOk)
+                return BadRequest(new { ok = false, error = "Strategy not found." });
+        }
+
+        var now = DateTime.UtcNow;
+        var created = 0;
+
+        foreach (var s in req.Suggestions.Take(12))
+        {
+            var title = (s.Title ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(title)) continue;
+
+            var freq = NormalizeFrequency(s.Frequency);
+            var target = s.TargetCount <= 0 ? 1 : Math.Min(s.TargetCount, 99);
+
+            // Avoid duplicates by title+frequency inside this workspace/strategy
+            var exists = await _db.Habits.AnyAsync(h => h.OwnerId == userId
+                                                        && h.WorkspaceId == req.WorkspaceId
+                                                        && h.StrategyId == req.StrategyId
+                                                        && h.Frequency == freq
+                                                        && h.Title == title);
+            if (exists) continue;
+
+            var descParts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(s.Description)) descParts.Add(s.Description!.Trim());
+            if (!string.IsNullOrWhiteSpace(s.Cue)) descParts.Add($"Cue: {s.Cue!.Trim()}");
+            if (!string.IsNullOrWhiteSpace(s.Routine)) descParts.Add($"Routine: {s.Routine!.Trim()}");
+            if (!string.IsNullOrWhiteSpace(s.Reward)) descParts.Add($"Reward: {s.Reward!.Trim()}");
+            if (!string.IsNullOrWhiteSpace(s.Rationale)) descParts.Add($"Why it matters: {s.Rationale!.Trim()}");
+
+            var habit = new Habit
+            {
+                OwnerId = userId,
+                WorkspaceId = req.WorkspaceId,
+                StrategyId = req.StrategyId,
+                Title = title,
+                Description = descParts.Count == 0 ? null : string.Join("\n", descParts),
+                Frequency = freq,
+                TargetCount = target,
+                IsActive = true,
+                CreatedAtUtc = now
+            };
+
+            _db.Habits.Add(habit);
+            created++;
+        }
+
+        if (created > 0)
+            await _db.SaveChangesAsync();
+
+        return Ok(new { ok = true, created });
     }
 
     // GET: /Habits/Create

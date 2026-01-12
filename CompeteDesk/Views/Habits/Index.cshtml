@@ -16,6 +16,12 @@
             <p class="cd-muted mb-0">Daily and weekly routines tied to your Workspace & Strategy.</p>
         </div>
         <div class="habits-header__actions">
+            <button type="button"
+                    class="btn btn-outline-secondary cd-btn"
+                    data-habits-ai-open
+                    @(Model.IsAiConfigured ? "" : "disabled")>
+                ✨ AI Suggest Habits
+            </button>
             <a class="btn btn-primary cd-btn" asp-controller="Habits" asp-action="Create"
                asp-route-workspaceId="@(Model.WorkspaceId)"
                asp-route-strategyId="@(Model.StrategyId)"
@@ -24,6 +30,17 @@
             </a>
         </div>
     </div>
+
+    @if (!Model.IsAiConfigured)
+    {
+        <div class="cd-card mt-3">
+            <div class="cd-card__body">
+                <div class="cd-muted">
+                    AI is not configured. Add your OpenAI settings (OpenAI:ApiKey, OpenAI:Model) in <code>appsettings.Development.json</code> or user secrets.
+                </div>
+            </div>
+        </div>
+    }
 
     <div class="cd-card mt-4">
         <div class="cd-card__body">
@@ -153,3 +170,73 @@
         }
     </div>
 </div>
+
+<!-- AI Modal -->
+<div class="modal fade" id="habitsAiModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">AI Habit Suggestions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form data-habits-ai-form>
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="cd-label" for="aiWorkspace">Workspace</label>
+                            <select id="aiWorkspace" class="form-select cd-input" name="workspaceId" required>
+                                <option value="">Select workspace…</option>
+                                @foreach (var ws in Model.Workspaces)
+                                {
+                                    <option value="@ws.Id" selected="@(Model.WorkspaceId == ws.Id)">@ws.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="cd-label" for="aiStrategy">Strategy (optional)</label>
+                            <select id="aiStrategy" class="form-select cd-input" name="strategyId">
+                                <option value="">None</option>
+                                @foreach (var st in Model.Strategies)
+                                {
+                                    <option value="@st.Id" selected="@(Model.StrategyId == st.Id)">@st.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-grid">
+                            <label class="cd-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary cd-btn" data-habits-ai-generate>
+                                Generate
+                            </button>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="cd-label" for="aiGoal">Goal (optional)</label>
+                            <input id="aiGoal" name="goal" class="form-control cd-input" placeholder="e.g., Improve lead generation, launch campaign, increase retention…" />
+                        </div>
+                    </div>
+                </form>
+
+                <div class="habits-ai-status mt-3" data-habits-ai-status></div>
+
+                <div class="habits-ai-results mt-3" data-habits-ai-results hidden>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="cd-muted">Select suggestions to create habits:</div>
+                        <button type="button" class="btn btn-success cd-btn" data-habits-ai-create disabled>
+                            Create selected
+                        </button>
+                    </div>
+
+                    <div class="habits-ai-list" data-habits-ai-list></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/habits-ai.js" asp-append-version="true"></script>
+}
