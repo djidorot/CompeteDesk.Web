@@ -167,7 +167,7 @@
     </nav>
 
     <div class="cd-sidebar__bottom">
-        <div class="cd-sidebar__user">
+        @* <div class="cd-sidebar__user">
             <div class="cd-sidebar__avatar" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-avat" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -176,11 +176,11 @@
                 </svg>
             </div>
 
-            @* <div class="cd-sidebar__userMeta">
+            <div class="cd-sidebar__userMeta">
                 <div class="cd-sidebar__userName">@displayName</div>
                 <div class="cd-sidebar__userEmail">@email</div>
-            </div> *@
-        </div>
+            </div>
+        </div> *@
 
         <div class="cd-sidebar__auth">
             @if (User?.Identity?.IsAuthenticated ?? false)
