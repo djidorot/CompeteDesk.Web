@@ -165,6 +165,21 @@
             <span class="cd-sidebar__text">AI History</span>
         </a>
 
+        @if (User?.IsInRole("Admin") == true)
+        {
+            <div class="cd-sidebar__sectionLabel">Admin</div>
+            <a class="cd-sidebar__link @(currentController == "Admin" ? "is-active" : "")" asp-controller="Admin"
+                asp-action="Index">
+                <span class="cd-sidebar__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1l3 5 6 .9-4.3 4.2 1 6-5.7-3-5.7 3 1-6L3 6.9 9 6l3-5z"></path>
+                    </svg>
+                </span>
+                <span class="cd-sidebar__text">Dashboard</span>
+            </a>
+        }
+
         <a class="cd-sidebar__link @(currentController == "Settings" ? "is-active" : "")" asp-controller="Settings" asp-action="Index">
             <span class="cd-sidebar__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="cd-navico" fill="none" stroke="currentColor" stroke-width="2"

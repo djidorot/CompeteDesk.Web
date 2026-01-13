@@ -1,0 +1,34 @@
+.onboarding .role-card {
+    cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 14px;
+    padding: 0;
+    background: #fff;
+    transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.onboarding .role-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(0,0,0,0.16);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.onboarding .role-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.onboarding .role-card-body {
+    padding: 14px 14px;
+}
+
+.onboarding .role-card:has(.role-radio:checked) {
+    border-color: rgba(13,110,253,0.6);
+    box-shadow: 0 8px 22px rgba(13,110,253,0.12);
+}
+
+.onboarding .role-card:has(.role-radio:checked) .badge {
+    background: rgba(13,110,253,0.12) !important;
+    color: #0d6efd !important;
+}

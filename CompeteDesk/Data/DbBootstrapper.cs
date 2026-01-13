@@ -40,6 +40,7 @@ namespace CompeteDesk.Data
             await EnsureHabitCheckinsTableAsync(db);
             await EnsureUserAiPreferencesTableAsync(db);
             await EnsureUserDataControlsTableAsync(db);
+            await EnsureUserProfilesTableAsync(db);
 
             await NormalizeSourceBooksAsync(db);
         }
@@ -645,6 +646,34 @@ CREATE TABLE UserDataControls (
 
             // IMPORTANT: columnsSql must include parentheses for valid SQLite syntax.
             await EnsureIndexAsync(db, "IX_UserDataControls_UserId", "UserDataControls", "(\"UserId\")");
+        }
+
+        private static async Task EnsureUserProfilesTableAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "UserProfiles"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE UserProfiles (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserId TEXT NOT NULL,
+    PersonaRole TEXT NOT NULL DEFAULT 'Business Owner',
+    PrimaryGoal TEXT NULL,
+    CreatedAtUtc TEXT NOT NULL,
+    UpdatedAtUtc TEXT NULL
+);");
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "UserProfiles", "UserId", "TEXT", nullable: false, defaultSql: "''");
+                await EnsureColumnAsync(db, "UserProfiles", "PersonaRole", "TEXT", nullable: false, defaultSql: "'Business Owner'");
+                await EnsureColumnAsync(db, "UserProfiles", "PrimaryGoal", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "UserProfiles", "CreatedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "UserProfiles", "UpdatedAtUtc", "TEXT", nullable: true);
+            }
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE UNIQUE INDEX IF NOT EXISTS IX_UserProfiles_UserId
+ON UserProfiles (UserId);");
         }
 
 

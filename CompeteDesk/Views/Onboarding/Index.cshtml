@@ -1,0 +1,68 @@
+@model CompeteDesk.ViewModels.Onboarding.OnboardingViewModel
+
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<link rel="stylesheet" href="~/css/onboarding.css" />
+
+<div class="container py-4 onboarding">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="h3 mb-1">Welcome to CompeteDesk</h1>
+                    <p class="text-muted mb-4">
+                        Tell us what best describes you so we can tailor dashboards, AI suggestions, and templates.
+                    </p>
+
+                    <form method="post" asp-action="Index">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Choose your role</label>
+                            <div class="row g-3">
+                                @foreach (var r in CompeteDesk.ViewModels.Onboarding.OnboardingViewModel.Roles)
+                                {
+                                    var isChecked = string.Equals(Model.PersonaRole, r.Key, StringComparison.OrdinalIgnoreCase);
+                                    <div class="col-md-6">
+                                        <label class="role-card d-block">
+                                            <input class="form-check-input role-radio" type="radio" name="PersonaRole" value="@r.Key" @(isChecked ? "checked" : "") />
+                                            <div class="role-card-body">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="fw-semibold">@r.Title</div>
+                                                    <span class="badge text-bg-light">Select</span>
+                                                </div>
+                                                <div class="text-muted small mt-1">@r.Description</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                            <span asp-validation-for="PersonaRole" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="PrimaryGoal" class="form-label fw-semibold"></label>
+                            <textarea asp-for="PrimaryGoal" class="form-control" rows="3" placeholder="Example: Build a 90-day growth plan, monitor competitors, and align my team."></textarea>
+                            <span asp-validation-for="PrimaryGoal" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary px-4">Continue</button>
+                            <a class="btn btn-outline-secondary" asp-controller="Dashboard" asp-action="Index">Skip for now</a>
+                        </div>
+
+                        <p class="text-muted small mt-3 mb-0">
+                            You can update this later in Settings.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

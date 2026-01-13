@@ -1,0 +1,123 @@
+@model CompeteDesk.ViewModels.Admin.AdminDashboardViewModel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
+}
+
+<div class="cd-admin">
+    <div class="cd-admin__head">
+        <div>
+            <h1 class="cd-admin__title">Admin Dashboard</h1>
+            <div class="cd-admin__sub">System overview, activity, and health.</div>
+        </div>
+        <div class="cd-admin__badge" title="You are signed in as an Admin">Admin</div>
+    </div>
+
+    <div class="cd-admin__grid">
+        <div class="cd-adminCard">
+            <div class="cd-adminCard__label">Users</div>
+            <div class="cd-adminCard__value">@Model.Users</div>
+        </div>
+        <div class="cd-adminCard">
+            <div class="cd-adminCard__label">Workspaces</div>
+            <div class="cd-adminCard__value">@Model.Workspaces</div>
+        </div>
+        <div class="cd-adminCard">
+            <div class="cd-adminCard__label">Strategies</div>
+            <div class="cd-adminCard__value">@Model.Strategies</div>
+        </div>
+        <div class="cd-adminCard">
+            <div class="cd-adminCard__label">Actions</div>
+            <div class="cd-adminCard__value">@Model.Actions</div>
+        </div>
+        <div class="cd-adminCard">
+            <div class="cd-adminCard__label">War Intel</div>
+            <div class="cd-adminCard__value">@Model.WarIntel</div>
+        </div>
+        <div class="cd-adminCard">
+            <div class="cd-adminCard__label">War Plans</div>
+            <div class="cd-adminCard__value">@Model.WarPlans</div>
+        </div>
+        <div class="cd-adminCard">
+            <div class="cd-adminCard__label">Website Reports</div>
+            <div class="cd-adminCard__value">@Model.WebsiteReports</div>
+        </div>
+        <div class="cd-adminCard">
+            <div class="cd-adminCard__label">Business Reports</div>
+            <div class="cd-adminCard__value">@Model.BusinessReports</div>
+        </div>
+        <div class="cd-adminCard">
+            <div class="cd-adminCard__label">AI Decision Traces</div>
+            <div class="cd-adminCard__value">@Model.DecisionTraces</div>
+        </div>
+    </div>
+
+    <div class="cd-admin__row">
+        <div class="cd-adminPanel">
+            <div class="cd-adminPanel__head">
+                <div class="cd-adminPanel__title">Recent Users</div>
+                <div class="cd-adminPanel__hint">Last 10 accounts</div>
+            </div>
+
+            <div class="cd-adminTable">
+                <div class="cd-adminTable__row cd-adminTable__row--head">
+                    <div>User</div>
+                    <div>Email</div>
+                    <div>ID</div>
+                </div>
+                @if (Model.RecentUsers.Count == 0)
+                {
+                    <div class="cd-adminEmpty">No users yet.</div>
+                }
+                else
+                {
+                    foreach (var u in Model.RecentUsers)
+                    {
+                        <div class="cd-adminTable__row">
+                            <div class="cd-adminMono">@u.UserName</div>
+                            <div>@(u.Email ?? "-")</div>
+                            <div class="cd-adminMono">@u.Id</div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="cd-adminPanel">
+            <div class="cd-adminPanel__head">
+                <div class="cd-adminPanel__title">Recent AI Activity</div>
+                <div class="cd-adminPanel__hint">Last 10 decision traces</div>
+            </div>
+
+            @if (Model.RecentDecisionTraces.Count == 0)
+            {
+                <div class="cd-adminEmpty">No AI traces yet.</div>
+            }
+            else
+            {
+                <div class="cd-adminList">
+                    @foreach (var t in Model.RecentDecisionTraces)
+                    {
+                        <div class="cd-adminList__item">
+                            <div class="cd-adminList__title">@t.Feature</div>
+                            <div class="cd-adminList__meta">
+                                <span class="cd-adminMono">@t.Model</span>
+                                <span>•</span>
+                                <span>@t.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm 'UTC'")</span>
+                                @if (!string.IsNullOrWhiteSpace(t.OwnerId))
+                                {
+                                    <span>•</span>
+                                    <span class="cd-adminMono">user: @t.OwnerId</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="cd-admin__footnote">
+        <strong>Note:</strong> The first registered user is automatically promoted to <span class="cd-adminMono">Admin</span> (or you can seed one via <span class="cd-adminMono">AdminSeed:Email</span> and <span class="cd-adminMono">AdminSeed:Password</span> in configuration).
+    </div>
+</div>

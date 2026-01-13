@@ -118,6 +118,47 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// ------------------------------------------------------------
+// Role-based onboarding gate
+// If a signed-in user has not completed onboarding (UserProfiles record),
+// redirect them to /Onboarding.
+// ------------------------------------------------------------
+app.Use(async (context, next) =>
+{
+    if (context.User?.Identity?.IsAuthenticated == true
+        && (HttpMethods.IsGet(context.Request.Method) || HttpMethods.IsHead(context.Request.Method)))
+    {
+        var path = context.Request.Path;
+
+        // Allow Identity UI, static files, API endpoints, and the onboarding page itself.
+        var skip = path.StartsWithSegments("/Onboarding", StringComparison.OrdinalIgnoreCase)
+                   || path.StartsWithSegments("/Identity", StringComparison.OrdinalIgnoreCase)
+                   || path.StartsWithSegments("/css", StringComparison.OrdinalIgnoreCase)
+                   || path.StartsWithSegments("/js", StringComparison.OrdinalIgnoreCase)
+                   || path.StartsWithSegments("/lib", StringComparison.OrdinalIgnoreCase)
+                   || path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase)
+                   || path.StartsWithSegments("/favicon", StringComparison.OrdinalIgnoreCase);
+
+        if (!skip)
+        {
+            var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                using var scope = context.RequestServices.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var hasProfile = await db.UserProfiles.AnyAsync(x => x.UserId == userId);
+                if (!hasProfile)
+                {
+                    context.Response.Redirect("/Onboarding");
+                    return;
+                }
+            }
+        }
+    }
+
+    await next();
+});
+
 app.MapStaticAssets();
 
 app.MapControllerRoute(

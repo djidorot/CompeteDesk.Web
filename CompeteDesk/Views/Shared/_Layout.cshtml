@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Linq
+@inject UserManager<IdentityUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 
     <head>
@@ -22,6 +26,36 @@
         @{
             var useSidebar = ViewData["UseSidebar"] as bool? == true;
             var containerClass = (ViewData["LayoutFluid"] as bool? == true ? "container-fluid" : "container");
+
+            string roleLabel = "Guest";
+
+            static string PickRoleLabel(System.Collections.Generic.IList<string> roles)
+            {
+                // Prefer higher-privilege / more specific roles first.
+                string[] priority = ["Admin", "Team Lead", "TeamLead", "Manager", "Owner", "User"]; 
+                foreach (var p in priority)
+                {
+                    var hit = roles.FirstOrDefault(r => string.Equals(r, p, System.StringComparison.OrdinalIgnoreCase));
+                    if (!string.IsNullOrWhiteSpace(hit)) return hit;
+                }
+                return roles.FirstOrDefault() ?? "User";
+            }
+
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                roleLabel = "User";
+                var u = await UserManager.GetUserAsync(User);
+                if (u != null)
+                {
+                    var roles = await UserManager.GetRolesAsync(u);
+                    if (roles != null && roles.Count > 0)
+                    {
+                        roleLabel = PickRoleLabel(roles);
+                    }
+                }
+            }
+
+            ViewData["TopbarRoleLabel"] = roleLabel;
         }
 
         @if (!useSidebar)
@@ -54,6 +88,13 @@
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Home"
                                         asp-action="Privacy">Privacy</a>
                                 </li>
+                                @if (User?.IsInRole("Admin") == true)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Admin"
+                                            asp-action="Index">Admin</a>
+                                    </li>
+                                }
                             </ul>
 
                             <partial name="_LoginPartial" />
@@ -116,7 +157,7 @@
                                 </div>
                                 <div class="cd-topbar__meText">
                                     <div class="cd-topbar__meName">@User?.Identity?.Name</div>
-                                    <div class="cd-topbar__meSub">Workspace</div>
+                                    <div class="cd-topbar__meSub">@ViewData["TopbarRoleLabel"]</div>
                                 </div>
                             </div>
                         </div>
