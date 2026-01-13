@@ -49,9 +49,35 @@
       }
 
       const data = JSON.parse(text);
-      const answer = (data && data.answer) ? String(data.answer) : "";
+
+      // New (Gemini AI Overview) shape:
+      // { topic, overview, keyAspects:[], examples:[], elapsedMs }
+      // Back-compat (plain text): { answer, elapsedMs }
+      const hasOverview = data && (data.topic || data.overview || (Array.isArray(data.keyAspects) && data.keyAspects.length) || (Array.isArray(data.examples) && data.examples.length));
+      const answer = (!hasOverview && data && data.answer) ? String(data.answer) : "";
       const meta = [];
       if (data && typeof data.elapsedMs === "number") meta.push(`${data.elapsedMs}ms`);
+
+      const bodyHtml = hasOverview
+        ? (() => {
+            const topic = escapeHtml(String(data.topic || q));
+            const overview = escapeHtml(String(data.overview || ""));
+            const keyAspects = Array.isArray(data.keyAspects) ? data.keyAspects.filter(Boolean).slice(0, 8) : [];
+            const examples = Array.isArray(data.examples) ? data.examples.filter(Boolean).slice(0, 8) : [];
+
+            const bullets = (items) => {
+              if (!items || !items.length) return "";
+              return `<ul class="cd-aiSearchPanel__list">${items.map(i => `<li>${escapeHtml(String(i))}</li>`).join("")}</ul>`;
+            };
+
+            return `
+              <div class="cd-aiSearchPanel__topic">${topic}</div>
+              ${overview ? `<div class="cd-aiSearchPanel__overview">${overview}</div>` : ""}
+              ${keyAspects.length ? `<div class="cd-aiSearchPanel__sectionTitle">Key aspects</div>${bullets(keyAspects)}` : ""}
+              ${examples.length ? `<div class="cd-aiSearchPanel__sectionTitle">Examples</div>${bullets(examples)}` : ""}
+            `;
+          })()
+        : (escapeHtml(answer) || '<span class="cd-aiSearchPanel__muted">No answer returned.</span>');
 
       panel.innerHTML = `
         <div class="cd-aiSearchPanel__hdr">
@@ -61,14 +87,15 @@
             <button type="button" class="cd-aiSearchPanel__btn" data-cd-ai-close>Close</button>
           </div>
         </div>
-        <div class="cd-aiSearchPanel__body">${escapeHtml(answer) || '<span class="cd-aiSearchPanel__muted">No answer returned.</span>'}</div>
+        <div class="cd-aiSearchPanel__body">${bodyHtml}</div>
       `;
 
       const copyBtn = panel.querySelector("[data-cd-ai-copy]");
       if (copyBtn) {
         copyBtn.addEventListener("click", async () => {
           try {
-            await navigator.clipboard.writeText(answer);
+            const copyText = hasOverview ? text : answer;
+            await navigator.clipboard.writeText(copyText);
             copyBtn.textContent = "Copied";
             setTimeout(() => (copyBtn.textContent = "Copy"), 900);
           } catch {
@@ -92,7 +119,7 @@
     const panel = document.getElementById("cdTopbarAiSearchPanel");
     if (!input || !panel) return;
 
-    // Enter triggers Gemini AI search
+    // Enter triggers AI search
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();

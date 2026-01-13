@@ -34,6 +34,33 @@ public sealed class GeminiClient
     public Task<string> GenerateForSearchAsync(string query, CancellationToken ct = default)
         => GenerateAsync(query, ct);
 
+    /// <summary>
+    /// Generates an "AI Overview"-style response (definition + key aspects + examples)
+    /// as a strict JSON object so the UI can render it predictably.
+    /// </summary>
+    public async Task<string> GenerateAiOverviewJsonAsync(string query, CancellationToken ct = default)
+    {
+        // We intentionally do NOT ask a follow-up question for ambiguous single-word queries.
+        // Default to the most common meaning and present an overview like Google "AI Overview".
+        var prompt =
+            "Create an AI Overview for the query below. " +
+            "Return ONLY valid JSON with this exact schema (no markdown, no code fences):\n" +
+            "{\n" +
+            "  \"topic\": string,\n" +
+            "  \"overview\": string,\n" +
+            "  \"keyAspects\": string[],\n" +
+            "  \"examples\": string[]\n" +
+            "}\n\n" +
+            "Rules:\n" +
+            "- overview: 1-2 sentences.\n" +
+            "- keyAspects: 3-6 bullets (short phrases).\n" +
+            "- examples: 2-5 bullets.\n" +
+            "- If the query is broad, assume the most common general meaning (do NOT ask clarifying questions).\n\n" +
+            $"Query: {query.Trim()}";
+
+        return await GenerateAsync(prompt, ct);
+    }
+
     public async Task<string> GenerateAsync(string userQuery, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(userQuery))
@@ -48,31 +75,35 @@ public sealed class GeminiClient
         // v1 endpoint fixes the common 404: "model not found for API version v1beta"
         var url = $"https://generativelanguage.googleapis.com/{apiVersion}/models/{Uri.EscapeDataString(model)}:generateContent?key={Uri.EscapeDataString(_opt.ApiKey)}";
 
-        var payload = new
+        // NOTE:
+        // Gemini REST schemas have changed across versions/models and some combinations reject
+        // both "systemInstruction" and "system_instruction" with:
+        //   "Invalid JSON payload received. Unknown name ...: Cannot find field."
+        // To be maximally compatible, we do NOT send a dedicated system instruction field.
+        // Instead, we prepend our instruction text to the user prompt.
+        var sys = (_opt.SystemInstruction ?? string.Empty).Trim();
+        var combinedPrompt = string.IsNullOrEmpty(sys)
+            ? userQuery.Trim()
+            : (sys + "\n\n" + userQuery.Trim());
+
+        var payload = new System.Collections.Generic.Dictionary<string, object?>
         {
-            contents = new object[]
+            ["contents"] = new object[]
             {
                 new
                 {
                     role = "user",
-                    parts = new object[] { new { text = userQuery.Trim() } }
+                    parts = new object[] { new { text = combinedPrompt } }
                 }
             },
-            systemInstruction = new
-            {
-                parts = new object[] { new { text = _opt.SystemInstruction ?? string.Empty } }
-            },
-            generationConfig = new
+            ["generationConfig"] = new
             {
                 temperature = _opt.Temperature,
                 maxOutputTokens = _opt.MaxOutputTokens
             }
         };
 
-        var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+        var json = JsonSerializer.Serialize(payload);
 
         using var req = new HttpRequestMessage(HttpMethod.Post, url)
         {

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using CompeteDesk.Data;
+using CompeteDesk.Services.Gemini;
 using CompeteDesk.Services.OpenAI;
 using CompeteDesk.Services.WebsiteAnalysis;
 using CompeteDesk.Services.BusinessAnalysis;
@@ -8,7 +9,6 @@ using CompeteDesk.Services.WarRoom;
 using CompeteDesk.Services.Ai;
 using CompeteDesk.Services.Habits;
 using CompeteDesk.Services.StrategyCopilot;
-using CompeteDesk.Services.Gemini;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +26,15 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 // ------------------------------------------------------------
 builder.Services.Configure<OpenAiOptions>(builder.Configuration.GetSection("OpenAI"));
 
+// ------------------------------------------------------------
+// Gemini (Topbar AI Search)
+// ------------------------------------------------------------
+builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
+builder.Services.AddHttpClient<GeminiClient>(c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(40);
+});
+
 // HttpClient for site fetches (analysis).
 builder.Services.AddHttpClient("site-analyzer", c =>
 {
@@ -35,15 +44,6 @@ builder.Services.AddHttpClient("site-analyzer", c =>
 
 // HttpClient for OpenAI.
 builder.Services.AddHttpClient<OpenAiChatClient>(c =>
-{
-    c.Timeout = TimeSpan.FromSeconds(40);
-});
-
-
-
-// Gemini (Google AI) - used for Topbar AI Search
-builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
-builder.Services.AddHttpClient<GeminiClient>(c =>
 {
     c.Timeout = TimeSpan.FromSeconds(40);
 });

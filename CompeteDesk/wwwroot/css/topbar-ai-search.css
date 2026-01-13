@@ -53,7 +53,38 @@
   font-size: 14px;
   line-height: 1.55;
   color: var(--cd-text);
-  white-space: pre-wrap;
+  white-space: normal;
+}
+
+.cd-aiSearchPanel__topic{
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 2px 0 6px;
+}
+
+.cd-aiSearchPanel__overview{
+  font-size: 14px;
+  color: var(--cd-text);
+  margin: 0 0 12px;
+}
+
+.cd-aiSearchPanel__sectionTitle{
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  color: var(--cd-muted);
+  text-transform: uppercase;
+  margin: 12px 0 6px;
+}
+
+.cd-aiSearchPanel__list{
+  margin: 0 0 8px 18px;
+  padding: 0;
+}
+
+.cd-aiSearchPanel__list li{
+  margin: 6px 0;
 }
 
 .cd-aiSearchPanel__muted{
