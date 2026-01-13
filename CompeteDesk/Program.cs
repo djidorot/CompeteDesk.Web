@@ -64,6 +64,7 @@ builder.Services
         // unless you implement an email confirmation flow. Keep it simple for now.
         options.SignIn.RequireConfirmedAccount = false;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services
@@ -96,6 +97,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await DbBootstrapper.EnsureCoreTablesAsync(app.Services);
+    await IdentitySeeder.EnsureAdminAsync(scope.ServiceProvider);
 
 }
 
