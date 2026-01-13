@@ -2,6 +2,10 @@
 
 CompeteDesk is a strategic decision-support web application designed to help individuals and teams plan, analyze, and execute competitive strategies using structured frameworks and AI-assisted insights.
 
+## Favorite Quote
+
+> “The best way to predict the future is to invent it.” — Alan Kay
+
 ## Features
 
 - Workspaces for organizing strategic initiatives
