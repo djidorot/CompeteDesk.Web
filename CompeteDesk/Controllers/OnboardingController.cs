@@ -6,6 +6,7 @@ using CompeteDesk.Data;
 using CompeteDesk.Models;
 using CompeteDesk.ViewModels.Onboarding;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +36,25 @@ public class OnboardingController : Controller
         }
 
         return View(new OnboardingViewModel());
+    }
+
+    [HttpGet]
+    public IActionResult Skip(string? returnUrl = null)
+    {
+        // Set a cookie so the onboarding gate lets the user continue.
+        Response.Cookies.Append("cd_onboarding_skipped", "1", new CookieOptions
+        {
+            Expires = DateTimeOffset.UtcNow.AddDays(30),
+            HttpOnly = true,
+            IsEssential = true,
+            SameSite = SameSiteMode.Lax,
+            Secure = Request.IsHttps
+        });
+
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
+
+        return RedirectToAction("Index", "Dashboard");
     }
 
     [HttpPost]
@@ -76,6 +96,10 @@ public class OnboardingController : Controller
         }
 
         await _db.SaveChangesAsync();
+
+        // User completed onboarding; remove any skip cookie.
+        Response.Cookies.Delete("cd_onboarding_skipped");
+
         return RedirectToAction("Index", "Dashboard");
     }
 }

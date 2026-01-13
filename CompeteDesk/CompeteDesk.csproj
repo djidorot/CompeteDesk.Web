@@ -17,7 +17,15 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <!-- Email/SMS Providers -->
+    <PackageReference Include="SendGrid" Version="9.29.3" />
+    <!-- Twilio 7.34.0 is not available on nuget.org anymore; pin to a version that exists -->
+    <PackageReference Include="Twilio" Version="7.14.1" />
   </ItemGroup>
 
 </Project>

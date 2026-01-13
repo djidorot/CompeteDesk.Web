@@ -50,7 +50,7 @@
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary px-4">Continue</button>
-                            <a class="btn btn-outline-secondary" asp-controller="Dashboard" asp-action="Index">Skip for now</a>
+                            <a class="btn btn-outline-secondary" asp-controller="Onboarding" asp-action="Skip" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)">Skip for now</a>
                         </div>
 
                         <p class="text-muted small mt-3 mb-0">

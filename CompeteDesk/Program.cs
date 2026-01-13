@@ -64,7 +64,6 @@ builder.Services
         // unless you implement an email confirmation flow. Keep it simple for now.
         options.SignIn.RequireConfirmedAccount = false;
     })
-    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services
@@ -97,7 +96,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await DbBootstrapper.EnsureCoreTablesAsync(app.Services);
-    await IdentitySeeder.EnsureAdminAsync(scope.ServiceProvider);
 
 }
 
@@ -132,8 +130,12 @@ app.Use(async (context, next) =>
     {
         var path = context.Request.Path;
 
+        // If user explicitly skipped onboarding, allow them to proceed.
+        var onboardingSkipped = context.Request.Cookies.ContainsKey("cd_onboarding_skipped");
+
         // Allow Identity UI, static files, API endpoints, and the onboarding page itself.
-        var skip = path.StartsWithSegments("/Onboarding", StringComparison.OrdinalIgnoreCase)
+        var skip = onboardingSkipped
+                   || path.StartsWithSegments("/Onboarding", StringComparison.OrdinalIgnoreCase)
                    || path.StartsWithSegments("/Identity", StringComparison.OrdinalIgnoreCase)
                    || path.StartsWithSegments("/css", StringComparison.OrdinalIgnoreCase)
                    || path.StartsWithSegments("/js", StringComparison.OrdinalIgnoreCase)
