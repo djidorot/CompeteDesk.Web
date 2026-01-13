@@ -45,17 +45,9 @@
             {
                 roleLabel = "User";
                 var u = await UserManager.GetUserAsync(User);
-                if (u != null)
+                if (u != null && UserManager.SupportsUserRole)
                 {
-                    IList<string> roles = Array.Empty<string>();
-                    try
-                    {
-                        roles = await UserManager.GetRolesAsync(u);
-                    }
-                    catch
-                    {
-                        // Roles are optional; if RoleStore isn't configured, avoid crashing the layout.
-                    }
+                    var roles = await UserManager.GetRolesAsync(u);
                     if (roles != null && roles.Count > 0)
                     {
                         roleLabel = PickRoleLabel(roles);

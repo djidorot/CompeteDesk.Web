@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using CompeteDesk.Data;
 using CompeteDesk.Services.Gemini;
@@ -9,6 +10,7 @@ using CompeteDesk.Services.WarRoom;
 using CompeteDesk.Services.Ai;
 using CompeteDesk.Services.Habits;
 using CompeteDesk.Services.StrategyCopilot;
+using CompeteDesk.Services.Notifications;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,15 +58,24 @@ builder.Services.AddScoped<StrategyCopilotAiService>();
 builder.Services.AddScoped<DecisionTraceService>();
 builder.Services.AddScoped<AiContextPackBuilder>();
 
+// Email/SMS providers
+builder.Services.Configure<SendGridOptions>(builder.Configuration.GetSection("SendGrid"));
+builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();
+
+builder.Services.Configure<TwilioOptions>(builder.Configuration.GetSection("Twilio"));
+builder.Services.AddTransient<TwilioSmsSender>();
+
 // Identity + External Login (Google)
 builder.Services
     .AddDefaultIdentity<IdentityUser>(options =>
     {
         // For consumer apps, requiring confirmed account often blocks external logins
         // unless you implement an email confirmation flow. Keep it simple for now.
-        options.SignIn.RequireConfirmedAccount = false;
+        options.SignIn.RequireConfirmedAccount = true;
     })
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services
     .AddAuthentication()
@@ -130,12 +141,8 @@ app.Use(async (context, next) =>
     {
         var path = context.Request.Path;
 
-        // If user explicitly skipped onboarding, allow them to proceed.
-        var onboardingSkipped = context.Request.Cookies.ContainsKey("cd_onboarding_skipped");
-
         // Allow Identity UI, static files, API endpoints, and the onboarding page itself.
-        var skip = onboardingSkipped
-                   || path.StartsWithSegments("/Onboarding", StringComparison.OrdinalIgnoreCase)
+        var skip = path.StartsWithSegments("/Onboarding", StringComparison.OrdinalIgnoreCase)
                    || path.StartsWithSegments("/Identity", StringComparison.OrdinalIgnoreCase)
                    || path.StartsWithSegments("/css", StringComparison.OrdinalIgnoreCase)
                    || path.StartsWithSegments("/js", StringComparison.OrdinalIgnoreCase)
