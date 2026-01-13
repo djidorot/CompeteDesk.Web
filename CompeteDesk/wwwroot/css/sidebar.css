@@ -18,6 +18,11 @@ body{
   background: var(--cd-bg);
 }
 
+body.cd-has-sidebar{
+  margin-bottom: 0; /* override site.css footer spacing for sidebar pages */
+}
+
+
 .cd-shell{
   display: block;
 }
@@ -35,6 +40,7 @@ body{
 /* Sidebar base */
 .cd-sidebar{
   position: sticky;
+  z-index: 5;
   top: 0;
   height: 100vh;
   padding: 18px 14px;
@@ -231,6 +237,27 @@ body{
   gap: 12px;
 }
 
+.cd-sidebar__auth form{ margin: 0; }
+.cd-sidebar__auth button{ margin: 0; }
+
+/* Footer inside sidebar (under Logout) */
+.cd-sidebar__footer{
+  margin-top: 0;
+  padding-top: 2px;
+  font-size: 12px;
+  color: rgba(15, 23, 42, .62);
+  padding: 0 6px;
+  line-height: 1.25;
+}
+
+.cd-sidebar__footer a{
+  color: inherit;
+}
+
+.cd-sidebar__footer a:hover{
+  color: var(--cd-text);
+}
+
 .cd-sidebar__user{
   display: flex;
   align-items: center;
@@ -282,7 +309,8 @@ body.cd-sidebar-collapsed .cd-sidebar__brandText,
 body.cd-sidebar-collapsed .cd-sidebar__text,
 body.cd-sidebar-collapsed .cd-sidebar__search,
 body.cd-sidebar-collapsed .cd-sidebar__cta,
-body.cd-sidebar-collapsed .cd-sidebar__userMeta{
+body.cd-sidebar-collapsed .cd-sidebar__userMeta,
+body.cd-sidebar-collapsed .cd-sidebar__footer{
   display: none;
 }
 

@@ -1,6 +1,48 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using System.Linq
 @inject UserManager<IdentityUser> UserManager
+
+@functions {
+    // Prefer higher-privilege / more specific roles first.
+    private static string PickRoleLabel(System.Collections.Generic.IList<string> roles)
+    {
+        var priority = new[] { "Admin", "Team Lead", "TeamLead", "Manager", "Owner", "User" };
+
+        foreach (var p in priority)
+        {
+            var hit = roles.FirstOrDefault(r => string.Equals(r, p, System.StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(hit)) return hit;
+        }
+
+        return roles.FirstOrDefault() ?? "User";
+    }
+}
+
+@{
+    // Layout switches
+    var useSidebar = ViewData["UseSidebar"] as bool? == true;
+    var containerClass = (ViewData["LayoutFluid"] as bool? == true ? "container-fluid" : "container");
+
+    // Topbar role label
+    string roleLabel = "Guest";
+
+    if (User?.Identity?.IsAuthenticated == true)
+    {
+        roleLabel = "User";
+        var u = await UserManager.GetUserAsync(User);
+
+        if (u != null && UserManager.SupportsUserRole)
+        {
+            var roles = await UserManager.GetRolesAsync(u);
+            if (roles != null && roles.Count > 0)
+            {
+                roleLabel = PickRoleLabel(roles);
+            }
+        }
+    }
+
+    ViewData["TopbarRoleLabel"] = roleLabel;
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,42 +64,7 @@
         @RenderSection("Styles", required: false)
     </head>
 
-    <body>
-        @{
-            var useSidebar = ViewData["UseSidebar"] as bool? == true;
-            var containerClass = (ViewData["LayoutFluid"] as bool? == true ? "container-fluid" : "container");
-
-            string roleLabel = "Guest";
-
-            static string PickRoleLabel(System.Collections.Generic.IList<string> roles)
-            {
-                // Prefer higher-privilege / more specific roles first.
-                string[] priority = ["Admin", "Team Lead", "TeamLead", "Manager", "Owner", "User"]; 
-                foreach (var p in priority)
-                {
-                    var hit = roles.FirstOrDefault(r => string.Equals(r, p, System.StringComparison.OrdinalIgnoreCase));
-                    if (!string.IsNullOrWhiteSpace(hit)) return hit;
-                }
-                return roles.FirstOrDefault() ?? "User";
-            }
-
-            if (User?.Identity?.IsAuthenticated == true)
-            {
-                roleLabel = "User";
-                var u = await UserManager.GetUserAsync(User);
-                if (u != null && UserManager.SupportsUserRole)
-                {
-                    var roles = await UserManager.GetRolesAsync(u);
-                    if (roles != null && roles.Count > 0)
-                    {
-                        roleLabel = PickRoleLabel(roles);
-                    }
-                }
-            }
-
-            ViewData["TopbarRoleLabel"] = roleLabel;
-        }
-
+    <body class="@(useSidebar ? "cd-has-sidebar" : "")">
         @if (!useSidebar)
         {
             <header>
@@ -65,8 +72,10 @@
                     class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
                     <div class="container-fluid">
                         <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-controller="Home"
-                            asp-action="Index"><img src="~/images/cd-logo.png" alt="CompeteDesk"
-                                style="height:28px;" /><span class="fw-semibold">CompeteDesk</span></a>
+                            asp-action="Index">
+                            <img src="~/images/cd-logo.png" alt="CompeteDesk" style="height:28px;" />
+                            <span class="fw-semibold">CompeteDesk</span>
+                        </a>
 
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                             data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false"
@@ -132,9 +141,12 @@
                                     <circle cx="11" cy="11" r="7"></circle>
                                     <path d="M21 21l-4.3-4.3"></path>
                                 </svg>
-                                <input type="search" id="cdTopbarAiSearch" class="cd-topbar__searchInput" placeholder="Search…"
-                                    aria-label="Top search" data-ai-search-url="/api/ai-search" />
-                                <div id="cdTopbarAiSearchPanel" class="cd-aiSearchPanel" aria-live="polite" aria-label="AI search results" hidden></div>
+
+                                <input type="search" id="cdTopbarAiSearch" class="cd-topbar__searchInput"
+                                    placeholder="Search…" aria-label="Top search" data-ai-search-url="/api/ai-search" />
+
+                                <div id="cdTopbarAiSearchPanel" class="cd-aiSearchPanel" aria-live="polite"
+                                    aria-label="AI search results" hidden></div>
                             </div>
                         </div>
 
@@ -155,6 +167,7 @@
                                         <circle cx="12" cy="8" r="4"></circle>
                                     </svg>
                                 </div>
+
                                 <div class="cd-topbar__meText">
                                     <div class="cd-topbar__meName">@User?.Identity?.Name</div>
                                     <div class="cd-topbar__meSub">@ViewData["TopbarRoleLabel"]</div>
@@ -172,11 +185,16 @@
             </div>
         </div>
 
-        <footer class="border-top footer text-muted">
-            <div class="@(ViewData["LayoutFluid"] as bool? == true ? "container-fluid" : "container")">
-                &copy; 2026 - CompeteDesk - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-            </div>
-        </footer>
+        @* Footer is rendered inside the sidebar for sidebar-layout pages *@
+        @if (!useSidebar)
+        {
+            <footer class="border-top footer text-muted">
+                <div class="@(ViewData["LayoutFluid"] as bool? == true ? "container-fluid" : "container")">
+                    &copy; @DateTime.Now.Year - CompeteDesk -
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </div>
+            </footer>
+        }
 
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
