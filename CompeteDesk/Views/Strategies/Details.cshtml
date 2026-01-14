@@ -1,4 +1,4 @@
-@model CompeteDesk.Models.Strategy
+@model CompeteDesk.ViewModels.Strategies.StrategyDetailsViewModel
 @{
     ViewData["Title"] = "Strategy Details";
     ViewData["LayoutFluid"] = true;
@@ -7,39 +7,42 @@
 
 <link rel="stylesheet" href="~/css/strategies.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/strategies-ai.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/strategy-command-header.css" asp-append-version="true" />
 
 <div class="cd-page">
     <div class="cd-page__head">
         <a class="cd-link" asp-action="Index">← Back to Strategies</a>
-        <h1 class="cd-h1 mb-1">@Model.Name</h1>
-        <div class="cd-sub">@(!string.IsNullOrWhiteSpace(Model.Category) ? Model.Category : "Uncategorized") • @Model.Status • Priority @Model.Priority</div>
+        <h1 class="cd-h1 mb-1">@Model.Strategy.Name</h1>
+        <div class="cd-sub">@(!string.IsNullOrWhiteSpace(Model.Strategy.Category) ? Model.Strategy.Category : "Uncategorized") • @Model.Strategy.Status • Priority @Model.Strategy.Priority</div>
     </div>
+
+    <partial name="_StrategyCommandHeader" model="Model.Header" />
 
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="cd-details">
                 <div class="cd-details__row">
                     <div class="cd-details__label">Core Principle</div>
-                    <div class="cd-details__value">@(!string.IsNullOrWhiteSpace(Model.CorePrinciple) ? Model.CorePrinciple : "—")</div>
+                    <div class="cd-details__value">@(!string.IsNullOrWhiteSpace(Model.Strategy.CorePrinciple) ? Model.Strategy.CorePrinciple : "—")</div>
                 </div>
                 <div class="cd-details__row">
                     <div class="cd-details__label">Summary</div>
-                    <div class="cd-details__value">@(!string.IsNullOrWhiteSpace(Model.Summary) ? Model.Summary : "—")</div>
+                    <div class="cd-details__value">@(!string.IsNullOrWhiteSpace(Model.Strategy.Summary) ? Model.Strategy.Summary : "—")</div>
                 </div>
                 <div class="cd-details__row">
                     <div class="cd-details__label">Source</div>
-                    <div class="cd-details__value">@(!string.IsNullOrWhiteSpace(Model.SourceBook) ? Model.SourceBook : "—")</div>
+                    <div class="cd-details__value">@(!string.IsNullOrWhiteSpace(Model.Strategy.SourceBook) ? Model.Strategy.SourceBook : "—")</div>
                 </div>
                 <div class="cd-details__row">
                     <div class="cd-details__label">Updated</div>
-                    <div class="cd-details__value">@((Model.UpdatedAtUtc ?? Model.CreatedAtUtc).ToLocalTime().ToString("MMM d, yyyy • h:mm tt"))</div>
+                    <div class="cd-details__value">@((Model.Strategy.UpdatedAtUtc ?? Model.Strategy.CreatedAtUtc).ToLocalTime().ToString("MMM d, yyyy • h:mm tt"))</div>
                 </div>
             </div>
 
             <div class="cd-formActions">
-                <a class="btn btn-primary cd-btn" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+                <a class="btn btn-primary cd-btn" asp-action="Edit" asp-route-id="@Model.Strategy.Id">Edit</a>
                 <a class="btn btn-outline-secondary cd-btn" asp-action="Index">Back</a>
-                <a class="btn btn-outline-danger cd-btn ms-auto" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+                <a class="btn btn-outline-danger cd-btn ms-auto" asp-action="Delete" asp-route-id="@Model.Strategy.Id">Delete</a>
             </div>
         </div>
     </div>
@@ -52,17 +55,17 @@
                     <div class="cd-sub">Generate a practical execution plan + counters based on your War Room intel.</div>
                 </div>
                 <div class="cd-ai__meta">
-                    @if (!string.IsNullOrWhiteSpace(Model.AiSummary))
+                    @if (!string.IsNullOrWhiteSpace(Model.Strategy.AiSummary))
                     {
                         <div class="cd-ai__last">
                             <div class="cd-ai__lastTitle">Last run</div>
-                            <div class="cd-ai__lastBody">@Model.AiSummary</div>
+                            <div class="cd-ai__lastBody">@Model.Strategy.AiSummary</div>
                         </div>
                     }
                 </div>
             </div>
 
-            <form class="cd-ai__form" data-strategy-ai-form data-strategy-id="@Model.Id">
+            <form class="cd-ai__form" data-strategy-ai-form data-strategy-id="@Model.Strategy.Id">
                 @Html.AntiForgeryToken()
                 <div class="cd-ai__grid">
                     <div class="cd-field">
@@ -116,7 +119,7 @@
                 <div class="cd-ai__sections" data-ai-sections></div>
             </div>
 
-            <script type="application/json" data-ai-initial>@(Model.AiInsightsJson ?? "")</script>
+            <script type="application/json" data-ai-initial>@(Model.Strategy.AiInsightsJson ?? "")</script>
         </div>
     </div>
 </div>

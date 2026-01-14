@@ -1,0 +1,36 @@
+@model CompeteDesk.ViewModels.Strategies.StrategyCommandHeaderViewModel
+
+<div class="cd-sch card shadow-sm">
+    <div class="card-body cd-sch__body">
+        <div class="cd-sch__left">
+            <div class="cd-sch__label">Workspace</div>
+            <div class="cd-sch__value cd-sch__workspace">@Model.WorkspaceName</div>
+
+            <div class="cd-sch__metaRow">
+                <div class="cd-sch__meta">
+                    <div class="cd-sch__metaLabel">Strategy Type</div>
+                    <div class="cd-sch__metaValue">@Model.StrategyType</div>
+                </div>
+                <div class="cd-sch__meta">
+                    <div class="cd-sch__metaLabel">Active Strategies</div>
+                    <div class="cd-sch__metaValue">@Model.ActiveStrategyCount</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cd-sch__right">
+            <div class="cd-sch__scoreWrap">
+                <div class="cd-sch__label">Strategy Score</div>
+                <div class="cd-sch__score">
+                    <span class="cd-sch__scoreNum">@Model.StrategyScore</span>
+                    <span class="cd-sch__scoreDen">/100</span>
+                </div>
+            </div>
+
+            <div class="cd-sch__statusWrap">
+                <div class="cd-sch__label">Status</div>
+                <div class="cd-sch__badge cd-sch__badge--@Model.StatusKey">@Model.StatusLabel</div>
+            </div>
+        </div>
+    </div>
+</div>

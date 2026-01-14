@@ -332,6 +332,7 @@ CREATE TABLE Strategies (
     CorePrinciple TEXT NULL,
     Summary TEXT NULL,
     Category TEXT NULL,
+    StrategyType TEXT NOT NULL DEFAULT 'Growth',
     Status TEXT NOT NULL,
     Priority INTEGER NOT NULL DEFAULT 0,
     AiInsightsJson TEXT NULL,
@@ -351,6 +352,10 @@ CREATE TABLE Strategies (
                 await EnsureColumnAsync(db, "Strategies", "CorePrinciple", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Strategies", "Summary", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Strategies", "Category", "TEXT", nullable: true);
+                // StrategyType is NON-NULL in the EF model. When adding columns to an existing SQLite DB,
+                // we must add it with NOT NULL + DEFAULT so legacy rows don't end up with NULL and crash
+                // materialization (SqliteValueReader.GetString on NULL).
+                await EnsureColumnAsync(db, "Strategies", "StrategyType", "TEXT", nullable: false, defaultSql: "'Growth'");
                 await EnsureColumnAsync(db, "Strategies", "Status", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Strategies", "Priority", "INTEGER", nullable: true);
                 await EnsureColumnAsync(db, "Strategies", "AiInsightsJson", "TEXT", nullable: true);
@@ -359,6 +364,10 @@ CREATE TABLE Strategies (
                 await EnsureColumnAsync(db, "Strategies", "CreatedAtUtc", "TEXT", nullable: true);
                 await EnsureColumnAsync(db, "Strategies", "UpdatedAtUtc", "TEXT", nullable: true);
             }
+
+            // Backfill legacy rows if the column was previously added as NULL.
+            await db.Database.ExecuteSqlRawAsync(
+                "UPDATE Strategies SET StrategyType = 'Growth' WHERE StrategyType IS NULL OR TRIM(StrategyType) = '';");
 
             await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_Strategies_OwnerId_Status

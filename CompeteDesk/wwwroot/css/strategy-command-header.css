@@ -1,0 +1,134 @@
+/* Strategy Command Header (Hero Section)
+   Purpose: instant battle-readiness awareness */
+
+.cd-sch {
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.cd-sch__body {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    justify-content: space-between;
+}
+
+.cd-sch__left {
+    flex: 1;
+    min-width: 260px;
+}
+
+.cd-sch__right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+    justify-content: center;
+    min-width: 220px;
+}
+
+.cd-sch__label {
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.55);
+    margin-bottom: 4px;
+}
+
+.cd-sch__value {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.cd-sch__workspace {
+    margin-bottom: 12px;
+}
+
+.cd-sch__metaRow {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.cd-sch__meta {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.05);
+    min-width: 160px;
+}
+
+.cd-sch__metaLabel {
+    font-size: 12px;
+    color: rgba(0,0,0,0.55);
+    margin-bottom: 2px;
+}
+
+.cd-sch__metaValue {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.cd-sch__scoreWrap, .cd-sch__statusWrap {
+    width: 100%;
+    max-width: 260px;
+}
+
+.cd-sch__score {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.cd-sch__scoreNum {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.cd-sch__scoreDen {
+    font-size: 14px;
+    color: rgba(0,0,0,0.6);
+}
+
+.cd-sch__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: rgba(0,0,0,0.03);
+}
+
+.cd-sch__badge--OnTrack {
+    background: rgba(25, 135, 84, 0.10);
+    border-color: rgba(25, 135, 84, 0.25);
+}
+
+.cd-sch__badge--AtRisk {
+    background: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.35);
+}
+
+.cd-sch__badge--OffTrack {
+    background: rgba(220, 53, 69, 0.10);
+    border-color: rgba(220, 53, 69, 0.25);
+}
+
+@media (max-width: 768px) {
+    .cd-sch__body {
+        flex-direction: column;
+    }
+
+    .cd-sch__right {
+        align-items: flex-start;
+        min-width: 0;
+    }
+
+    .cd-sch__score {
+        justify-content: flex-start;
+    }
+}

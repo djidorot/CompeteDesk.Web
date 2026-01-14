@@ -46,6 +46,13 @@ public class Strategy
     public string? Category { get; set; }
 
     /// <summary>
+    /// High-level strategy type used for quick “battle readiness” awareness in the UI.
+    /// Values: Offensive | Defensive | Growth | Stability
+    /// </summary>
+    [StringLength(24)]
+    public string StrategyType { get; set; } = "Growth";
+
+    /// <summary>
     /// "Active" | "Archived"
     /// </summary>
     [Required]

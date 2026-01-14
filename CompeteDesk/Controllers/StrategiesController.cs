@@ -13,6 +13,7 @@ using CompeteDesk.Models;
 using CompeteDesk.Services.OpenAI;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CompeteDesk.ViewModels.Strategies;
 
 namespace CompeteDesk.Controllers;
 
@@ -86,10 +87,65 @@ public class StrategiesController : Controller
         ViewData["UseSidebar"] = true;
 
         var userId = await GetUserIdAsync();
-        var item = await _db.Strategies.AsNoTracking()
+        var item = await _db.Strategies
+            .AsNoTracking()
+            .Include(x => x.Workspace)
             .FirstOrDefaultAsync(x => x.Id == id && x.OwnerId == userId);
 
-        return item == null ? NotFound() : View(item);
+        if (item == null) return NotFound();
+
+        // Active strategy count in the same workspace (or across all, if none)
+        var activeCountQuery = _db.Strategies.AsNoTracking()
+            .Where(x => x.OwnerId == userId && x.Status == "Active");
+
+        if (item.WorkspaceId != null)
+        {
+            activeCountQuery = activeCountQuery.Where(x => x.WorkspaceId == item.WorkspaceId);
+        }
+
+        var activeStrategyCount = await activeCountQuery.CountAsync();
+
+        // Score signals (simple & transparent):
+        // - Completeness (0..40)
+        // - Execution via action completion (0..60)
+        var actionsQuery = _db.Actions.AsNoTracking()
+            .Where(a => a.OwnerId == userId && a.StrategyId == item.Id && a.Status != "Archived");
+
+        var totalActions = await actionsQuery.CountAsync();
+        var doneActions = await actionsQuery.CountAsync(a => a.Status == "Done");
+
+        var completeness = 0;
+        if (!string.IsNullOrWhiteSpace(item.CorePrinciple)) completeness += 10;
+        if (!string.IsNullOrWhiteSpace(item.Summary)) completeness += 10;
+        if (!string.IsNullOrWhiteSpace(item.StrategyType)) completeness += 10;
+        if (totalActions > 0) completeness += 10;
+
+        var execution = 0;
+        if (totalActions > 0)
+        {
+            execution = (int)Math.Round(60.0 * doneActions / totalActions);
+        }
+
+        var score = Math.Clamp(completeness + execution, 0, 100);
+
+        var statusKey = score >= 75 ? "OnTrack" : (score >= 45 ? "AtRisk" : "OffTrack");
+
+        var vm = new StrategyDetailsViewModel
+        {
+            Strategy = item,
+            TotalActions = totalActions,
+            DoneActions = doneActions,
+            Header = new StrategyCommandHeaderViewModel
+            {
+                WorkspaceName = item.Workspace?.Name ?? "No Workspace",
+                StrategyType = string.IsNullOrWhiteSpace(item.StrategyType) ? "Growth" : item.StrategyType,
+                ActiveStrategyCount = activeStrategyCount,
+                StrategyScore = score,
+                StatusKey = statusKey
+            }
+        };
+
+        return View(vm);
     }
 
     // GET: /Strategies/Create
@@ -131,6 +187,7 @@ public class StrategiesController : Controller
         model.UpdatedAtUtc = DateTime.UtcNow;
         model.Status = string.IsNullOrWhiteSpace(model.Status) ? "Active" : model.Status;
         model.SourceBook = string.IsNullOrWhiteSpace(model.SourceBook) ? null : model.SourceBook;
+        model.StrategyType = string.IsNullOrWhiteSpace(model.StrategyType) ? "Growth" : model.StrategyType;
 
         if (!ModelState.IsValid) return View(model);
 
@@ -178,6 +235,7 @@ public class StrategiesController : Controller
         item.CorePrinciple = model.CorePrinciple;
         item.Summary = model.Summary;
         item.Category = model.Category;
+        item.StrategyType = string.IsNullOrWhiteSpace(model.StrategyType) ? item.StrategyType : model.StrategyType;
         item.Status = string.IsNullOrWhiteSpace(model.Status) ? item.Status : model.Status;
         item.Priority = model.Priority;
         item.WorkspaceId = model.WorkspaceId;
