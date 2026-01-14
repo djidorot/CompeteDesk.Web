@@ -1,6 +1,7 @@
 /* CompeteDesk Dashboard (MVP UI) */
 .cd-dashboard{
-  padding: 8px 4px;
+  /* Keep consistent with other module "hero" pages (no extra gap under topbar) */
+  padding: 0 4px;
 }
 
 .cd-command{
