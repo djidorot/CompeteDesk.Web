@@ -23,6 +23,10 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<WebsiteAnalysisReport> WebsiteAnalysisReports => Set<WebsiteAnalysisReport>();
     public DbSet<BusinessAnalysisReport> BusinessAnalysisReports => Set<BusinessAnalysisReport>();
     public DbSet<DecisionTrace> DecisionTraces => Set<DecisionTrace>();
+
+    // Metrics & Momentum (user-configurable key metrics)
+    public DbSet<KeyMetricDefinition> KeyMetricDefinitions => Set<KeyMetricDefinition>();
+    public DbSet<KeyMetricEntry> KeyMetricEntries => Set<KeyMetricEntry>();
     public DbSet<Habit> Habits => Set<Habit>();
     public DbSet<HabitCheckin> HabitCheckins => Set<HabitCheckin>();
 
@@ -82,6 +86,31 @@ public class ApplicationDbContext : IdentityDbContext
             b.HasIndex(x => new { x.OwnerId, x.Status });
             b.HasIndex(x => new { x.StrategyId, x.OwnerId });
             b.HasIndex(x => new { x.WorkspaceId, x.OwnerId });
+        });
+
+        builder.Entity<KeyMetricDefinition>(b =>
+        {
+            b.ToTable("KeyMetricDefinitions");
+            b.Property(x => x.OwnerId).IsRequired();
+            b.Property(x => x.Key).IsRequired().HasMaxLength(48);
+            b.Property(x => x.DisplayName).IsRequired().HasMaxLength(80);
+            b.Property(x => x.Unit).IsRequired().HasMaxLength(24);
+            b.HasIndex(x => new { x.OwnerId, x.Key }).IsUnique();
+            b.HasIndex(x => new { x.OwnerId, x.IsEnabled, x.SortOrder });
+        });
+
+        builder.Entity<KeyMetricEntry>(b =>
+        {
+            b.ToTable("KeyMetricEntries");
+            b.Property(x => x.OwnerId).IsRequired();
+            b.Property(x => x.DateUtc).IsRequired();
+            b.Property(x => x.Value).HasColumnType("REAL");
+            b.HasIndex(x => new { x.OwnerId, x.DefinitionId, x.DateUtc }).IsUnique();
+
+            b.HasOne(x => x.Definition)
+                .WithMany()
+                .HasForeignKey(x => x.DefinitionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<UserAiPreferences>(b =>

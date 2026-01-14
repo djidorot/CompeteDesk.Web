@@ -36,6 +36,7 @@ namespace CompeteDesk.Data
             await EnsureWarPlansTableAsync(db);
             await EnsureWebsiteAnalysisReportsTableAsync(db);
             await EnsureBusinessAnalysisReportsTableAsync(db);
+            await EnsureKeyMetricsTablesAsync(db);
             await EnsureHabitsTableAsync(db);
             await EnsureHabitCheckinsTableAsync(db);
             await EnsureUserAiPreferencesTableAsync(db);
@@ -141,6 +142,75 @@ ON WarPlans (OwnerId, Status);");
             await db.Database.ExecuteSqlRawAsync(@"
 CREATE INDEX IF NOT EXISTS IX_WarPlans_WorkspaceId_OwnerId
 ON WarPlans (WorkspaceId, OwnerId);");
+        }
+
+        private static async Task EnsureKeyMetricsTablesAsync(ApplicationDbContext db)
+        {
+            if (!await TableExistsAsync(db, "KeyMetricDefinitions"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE KeyMetricDefinitions (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    OwnerId TEXT NOT NULL,
+    Key TEXT NOT NULL,
+    DisplayName TEXT NOT NULL,
+    Unit TEXT NOT NULL DEFAULT 'number',
+    IsEnabled INTEGER NOT NULL DEFAULT 1,
+    SortOrder INTEGER NOT NULL DEFAULT 0,
+    CreatedAtUtc TEXT NULL,
+    UpdatedAtUtc TEXT NULL
+);");
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "KeyMetricDefinitions", "OwnerId", "TEXT", nullable: false, defaultSql: "''");
+                await EnsureColumnAsync(db, "KeyMetricDefinitions", "Key", "TEXT", nullable: false, defaultSql: "''");
+                await EnsureColumnAsync(db, "KeyMetricDefinitions", "DisplayName", "TEXT", nullable: false, defaultSql: "''");
+                await EnsureColumnAsync(db, "KeyMetricDefinitions", "Unit", "TEXT", nullable: false, defaultSql: "'number'");
+                await EnsureColumnAsync(db, "KeyMetricDefinitions", "IsEnabled", "INTEGER", nullable: false, defaultSql: "1");
+                await EnsureColumnAsync(db, "KeyMetricDefinitions", "SortOrder", "INTEGER", nullable: false, defaultSql: "0");
+                await EnsureColumnAsync(db, "KeyMetricDefinitions", "CreatedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "KeyMetricDefinitions", "UpdatedAtUtc", "TEXT", nullable: true);
+            }
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE UNIQUE INDEX IF NOT EXISTS IX_KeyMetricDefinitions_OwnerId_Key
+ON KeyMetricDefinitions (OwnerId, Key);");
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_KeyMetricDefinitions_OwnerId_Enabled_Order
+ON KeyMetricDefinitions (OwnerId, IsEnabled, SortOrder);");
+
+            if (!await TableExistsAsync(db, "KeyMetricEntries"))
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE KeyMetricEntries (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    DefinitionId INTEGER NOT NULL,
+    OwnerId TEXT NOT NULL,
+    DateUtc TEXT NOT NULL,
+    Value REAL NOT NULL DEFAULT 0,
+    CreatedAtUtc TEXT NULL,
+    UpdatedAtUtc TEXT NULL
+);");
+            }
+            else
+            {
+                await EnsureColumnAsync(db, "KeyMetricEntries", "DefinitionId", "INTEGER", nullable: false, defaultSql: "0");
+                await EnsureColumnAsync(db, "KeyMetricEntries", "OwnerId", "TEXT", nullable: false, defaultSql: "''");
+                await EnsureColumnAsync(db, "KeyMetricEntries", "DateUtc", "TEXT", nullable: false, defaultSql: "'1970-01-01'");
+                await EnsureColumnAsync(db, "KeyMetricEntries", "Value", "REAL", nullable: false, defaultSql: "0");
+                await EnsureColumnAsync(db, "KeyMetricEntries", "CreatedAtUtc", "TEXT", nullable: true);
+                await EnsureColumnAsync(db, "KeyMetricEntries", "UpdatedAtUtc", "TEXT", nullable: true);
+            }
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE UNIQUE INDEX IF NOT EXISTS IX_KeyMetricEntries_Owner_Def_Date
+ON KeyMetricEntries (OwnerId, DefinitionId, DateUtc);");
+
+            await db.Database.ExecuteSqlRawAsync(@"
+CREATE INDEX IF NOT EXISTS IX_KeyMetricEntries_Owner_Date
+ON KeyMetricEntries (OwnerId, DateUtc);");
         }
 
         private static async Task EnsureWorkspacesTableAsync(ApplicationDbContext db)

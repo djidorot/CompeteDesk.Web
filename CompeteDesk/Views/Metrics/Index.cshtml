@@ -8,11 +8,13 @@
     string UrlForTab(string key) => Url.Action("Index", "Metrics", new { tab = key, range = range, from = Model.FromDate, to = Model.ToDate }) ?? "#";
     string UrlForRange(string key) => Url.Action("Index", "Metrics", new { tab = tab, range = key }) ?? "#";
 
-    // Helpers
     string Sign(double v) => v > 0 ? "+" : "";
     string DeltaClass(double v) => v > 0 ? "is-up" : (v < 0 ? "is-down" : "is-flat");
     string FormatPct(double v) => $"{Sign(v)}{v:0.#}%";
-    }
+
+    var infoText = tab == "momentum" ? Model.KeyMetricsInfoText : Model.InfoText;
+}
+
 <link rel="stylesheet" href="~/css/metrics.css" asp-append-version="true" />
 
 <div class="cd-metrics">
@@ -42,7 +44,12 @@
                 <span class="cd-mdate__text">@Model.FromDate – @Model.ToDate</span>
             </button>
 
-            <div class="cd-minfo" title="@Model.InfoText">
+            @if (tab == "momentum")
+            {
+                <button class="cd-btn" type="button" data-open-km-config>Configure</button>
+            }
+
+            <div class="cd-minfo" title="@infoText">
                 <span aria-hidden="true">ⓘ</span>
                 <span class="cd-minfo__txt">Info</span>
             </div>
@@ -50,6 +57,7 @@
     </div>
 
     <nav class="cd-mtabs" aria-label="Metrics tabs">
+        <a class="@TabClass("momentum")" href="@UrlForTab("momentum")">Momentum</a>
         <a class="@TabClass("overview")" href="@UrlForTab("overview")">Overview</a>
         <a class="@TabClass("workspaces")" href="@UrlForTab("workspaces")">Workspaces</a>
         <a class="@TabClass("strategies")" href="@UrlForTab("strategies")">Strategies</a>
@@ -58,146 +66,246 @@
         <a class="@TabClass("ai")" href="@UrlForTab("ai")">AI History</a>
     </nav>
 
-    <section class="cd-kpis">
-@foreach (var kpi in Model.Kpis)
-{
-    <div class="cd-kpi">
-        <div class="cd-kpi__top">
-            <div class="cd-kpi__ico" aria-hidden="true">@kpi.Icon</div>
-            <button class="cd-kpi__more" type="button" aria-label="More">…</button>
-        </div>
-        <div class="cd-kpi__label">@kpi.Label</div>
-        <div class="cd-kpi__value">@kpi.ValueText</div>
-        <div class="cd-kpi__delta @DeltaClass(kpi.DeltaPct)">
-            <span class="cd-kpi__arrow" aria-hidden="true">@(kpi.DeltaPct >= 0 ? "↗" : "↘")</span>
-            <span>@FormatPct(kpi.DeltaPct)</span>
-            <span class="cd-kpi__muted">vs. prior period (new items)</span>
-        </div>
-    </div>
-}
-</section>
+    @if (tab == "momentum")
+    {
+        <section class="cd-kmetrics">
+            <div class="cd-kmetrics__grid">
+                @if (Model.KeyMetrics.Count == 0)
+                {
+                    <div class="cd-muted">No enabled key metrics yet. Click <strong>Configure</strong> to enable metrics.</div>
+                }
+                else
+                {
+                    foreach (var m in Model.KeyMetrics)
+                    {
+                        <div class="cd-kmcard cd-kmcard--@m.Signal">
+                            <div class="cd-kmcard__top">
+                                <div class="cd-kmcard__name">@m.DisplayName</div>
+                                <div class="cd-kmcard__delta @DeltaClass(m.DeltaPct)">
+                                    <span class="cd-kmcard__arrow" aria-hidden="true">@(m.DeltaPct >= 0 ? "↑" : "↓")</span>
+                                    <span>@FormatPct(m.DeltaPct)</span>
+                                </div>
+                            </div>
 
-    <section class="cd-mgrid">
-    <div class="cd-panel">
-        <div class="cd-panel__hdr">
-            <div class="cd-panel__title">@Model.LeftChartTitle <span class="cd-i" title="Based on items created in this period.">i</span></div>
-            <div class="cd-panel__actions">
-                <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
-                <button class="cd-iconbtn" type="button" title="Download">⇩</button>
-                <button class="cd-iconbtn" type="button" title="Open">↗</button>
-            </div>
-        </div>
-        <div class="cd-panel__body">
-            @await Html.PartialAsync("_MetricsChart", new { Points = Model.LeftChartPoints, Labels = Model.LeftChartLabels, Percent = Model.LeftChartPercent })
-        </div>
-    </div>
+                            <div class="cd-kmcard__value">@m.ValueText</div>
 
-    <div class="cd-panel">
-        <div class="cd-panel__hdr">
-            <div class="cd-panel__title">@Model.RightChartTitle <span class="cd-i" title="Based on items created in this period.">i</span></div>
-            <div class="cd-panel__actions">
-                <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
-                <button class="cd-iconbtn" type="button" title="Download">⇩</button>
-                <button class="cd-iconbtn" type="button" title="Open">↗</button>
-            </div>
-        </div>
-        <div class="cd-panel__body">
-            @await Html.PartialAsync("_MetricsChart", new { Points = Model.RightChartPoints, Labels = Model.RightChartLabels, Percent = Model.RightChartPercent })
-        </div>
-    </div>
+                            <div class="cd-kmcard__chart">
+                                @await Html.PartialAsync("_MetricsChartDecimal", new { Points = m.Points, Labels = m.Labels, Percent = m.Percent })
+                            </div>
 
-    <div class="cd-panel">
-        <div class="cd-panel__hdr">
-            <div class="cd-panel__title">@Model.LeftTableTitle</div>
-            <div class="cd-panel__actions">
-                <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
-                <button class="cd-iconbtn" type="button" title="Filter">⟂</button>
-                <button class="cd-iconbtn" type="button" title="Download">⇩</button>
-                <button class="cd-btn" type="button">Explore more</button>
+                            <form class="cd-kmcard__form" method="post" asp-action="AddKeyMetricEntry" asp-controller="Metrics">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="definitionId" value="@m.DefinitionId" />
+                                <input type="hidden" name="range" value="@range" />
+                                <input type="hidden" name="from" value="@Model.FromDate" />
+                                <input type="hidden" name="to" value="@Model.ToDate" />
+
+                                <input class="cd-field__input cd-kmcard__date" type="date" name="date" value="@Model.ToDate" />
+                                <input class="cd-field__input cd-kmcard__val" type="number" step="any" name="value" placeholder="Value" />
+                                <button class="cd-btnprimary" type="submit">Save</button>
+                            </form>
+                        </div>
+                    }
+                }
             </div>
-        </div>
-        <div class="cd-panel__body">
-            <div class="cd-tablewrap">
-                <table class="cd-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th class="cd-ta-r">Total</th>
-                            <th class="cd-ta-r">Change</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.LeftTableRows.Count == 0)
-                        {
-                            <tr><td colspan="3" class="cd-muted">No data in this period.</td></tr>
-                        }
-                        else
-                        {
-                            foreach (var row in Model.LeftTableRows)
-                            {
+        </section>
+
+        <div class="cd-modal" data-km-config-modal hidden>
+            <div class="cd-modal__backdrop" data-close></div>
+            <div class="cd-modal__card" role="dialog" aria-modal="true" aria-label="Configure key metrics">
+                <div class="cd-modal__hdr">
+                    <div class="cd-modal__title">Configure key metrics</div>
+                    <button class="cd-iconbtn" type="button" data-close aria-label="Close">✕</button>
+                </div>
+
+                <form class="cd-modal__body" method="post" asp-controller="Metrics" asp-action="SaveKeyMetricsConfig">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="range" value="@range" />
+                    <input type="hidden" name="from" value="@Model.FromDate" />
+                    <input type="hidden" name="to" value="@Model.ToDate" />
+
+                    <div class="cd-tablewrap">
+                        <table class="cd-table cd-table--compact">
+                            <thead>
                                 <tr>
-                                    <td>@row.Name</td>
-                                    <td class="cd-ta-r">@row.ValueText</td>
-                                    <td class="cd-ta-r">
-                                        <span class="cd-chip @DeltaClass(row.ChangePct)">
-                                            <span class="cd-chip__txt">@FormatPct(row.ChangePct)</span>
-                                        </span>
-                                    </td>
+                                    <th>On</th>
+                                    <th>Metric</th>
+                                    <th>Unit</th>
+                                    <th class="cd-ta-r">Order</th>
                                 </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+                            </thead>
+                            <tbody>
+                                @foreach (var row in Model.KeyMetricConfig)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="enabledIds" value="@row.Id" @(row.IsEnabled ? "checked" : null) />
+                                        </td>
+                                        <td>
+                                            <input class="cd-field__input" type="text" name="name_@row.Id" value="@row.DisplayName" />
+                                            <div class="cd-muted" style="font-size:12px">@row.Key</div>
+                                        </td>
+                                        <td>@row.Unit</td>
+                                        <td class="cd-ta-r" style="width:110px">
+                                            <input class="cd-field__input" type="number" name="order_@row.Id" value="@row.SortOrder" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
 
-    <div class="cd-panel">
-        <div class="cd-panel__hdr">
-            <div class="cd-panel__title">@Model.RightTableTitle</div>
-            <div class="cd-panel__actions">
-                <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
-                <button class="cd-iconbtn" type="button" title="Filter">⟂</button>
-                <button class="cd-iconbtn" type="button" title="Download">⇩</button>
-                <button class="cd-btn" type="button">Explore more</button>
+                    <div class="cd-modal__actions">
+                        <button class="cd-btnlite" type="button" data-close>Cancel</button>
+                        <button class="cd-btnprimary" type="submit">Save changes</button>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="cd-panel__body">
-            <div class="cd-tablewrap">
-                <table class="cd-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th class="cd-ta-r">Total</th>
-                            <th class="cd-ta-r">Change</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.RightTableRows.Count == 0)
-                        {
-                            <tr><td colspan="3" class="cd-muted">No data in this period.</td></tr>
-                        }
-                        else
-                        {
-                            foreach (var row in Model.RightTableRows)
-                            {
+    }
+    else
+    {
+        <section class="cd-kpis">
+            @foreach (var kpi in Model.Kpis)
+            {
+                <div class="cd-kpi">
+                    <div class="cd-kpi__top">
+                        <div class="cd-kpi__ico" aria-hidden="true">@kpi.Icon</div>
+                        <button class="cd-kpi__more" type="button" aria-label="More">…</button>
+                    </div>
+                    <div class="cd-kpi__label">@kpi.Label</div>
+                    <div class="cd-kpi__value">@kpi.ValueText</div>
+                    <div class="cd-kpi__delta @DeltaClass(kpi.DeltaPct)">
+                        <span class="cd-kpi__arrow" aria-hidden="true">@(kpi.DeltaPct >= 0 ? "↗" : "↘")</span>
+                        <span>@FormatPct(kpi.DeltaPct)</span>
+                        <span class="cd-kpi__muted">vs. prior period (new items)</span>
+                    </div>
+                </div>
+            }
+        </section>
+
+        <section class="cd-mgrid">
+            <div class="cd-panel">
+                <div class="cd-panel__hdr">
+                    <div class="cd-panel__title">@Model.LeftChartTitle <span class="cd-i" title="Based on items created in this period.">i</span></div>
+                    <div class="cd-panel__actions">
+                        <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
+                        <button class="cd-iconbtn" type="button" title="Download">⇩</button>
+                        <button class="cd-iconbtn" type="button" title="Open">↗</button>
+                    </div>
+                </div>
+                <div class="cd-panel__body">
+                    @await Html.PartialAsync("_MetricsChart", new { Points = Model.LeftChartPoints, Labels = Model.LeftChartLabels, Percent = Model.LeftChartPercent })
+                </div>
+            </div>
+
+            <div class="cd-panel">
+                <div class="cd-panel__hdr">
+                    <div class="cd-panel__title">@Model.RightChartTitle <span class="cd-i" title="Based on items created in this period.">i</span></div>
+                    <div class="cd-panel__actions">
+                        <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
+                        <button class="cd-iconbtn" type="button" title="Download">⇩</button>
+                        <button class="cd-iconbtn" type="button" title="Open">↗</button>
+                    </div>
+                </div>
+                <div class="cd-panel__body">
+                    @await Html.PartialAsync("_MetricsChart", new { Points = Model.RightChartPoints, Labels = Model.RightChartLabels, Percent = Model.RightChartPercent })
+                </div>
+            </div>
+
+            <div class="cd-panel">
+                <div class="cd-panel__hdr">
+                    <div class="cd-panel__title">@Model.LeftTableTitle</div>
+                    <div class="cd-panel__actions">
+                        <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
+                        <button class="cd-iconbtn" type="button" title="Filter">⟂</button>
+                        <button class="cd-iconbtn" type="button" title="Download">⇩</button>
+                        <button class="cd-btn" type="button">Explore more</button>
+                    </div>
+                </div>
+                <div class="cd-panel__body">
+                    <div class="cd-tablewrap">
+                        <table class="cd-table">
+                            <thead>
                                 <tr>
-                                    <td>@row.Name</td>
-                                    <td class="cd-ta-r">@row.ValueText</td>
-                                    <td class="cd-ta-r">
-                                        <span class="cd-chip @DeltaClass(row.ChangePct)">
-                                            <span class="cd-chip__txt">@FormatPct(row.ChangePct)</span>
-                                        </span>
-                                    </td>
+                                    <th>Name</th>
+                                    <th class="cd-ta-r">Total</th>
+                                    <th class="cd-ta-r">Change</th>
                                 </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                @if (Model.LeftTableRows.Count == 0)
+                                {
+                                    <tr><td colspan="3" class="cd-muted">No data in this period.</td></tr>
+                                }
+                                else
+                                {
+                                    foreach (var row in Model.LeftTableRows)
+                                    {
+                                        <tr>
+                                            <td>@row.Name</td>
+                                            <td class="cd-ta-r">@row.ValueText</td>
+                                            <td class="cd-ta-r">
+                                                <span class="cd-chip @DeltaClass(row.ChangePct)">
+                                                    <span class="cd-chip__txt">@FormatPct(row.ChangePct)</span>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</section>
+
+            <div class="cd-panel">
+                <div class="cd-panel__hdr">
+                    <div class="cd-panel__title">@Model.RightTableTitle</div>
+                    <div class="cd-panel__actions">
+                        <button class="cd-iconbtn" type="button" title="Refresh">⟳</button>
+                        <button class="cd-iconbtn" type="button" title="Filter">⟂</button>
+                        <button class="cd-iconbtn" type="button" title="Download">⇩</button>
+                        <button class="cd-btn" type="button">Explore more</button>
+                    </div>
+                </div>
+                <div class="cd-panel__body">
+                    <div class="cd-tablewrap">
+                        <table class="cd-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th class="cd-ta-r">Total</th>
+                                    <th class="cd-ta-r">Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.RightTableRows.Count == 0)
+                                {
+                                    <tr><td colspan="3" class="cd-muted">No data in this period.</td></tr>
+                                }
+                                else
+                                {
+                                    foreach (var row in Model.RightTableRows)
+                                    {
+                                        <tr>
+                                            <td>@row.Name</td>
+                                            <td class="cd-ta-r">@row.ValueText</td>
+                                            <td class="cd-ta-r">
+                                                <span class="cd-chip @DeltaClass(row.ChangePct)">
+                                                    <span class="cd-chip__txt">@FormatPct(row.ChangePct)</span>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
 
     <div class="cd-modal" data-custom-modal hidden>
         <div class="cd-modal__backdrop" data-close></div>
@@ -231,3 +339,4 @@
 </div>
 
 <script src="~/js/metrics.js" asp-append-version="true"></script>
+<script src="~/js/metrics-momentum.js" asp-append-version="true"></script>

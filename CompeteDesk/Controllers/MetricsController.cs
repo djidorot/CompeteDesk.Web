@@ -84,6 +84,16 @@ public sealed class MetricsController : Controller
         var priorEndUtc = startUtc;
 
         // -------------------------
+        // Metrics & Momentum (Key Metrics)
+        // -------------------------
+        if (selectedTab == "momentum")
+        {
+            var momentumVm = await BuildMomentumViewModelAsync(userId, selectedTab, selectedRange, startUtc, endUtc, priorStartUtc, priorEndUtc, ct);
+            // Render with the same view (Index.cshtml) - it conditionally switches on SelectedTab.
+            return View(momentumVm);
+        }
+
+        // -------------------------
         // Totals (match Dashboard "Overview" concepts)
         // -------------------------
         var totalWorkspaces = await _db.Workspaces.AsNoTracking().CountAsync(w => w.OwnerId == userId, ct);
@@ -429,6 +439,251 @@ public sealed class MetricsController : Controller
     }
 
     // -------------------------
+    // Metrics & Momentum (Key Metrics)
+    // -------------------------
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveKeyMetricsConfig(string? range, string? from, string? to, CancellationToken ct)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrWhiteSpace(userId)) return Challenge();
+
+        var enabledIds = Request.Form["enabledIds"].ToArray()
+            .Select(s => int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var n) ? n : 0)
+            .Where(n => n > 0)
+            .ToHashSet();
+
+        var defs = await _db.KeyMetricDefinitions
+            .Where(d => d.OwnerId == userId)
+            .ToListAsync(ct);
+
+        foreach (var d in defs)
+        {
+            d.IsEnabled = enabledIds.Contains(d.Id);
+
+            var orderKey = $"order_{d.Id}";
+            var nameKey = $"name_{d.Id}";
+            if (int.TryParse(Request.Form[orderKey], NumberStyles.Integer, CultureInfo.InvariantCulture, out var sort))
+                d.SortOrder = sort;
+
+            var newName = (Request.Form[nameKey].ToString() ?? "").Trim();
+            if (!string.IsNullOrWhiteSpace(newName) && newName.Length <= 80)
+                d.DisplayName = newName;
+
+            d.UpdatedAtUtc = DateTime.UtcNow;
+        }
+
+        await _db.SaveChangesAsync(ct);
+
+        return RedirectToAction("Index", new { tab = "momentum", range, from, to });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddKeyMetricEntry(int definitionId, string? date, decimal value, string? range, string? from, string? to, CancellationToken ct)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrWhiteSpace(userId)) return Challenge();
+
+        var def = await _db.KeyMetricDefinitions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(d => d.Id == definitionId && d.OwnerId == userId, ct);
+
+        if (def == null) return NotFound();
+
+        // Store per-day at midnight UTC.
+        DateTime dateUtc = DateTime.UtcNow.Date;
+        if (!string.IsNullOrWhiteSpace(date)
+            && DateTime.TryParseExact(date.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
+        {
+            dateUtc = parsed.ToUniversalTime().Date;
+        }
+
+        var existing = await _db.KeyMetricEntries
+            .FirstOrDefaultAsync(e => e.OwnerId == userId && e.DefinitionId == definitionId && e.DateUtc == dateUtc, ct);
+
+        if (existing == null)
+        {
+            _db.KeyMetricEntries.Add(new KeyMetricEntry
+            {
+                OwnerId = userId,
+                DefinitionId = definitionId,
+                DateUtc = dateUtc,
+                Value = value,
+                CreatedAtUtc = DateTime.UtcNow
+            });
+        }
+        else
+        {
+            existing.Value = value;
+            existing.UpdatedAtUtc = DateTime.UtcNow;
+        }
+
+        await _db.SaveChangesAsync(ct);
+
+        return RedirectToAction("Index", new { tab = "momentum", range, from, to });
+    }
+
+    private async Task<MetricsViewModel> BuildMomentumViewModelAsync(
+        string userId,
+        string selectedTab,
+        string selectedRange,
+        DateTime startUtc,
+        DateTime endUtc,
+        DateTime priorStartUtc,
+        DateTime priorEndUtc,
+        CancellationToken ct)
+    {
+        // Ensure default definitions exist for the user.
+        var hasAny = await _db.KeyMetricDefinitions.AsNoTracking().AnyAsync(d => d.OwnerId == userId, ct);
+        if (!hasAny)
+        {
+            _db.KeyMetricDefinitions.AddRange(new[]
+            {
+                new KeyMetricDefinition { OwnerId = userId, Key = "Revenue", DisplayName = "Revenue", Unit = "currency", IsEnabled = true, SortOrder = 10, CreatedAtUtc = DateTime.UtcNow },
+                new KeyMetricDefinition { OwnerId = userId, Key = "Leads", DisplayName = "Leads", Unit = "number", IsEnabled = true, SortOrder = 20, CreatedAtUtc = DateTime.UtcNow },
+                new KeyMetricDefinition { OwnerId = userId, Key = "ConversionRate", DisplayName = "Conversion Rate", Unit = "percent", IsEnabled = true, SortOrder = 30, CreatedAtUtc = DateTime.UtcNow },
+                new KeyMetricDefinition { OwnerId = userId, Key = "Engagement", DisplayName = "Engagement", Unit = "number", IsEnabled = true, SortOrder = 40, CreatedAtUtc = DateTime.UtcNow },
+                new KeyMetricDefinition { OwnerId = userId, Key = "OutputCount", DisplayName = "Output Count", Unit = "number", IsEnabled = true, SortOrder = 50, CreatedAtUtc = DateTime.UtcNow },
+            });
+            await _db.SaveChangesAsync(ct);
+        }
+
+        var allDefs = await _db.KeyMetricDefinitions.AsNoTracking()
+            .Where(d => d.OwnerId == userId)
+            .OrderBy(d => d.SortOrder)
+            .ThenBy(d => d.DisplayName)
+            .ToListAsync(ct);
+
+        var enabledDefs = allDefs.Where(d => d.IsEnabled).ToList();
+
+        // Buckets (same logic as activity charts)
+        var bucket = GetBucketSpec(startUtc, endUtc, selectedRange);
+        var labels = new List<string>(bucket.Count);
+        var ranges = new List<(DateTime Start, DateTime End)>(bucket.Count);
+        for (int i = 0; i < bucket.Count; i++)
+        {
+            var bStart = startUtc.Add(bucket.Step * i);
+            var bEnd = (i == bucket.Count - 1) ? endUtc : startUtc.Add(bucket.Step * (i + 1));
+            ranges.Add((bStart, bEnd));
+            labels.Add(bucket.Label(bStart));
+        }
+
+        // Pull all entries for enabled metrics in a single query
+        var enabledIds = enabledDefs.Select(d => d.Id).ToList();
+        var entries = await _db.KeyMetricEntries.AsNoTracking()
+            .Where(e => e.OwnerId == userId && enabledIds.Contains(e.DefinitionId) && e.DateUtc >= startUtc && e.DateUtc < endUtc)
+            .Select(e => new { e.DefinitionId, e.DateUtc, e.Value })
+            .ToListAsync(ct);
+
+        // Latest values for delta comparisons
+        var latestByDef = await _db.KeyMetricEntries.AsNoTracking()
+            .Where(e => e.OwnerId == userId && enabledIds.Contains(e.DefinitionId) && e.DateUtc < endUtc)
+            .GroupBy(e => e.DefinitionId)
+            .Select(g => g.OrderByDescending(x => x.DateUtc).Select(x => new { x.DefinitionId, x.Value }).FirstOrDefault())
+            .ToListAsync(ct);
+
+        var priorLatestByDef = await _db.KeyMetricEntries.AsNoTracking()
+            .Where(e => e.OwnerId == userId && enabledIds.Contains(e.DefinitionId) && e.DateUtc >= priorStartUtc && e.DateUtc < priorEndUtc)
+            .GroupBy(e => e.DefinitionId)
+            .Select(g => g.OrderByDescending(x => x.DateUtc).Select(x => new { x.DefinitionId, x.Value }).FirstOrDefault())
+            .ToListAsync(ct);
+
+        var latestMap = latestByDef.Where(x => x != null).ToDictionary(x => x!.DefinitionId, x => x!.Value);
+        var priorLatestMap = priorLatestByDef.Where(x => x != null).ToDictionary(x => x!.DefinitionId, x => x!.Value);
+
+        // Helper: percent delta for decimals
+        static double PctDeltaDec(decimal current, decimal prior)
+        {
+            if (prior <= 0m) return current > 0m ? 100d : 0d;
+            return (double)((current - prior) * 100m / prior);
+        }
+
+        static string SignalOf(double delta)
+        {
+            if (Math.Abs(delta) < 0.1) return "flat";
+            return delta > 0 ? "up" : "down";
+        }
+
+        string FormatValue(string unit, decimal v)
+        {
+            if (unit == "percent") return $"{v:0.#}%";
+            if (unit == "currency")
+            {
+                // Prefer PHP formatting when available (Asia/Manila default), fallback to invariant.
+                try
+                {
+                    var ph = CultureInfo.GetCultureInfo("en-PH");
+                    return string.Format(ph, "{0:C0}", v);
+                }
+                catch
+                {
+                    return v.ToString("N0", CultureInfo.InvariantCulture);
+                }
+            }
+            return v.ToString("N0", CultureInfo.InvariantCulture);
+        }
+
+        var cards = new List<KeyMetricCardViewModel>();
+
+        foreach (var def in enabledDefs)
+        {
+            var defEntries = entries.Where(e => e.DefinitionId == def.Id).OrderBy(e => e.DateUtc).ToList();
+
+            // Build bucket series; use last known value within each bucket, carry-forward from previous.
+            var series = new List<decimal>(ranges.Count);
+            decimal last = 0m;
+            for (int i = 0; i < ranges.Count; i++)
+            {
+                var (bStart, bEnd) = ranges[i];
+                var inBucket = defEntries.Where(e => e.DateUtc >= bStart && e.DateUtc < bEnd).OrderBy(e => e.DateUtc).ToList();
+                if (inBucket.Count > 0)
+                    last = inBucket[^1].Value;
+                series.Add(last);
+            }
+
+            var current = latestMap.TryGetValue(def.Id, out var c) ? c : 0m;
+            var prior = priorLatestMap.TryGetValue(def.Id, out var p) ? p : 0m;
+            var deltaPct = PctDeltaDec(current, prior);
+
+            cards.Add(new KeyMetricCardViewModel
+            {
+                DefinitionId = def.Id,
+                Key = def.Key,
+                DisplayName = string.IsNullOrWhiteSpace(def.DisplayName) ? def.Key : def.DisplayName,
+                Unit = def.Unit,
+                ValueText = FormatValue(def.Unit, current),
+                DeltaPct = deltaPct,
+                Points = series,
+                Labels = labels,
+                Percent = def.Unit == "percent",
+                Signal = SignalOf(deltaPct)
+            });
+        }
+
+        var vm = new MetricsViewModel
+        {
+            SelectedTab = selectedTab,
+            SelectedRange = selectedRange,
+            FromDate = startUtc.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            ToDate = endUtc.AddDays(-1).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+
+            KeyMetrics = cards,
+            KeyMetricConfig = allDefs.Select(d => new KeyMetricConfigRowViewModel
+            {
+                Id = d.Id,
+                Key = d.Key,
+                DisplayName = d.DisplayName,
+                Unit = d.Unit,
+                IsEnabled = d.IsEnabled,
+                SortOrder = d.SortOrder
+            }).ToList()
+        };
+
+        return vm;
+    }
+
+    // -------------------------
     // Helpers
     // -------------------------
     private static double PctDelta(int current, int prior)
@@ -476,4 +731,5 @@ public sealed class MetricsController : Controller
         var step = TimeSpan.FromTicks(total.Ticks / count);
         return new BucketSpec(step, count, dt => dt.ToString("MMM d", CultureInfo.InvariantCulture));
     }
+
 }

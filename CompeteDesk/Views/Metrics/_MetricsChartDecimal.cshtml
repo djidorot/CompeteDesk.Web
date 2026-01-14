@@ -1,0 +1,88 @@
+@using System.Globalization
+@using System.Text
+@{
+    // Anonymous model: new { Points = List<decimal>, Labels = List<string>, Percent = bool? }
+    var pointsProp = ViewData.Model?.GetType().GetProperty("Points");
+    var labelsProp = ViewData.Model?.GetType().GetProperty("Labels");
+    var percentProp = ViewData.Model?.GetType().GetProperty("Percent");
+
+    var points = pointsProp?.GetValue(ViewData.Model) as IEnumerable<decimal> ?? Array.Empty<decimal>();
+    var labels = labelsProp?.GetValue(ViewData.Model) as IEnumerable<string> ?? Array.Empty<string>();
+    var isPercent = (percentProp?.GetValue(ViewData.Model) as bool?) ?? false;
+
+    var pts = points.ToList();
+    var lbls = labels.ToList();
+
+    if (lbls.Count < pts.Count)
+    {
+        while (lbls.Count < pts.Count) lbls.Add("");
+    }
+
+    int n = Math.Max(pts.Count, 1);
+    int width = 900;
+    int height = 240;
+    int pad = 18;
+
+    decimal max = pts.Count == 0 ? 1m : Math.Max(1m, pts.Max());
+    if (isPercent) max = Math.Max(100m, max);
+    if (max == 0m) max = 1m;
+
+    double X(int i) => pad + (n == 1 ? 0 : (width - pad * 2) * (i / (double)(n - 1)));
+    double Y(decimal v) => pad + (height - pad * 2) * (1 - ((double)v / (double)max));
+
+    var sb = new StringBuilder();
+    var sbArea = new StringBuilder();
+
+    if (pts.Count > 0)
+    {
+        sb.Append($"M {X(0):0.##} {Y(pts[0]):0.##} ");
+        for (int i = 1; i < pts.Count; i++)
+            sb.Append($"L {X(i):0.##} {Y(pts[i]):0.##} ");
+
+        sbArea.Append(sb.ToString());
+        sbArea.Append($"L {X(pts.Count - 1):0.##} {height - pad:0.##} ");
+        sbArea.Append($"L {X(0):0.##} {height - pad:0.##} Z");
+    }
+
+    string path = sb.ToString();
+    string area = sbArea.ToString();
+}
+
+<svg class="cd-mchart" viewBox="0 0 900 240" preserveAspectRatio="none" role="img" aria-label="Metrics chart">
+    <defs>
+        <linearGradient id="cdgrad" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-opacity=".22"></stop>
+            <stop offset="100%" stop-opacity="0"></stop>
+        </linearGradient>
+    </defs>
+
+    <g class="cd-mchart__grid" aria-hidden="true">
+        <line x1="18" y1="222" x2="882" y2="222"></line>
+        <line x1="18" y1="165" x2="882" y2="165"></line>
+        <line x1="18" y1="108" x2="882" y2="108"></line>
+        <line x1="18" y1="51" x2="882" y2="51"></line>
+    </g>
+
+    @if (!string.IsNullOrWhiteSpace(area))
+    {
+        <path class="cd-mchart__area" d="@area"></path>
+        <path class="cd-mchart__line" d="@path"></path>
+    }
+    else
+    {
+        @Html.Raw("<text x='450' y='125' text-anchor='middle' class='cd-mchart__empty'>No data</text>")
+    }
+</svg>
+
+<div class="cd-mchart__x">
+    @{
+        var total = lbls.Count;
+        var marks = Math.Min(8, Math.Max(1, total));
+        for (var i = 0; i < marks; i++)
+        {
+            var idx = marks == 1 ? 0 : (int)Math.Round(i * (total - 1) / (double)(marks - 1));
+            var label = idx >= 0 && idx < lbls.Count ? lbls[idx] : "";
+            <span class="cd-mchart__xlabel">@label</span>
+        }
+    }
+</div>
